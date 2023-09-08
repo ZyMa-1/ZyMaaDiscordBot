@@ -12,3 +12,4 @@ What I learned:
 - PathManager is kinda cool to have in all projects, how to create
 - How to terminate one async task when other is finished and obtain the result (assume you have pair of tasks)
 - Api pagitation via Cursor
+- How to perform Async File/Database operations
