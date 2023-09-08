@@ -11,3 +11,4 @@ What I learned:
 - Default help command invokes predicates for no reason
 - PathManager is kinda cool to have in all projects, how to create
 - How to terminate one async task when other is finished and obtain the result (assume you have pair of tasks)
+- Api pagitation via Cursor
