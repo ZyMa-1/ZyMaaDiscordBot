@@ -11,8 +11,5 @@ from src.db_managers.discord_users_data_db_manager import DiscordUsersDataDbMana
 
 
 async def initialize_resources():
-    # Use the imported classes/functions
-    api_utils = ApiUtilsFactory.create_api_instance(*load_credentials())
-    db_manager = DiscordUsersDataDbManager()
-
-    return api_utils, db_manager
+    _API_UTILS = ApiUtilsFactory.create_api_instance(*load_credentials())
+    _DB_MANAGER = DiscordUsersDataDbManager()

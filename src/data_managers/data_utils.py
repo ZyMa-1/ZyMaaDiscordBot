@@ -13,8 +13,6 @@ load_dotenv()
 def load_credentials() -> Tuple[str, str]:
     client_id = os.getenv("OSU_APIV2_CLIENT_ID")
     client_secret = os.getenv("OSU_APIV2_CLIENT_SECRET")
-    with open("temp_check.json", "r") as f:
-        f.writelines([client_id, client_secret])
     return client_id, client_secret
 
 

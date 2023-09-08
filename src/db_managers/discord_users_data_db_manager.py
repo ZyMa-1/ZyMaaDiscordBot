@@ -1,9 +1,10 @@
 import aiosqlite
 
 from src.PathManager import PathManager
+from src.external_stuff import SingletonMeta
 
 
-class DiscordUsersDataDbManager:
+class DiscordUsersDataDbManager(metaclass=SingletonMeta):
     def __init__(self, db_name=PathManager.DISCORD_USERS_DATA_DB_PATH):
         self.db_name = db_name
 

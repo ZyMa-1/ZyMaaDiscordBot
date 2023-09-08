@@ -8,8 +8,11 @@ from ossapi import GameMode
 
 import initialize_project
 from src.api_utils.ApiUtils import ApiUtils
+from src.api_utils.ApiUtilsFactory import ApiUtilsFactory
 from src.data_managers import data_utils
 from src.db_managers.discord_users_data_db_manager import DiscordUsersDataDbManager
+from src.discord_extension_stuff import predicates
+from src.external_stuff.MyHelpCommand import MyHelpCommand
 from src.statistics_managers.BeatmapsetsStatisticManager import BeatmapsetsUserStatisticManager
 
 intents = discord.Intents.default()
@@ -18,7 +21,7 @@ intents.members = True
 intents.presences = True
 
 bot = commands.Bot(command_prefix='^', intents=intents)
-bot.remove_command('help')  # Removing builtin help command
+bot.help_command = MyHelpCommand()
 
 api_utils: ApiUtils | None = None
 db_manager: DiscordUsersDataDbManager | None = None
@@ -32,9 +35,7 @@ async def on_ready():
 @bot.event
 async def on_guild_join(guild):
     # Respond when first entered a server.
-    welcome_message = f"Hellow! I am a mini discord bot which can be used to" \
-                      f"get some user statistic on a certain group of beatmaps by searching them." \
-                      f"You can use `/config` to configure your `user_id` and `game mode`."
+    welcome_message = f"Hellow! I am a mini discord bot made by .zymaa"
     for channel in guild.text_channels:
         if channel.permissions_for(guild.me).send_messages:
             await channel.send(welcome_message)
@@ -43,67 +44,62 @@ async def on_guild_join(guild):
 
 @bot.command(name='test')
 async def test_command(ctx: Context):
+    """
+    Test whether discord bot working or not.
+    """
     response = "test"
     await ctx.send(response)
 
 
-@bot.command(name='help')
-async def help_command(ctx: Context):
-    response = """
-```
-List of commands:
-^test - Test
-
-^help - Get some help
-
-^(пиво, пива, пивасик, пивасика, beer){cnt: int = 1} - The bot will serve you beer emoji
-
-^config_change{osu_used_id: int}{osu_game_mode: str - [osu, catch, mania, taiko]) - Change your config
-
-^config_check - Check your config
-
-^trusted_users - List of users who can use some data operating commands
-
-^get_beatmap_group_grade_stats{query: int} - Get your grade stats on a certain group of beatmapsets, 
-which is obtained by search query like in: https://osu.ppy.sh/beatmapsets
-```
-"""
-    await ctx.reply(response)
-
-
 @bot.command(aliases=['пиво', 'пива', 'пивасик', 'пивасика', 'beer'])
+@commands.check(predicates.check_is_trusted)
 async def beer_command(ctx: Context, cnt: int = 1):
+    """
+    Gives user a beer.
+
+    Parameters:
+    - cnt (int): Number of the beers.
+    """
     response = "Вот ваше пиво месье: " + "🍺" * cnt
     await ctx.reply(response)
 
 
 @bot.command(name='config_change')
+@commands.check(predicates.check_is_trusted)
 async def config_change_command(ctx: Context, osu_user_id: int, osu_game_mode: str):
-    if ctx.author.name not in await data_utils.load_trusted_users():
-        response = "Sorry, but you must have permission to use this command"
+    """
+    Change user's config.
+
+    Parameters:
+    - osu_user_id (int): Number of the beers.
+    - osu_game_mode (str): ['osu', 'taiko', 'catch', 'mania'].
+    """
+    if osu_game_mode not in [mode.value for mode in GameMode]:
+        response = "Sorry, but specified game mode is not valid."
+    elif not api_utils.check_if_user_exists(osu_user_id):
+        response = "Sorry, but user with specified id does not exist."
     else:
-        if osu_game_mode not in [mode.value for mode in GameMode]:
-            response = "Sorry, but specified game mode is not valid."
-        elif not api_utils.check_if_user_exists(osu_user_id):
-            response = "Sorry, but user with specified id does not exist."
-        else:
-            await db_manager.insert_user_info(ctx.author.name, osu_user_id, osu_game_mode)
-            response = f"Successfully changed `osu_user_id` to {osu_user_id} and `osu_game_mode` to {osu_game_mode}"
+        await db_manager.insert_user_info(ctx.author.name, osu_user_id, osu_game_mode)
+        response = f"Successfully changed `osu_user_id` to {osu_user_id} and `osu_game_mode` to {osu_game_mode}"
     await ctx.reply(response)
 
 
 @bot.command(name='config_check')
+@commands.check(predicates.check_is_trusted)
 async def config_check_command(ctx: Context):
-    if ctx.author.name not in await data_utils.load_trusted_users():
-        response = "Sorry, but you must have permission to use this command"
-    else:
-        osu_user_id, osu_game_mode = await db_manager.get_user_info_by_discord_username(ctx.author.name)
-        response = f"Your `{osu_user_id=}` and `{osu_game_mode=}`"
+    """
+    Prints out user's config values.
+    """
+    osu_user_id, osu_game_mode = await db_manager.get_user_info_by_discord_username(ctx.author.name)
+    response = f"Your `{osu_user_id=}` and `{osu_game_mode=}`"
     await ctx.send(response)
 
 
 @bot.command(name='trusted_users')
 async def trusted_users_command(ctx: Context):
+    """
+    Prints out list of trusted users.
+    """
     response = f"Trusted users:\n{', '.join(await data_utils.load_trusted_users())}"
     await ctx.send(response)
 
@@ -117,7 +113,7 @@ async def calculate_beatmap_stats(query: str, osu_user_id: int, osu_game_mode: s
     return beatmapsets_stats
 
 
-async def wait_for_stop_reply(ctx: Context, start_msg: Message, *, timeout: int):
+async def wait_for_reply(ctx: Context, start_msg: Message, *, reply_message_content: str, timeout: int):
     def check_reply(reply_message: Message):
         return (
                 reply_message.author == ctx.author
@@ -127,8 +123,8 @@ async def wait_for_stop_reply(ctx: Context, start_msg: Message, *, timeout: int)
 
     try:
         reply_msg = await bot.wait_for("message", check=check_reply, timeout=timeout)
-        # If the user replied with ^stop, cancel the command
-        if reply_msg.content == "^stop":
+        # If the user replied with `reply_message_content`, cancel the command
+        if reply_msg.content == reply_message_content:
             return True  # Command was cancelled
 
     except asyncio.TimeoutError:
@@ -138,41 +134,43 @@ async def wait_for_stop_reply(ctx: Context, start_msg: Message, *, timeout: int)
 
 
 @bot.command(name='get_beatmap_group_grade_stats')
+@commands.check(predicates.check_is_trusted and predicates.check_is_config_set_up)
 async def get_beatmap_group_stats_command(ctx: Context, query: str):
-    if ctx.author.name not in await data_utils.load_trusted_users():
-        response = "Sorry, but you must have permission to use this command"
-    else:
-        osu_user_id, osu_game_mode = await db_manager.get_user_info(ctx.author.name)
-        if osu_user_id is None or osu_game_mode is None:
-            response = "Sorry, but you must set up the config"
-        else:
-            start_msg = await ctx.send("Calculating...")
-            task1 = asyncio.create_task(calculate_beatmap_stats(query, osu_user_id, osu_game_mode))
-            task2 = asyncio.create_task(wait_for_stop_reply(ctx, start_msg, timeout=3600))
-            done, pending = await asyncio.wait([task1, task2], return_when=asyncio.FIRST_COMPLETED)
+    """
+    Get grade stats on certain group of beatmapsets.
 
-            for task in pending:
-                task.cancel()
+    Parameters:
+    - query (str)   : The search query. Can include filters like ranked<2019.
+    - mode          : Mode from your config by default.
+    """
 
-            response = "Command canceled"
-            for task in done:
-                if task == task1:
-                    beatmapsets_stats: BeatmapsetsUserStatisticManager = task.result()
-                    response = beatmapsets_stats.get_pretty_stats()
+    osu_user_id, osu_game_mode = await db_manager.get_user_info(ctx.author.name)
+    start_msg = await ctx.send("Calculating...")
+    task1 = asyncio.create_task(calculate_beatmap_stats(query, osu_user_id, osu_game_mode))
+    task2 = asyncio.create_task(wait_for_reply(ctx, start_msg, reply_message_content="^stop", timeout=3600))
+    done, pending = await asyncio.wait([task1, task2], return_when=asyncio.FIRST_COMPLETED)
 
-            await start_msg.delete()
+    for task in pending:
+        task.cancel()
+
+    response = "Command canceled"
+    for task in done:
+        if task == task1:
+            beatmapsets_stats: BeatmapsetsUserStatisticManager = task.result()
+            response = beatmapsets_stats.get_pretty_stats()
+
+    await start_msg.delete()
     await ctx.reply(response)
 
 
 async def run_bot():
     global api_utils, db_manager
-    api_utils, db_manager = await initialize_project.initialize_resources()
+    await initialize_project.initialize_resources()
+    api_utils = ApiUtilsFactory.get_api_instance()
+    db_manager = DiscordUsersDataDbManager()
     await db_manager.create_users_table()
     await bot.start(data_utils.load_discord_bot_token())
 
 
 if __name__ == "__main__":
     asyncio.run(run_bot())
-
-# TODO:
-#  Connect git to a server.

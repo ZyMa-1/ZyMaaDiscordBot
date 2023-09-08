@@ -24,7 +24,7 @@ class ApiUtils:
     def __init__(self, client_id, client_secret):
         self.ossapi = Ossapi(client_id, client_secret)
         self.time_period = 1
-        self.max_requests = 5
+        self.max_requests = 2
         self.rate_limiter = RateLimiter(max_requests=self.max_requests, time_period=self.time_period)
 
     def search_all_beatmapsets(self, *args, **kwargs) -> CombinedBeatmapsetSearchResult:
@@ -52,7 +52,7 @@ class ApiUtils:
 
         total_results = []
         while True:
-            while not self.rate_limiter.can_make_request():
+            while not self.rate_limiter.can_make_request():  # bruh the rate limit thing turned out ugly
                 asyncio.sleep(self.time_period)
 
             cur_res = self.ossapi.search_beatmapsets(*args, **kwargs)
@@ -64,7 +64,7 @@ class ApiUtils:
                 return merge_beatmapset_search_results(total_results)
 
     def check_if_user_exists(self, user_id: int) -> bool:
-        while not self.rate_limiter.can_make_request():
+        while not self.rate_limiter.can_make_request():  # bruh the rate limit thing turned out ugly
             asyncio.sleep(self.time_period)
 
         try:
