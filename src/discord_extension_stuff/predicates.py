@@ -2,7 +2,6 @@ from discord.ext.commands import Context
 
 from src.data_managers.data_utils import load_trusted_users
 from src.db_managers.discord_users_data_db_manager import DiscordUsersDataDbManager
-from src.external_stuff.MyHelpCommand import MyHelpCommand
 
 
 async def check_is_trusted(ctx: Context) -> bool:

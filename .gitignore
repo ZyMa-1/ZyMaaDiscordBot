@@ -2,4 +2,5 @@
 .git/
 .env
 venv/
-data/
+data/*
+!data/_keep_alive
