@@ -52,7 +52,6 @@ async def test_command(ctx: Context):
 
 
 @bot.command(aliases=['пиво', 'пива', 'пивасик', 'пивасика', 'beer'])
-@commands.check(predicates.check_is_trusted)
 async def beer_command(ctx: Context, cnt: int = 1):
     """
     Gives user a beer.
@@ -174,3 +173,6 @@ async def run_bot():
 
 if __name__ == "__main__":
     asyncio.run(run_bot())
+
+# TODO:
+#  Add command to add trusted user
