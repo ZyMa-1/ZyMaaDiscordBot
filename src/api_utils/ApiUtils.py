@@ -52,10 +52,13 @@ class ApiUtils:
 
         total_results = []
         while True:
+            print("im in searching")
             while not self.rate_limiter.can_make_request():  # bruh the rate limit thing turned out ugly
                 asyncio.sleep(self.time_period)
 
             cur_res = self.ossapi.search_beatmapsets(*args, **kwargs)
+
+            print("hello im searching")
 
             cursor = cur_res.cursor
             kwargs['cursor'] = cursor

@@ -12,7 +12,7 @@ from src.api_utils.ApiUtilsFactory import ApiUtilsFactory
 from src.data_managers import data_utils
 from src.db_managers.discord_users_data_db_manager import DiscordUsersDataDbManager
 from src.discord_extension_stuff import predicates
-from src.external_stuff.MyHelpCommand import MyHelpCommand
+from src.discord_extension_stuff.MyHelpCommand import MyHelpCommand
 from src.statistics_managers.BeatmapsetsStatisticManager import BeatmapsetsUserStatisticManager
 
 intents = discord.Intents.default()
@@ -99,11 +99,92 @@ async def trusted_users_command(ctx: Context):
     """
     Prints out list of trusted users.
     """
-    response = f"Trusted users:\n{', '.join(await data_utils.load_trusted_users())}"
+    response = f"Trusted users:\n{await data_utils.load_trusted_users(populate=True)}"
     await ctx.send(response)
 
 
-async def calculate_beatmap_stats(query: str, osu_user_id: int, osu_game_mode: str):
+@bot.command(name='admins')
+async def admins_command(ctx: Context):
+    """
+    Prints out list of admin users.
+    """
+    response = f"Admin users:\n{await data_utils.load_admin_users(populate=True)}"
+    await ctx.send(response)
+
+
+@bot.command(name='add_trusted_user')
+@commands.check(predicates.check_is_admin)
+async def add_trusted_user_command(ctx: Context, discord_user_id: int):
+    """
+    Adds trusted user by his Discord ID.
+    """
+    if await check_if_user_exists(ctx, discord_user_id):
+        await data_utils.add_trusted_user(discord_user_id)
+        response = f"User with id:{discord_user_id} added to trusted users."
+        await ctx.send(response)
+        response = f"Trusted users:\n{await data_utils.load_trusted_users(populate=True)}"
+        await ctx.send(response)
+
+
+@bot.command(name='remove_trusted_user')
+@commands.check(predicates.check_is_admin)
+async def remove_trusted_user_command(ctx: Context, discord_user_id: int):
+    """
+    Removes trusted user by his Discord ID.
+    """
+    if await check_if_user_exists(ctx, discord_user_id):
+        await data_utils.remove_trusted_user(discord_user_id)
+        response = f"User with id:{discord_user_id} was removed from trusted users."
+        await ctx.send(response)
+        response = f"Trusted users:\n{await data_utils.load_trusted_users(populate=True)}"
+        await ctx.send(response)
+
+
+@bot.command(name='beatmapsets_stats')
+@commands.check(predicates.check_is_trusted and predicates.check_is_config_set_up)
+async def beatmapsets_stats_command(ctx: Context, query: str):
+    """
+    Get grade stats on certain group of beatmapsets.
+
+    Parameters:
+    - query (str)   : The search query. Can include filters like ranked<2019.
+    - mode          : Mode from your config by default.
+    """
+
+    osu_user_id, osu_game_mode = await db_manager.get_user_info(ctx.author.name)
+    start_msg = await \
+        ctx.send("Calculating...")
+    task1 = asyncio.create_task(calculate_beatmapsets_stats(query, osu_user_id, osu_game_mode))
+    task2 = asyncio.create_task(wait_for_reply(ctx, start_msg, reply_message_content="^stop", timeout=3600))
+    done, pending = await asyncio.wait([task1, task2], return_when=asyncio.FIRST_COMPLETED)
+
+    for task in pending:
+        task.cancel()
+
+    response = "Command canceled"
+    for task in done:
+        if task == task1:
+            beatmapsets_stats: BeatmapsetsUserStatisticManager = task.result()
+            response = beatmapsets_stats.get_pretty_stats()
+
+    await start_msg.delete()
+    await ctx.reply(response)
+
+
+async def check_if_user_exists(ctx: Context, discord_user_id: int) -> bool:
+    """Checks if user with specified discord_id exists."""
+    # Try to fetch the user by their ID
+    user = bot.get_user(discord_user_id)
+
+    if user is None:
+        await ctx.reply(f"User with ID {discord_user_id} does not exist.")
+        return False
+
+    return True
+
+
+async def calculate_beatmapsets_stats(query: str, osu_user_id: int, osu_game_mode: str):
+    """Calculates beatmapsets_stats."""
     combined_beatmapset_search_res = api_utils.search_all_beatmapsets(query, mode=osu_game_mode)
     beatmapsets_stats = BeatmapsetsUserStatisticManager(combined_beatmapset_search_res.beatmapsets,
                                                         osu_user_id,
@@ -112,7 +193,9 @@ async def calculate_beatmap_stats(query: str, osu_user_id: int, osu_game_mode: s
     return beatmapsets_stats
 
 
-async def wait_for_reply(ctx: Context, start_msg: Message, *, reply_message_content: str, timeout: int):
+async def wait_for_reply(ctx: Context, start_msg: Message, *, reply_message_content: str, timeout: int) -> bool:
+    """Waits for the reply on certain message. Returns True if reply happened, False if not."""
+
     def check_reply(reply_message: Message):
         return (
                 reply_message.author == ctx.author
@@ -132,36 +215,6 @@ async def wait_for_reply(ctx: Context, start_msg: Message, *, reply_message_cont
     return False  # Command was not cancelled
 
 
-@bot.command(name='get_beatmap_group_grade_stats')
-@commands.check(predicates.check_is_trusted and predicates.check_is_config_set_up)
-async def get_beatmap_group_stats_command(ctx: Context, query: str):
-    """
-    Get grade stats on certain group of beatmapsets.
-
-    Parameters:
-    - query (str)   : The search query. Can include filters like ranked<2019.
-    - mode          : Mode from your config by default.
-    """
-
-    osu_user_id, osu_game_mode = await db_manager.get_user_info(ctx.author.name)
-    start_msg = await ctx.send("Calculating...")
-    task1 = asyncio.create_task(calculate_beatmap_stats(query, osu_user_id, osu_game_mode))
-    task2 = asyncio.create_task(wait_for_reply(ctx, start_msg, reply_message_content="^stop", timeout=3600))
-    done, pending = await asyncio.wait([task1, task2], return_when=asyncio.FIRST_COMPLETED)
-
-    for task in pending:
-        task.cancel()
-
-    response = "Command canceled"
-    for task in done:
-        if task == task1:
-            beatmapsets_stats: BeatmapsetsUserStatisticManager = task.result()
-            response = beatmapsets_stats.get_pretty_stats()
-
-    await start_msg.delete()
-    await ctx.reply(response)
-
-
 async def run_bot():
     global api_utils, db_manager
     await initialize_project.initialize_resources()
@@ -173,6 +226,3 @@ async def run_bot():
 
 if __name__ == "__main__":
     asyncio.run(run_bot())
-
-# TODO:
-#  Add command to add trusted user
