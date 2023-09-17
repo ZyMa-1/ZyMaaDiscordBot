@@ -1,3 +1,5 @@
+from typing import Tuple
+
 import aiosqlite
 
 from src.PathManager import PathManager
@@ -29,19 +31,7 @@ class DiscordUsersDataDbManager(metaclass=SingletonMeta):
                 (discord_username, osu_user_id, osu_game_mode))
             await db.commit()
 
-    async def get_user_info(self, discord_username: str):
-        async with aiosqlite.connect(self.db_name) as db:
-            cursor = await db.cursor()
-            await cursor.execute('SELECT osu_user_id, osu_game_mode FROM users WHERE discord_username = ?',
-                                 (discord_username,))
-            result = await cursor.fetchone()
-            if result:
-                osu_user_id, osu_game_mode = result
-                return osu_user_id, osu_game_mode
-            else:
-                return None, None
-
-    async def get_user_info_by_discord_username(self, discord_username: str):
+    async def get_user_info(self, discord_username: str) -> Tuple[int, str] | Tuple[None, None]:
         async with aiosqlite.connect(self.db_name) as db:
             cursor = await db.cursor()
             await cursor.execute('SELECT osu_user_id, osu_game_mode FROM users WHERE discord_username = ?',

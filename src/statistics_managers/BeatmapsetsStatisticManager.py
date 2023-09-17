@@ -4,13 +4,13 @@ from typing import Dict, List, Any
 from ossapi import Beatmapset
 from ossapi.enums import Grade
 
-from src.api_utils.ApiUtilsFactory import ApiUtilsFactory
+from src.api_utils.ApiUtils import ApiUtils
 
 
 class BeatmapsetsUserStatisticManager:
     def __init__(self, beatmapsets: List[Beatmapset], user_id: int, game_mode: str):
         self.beatmapsets = beatmapsets
-        self.api_utils = ApiUtilsFactory.get_api_instance()
+        self.api_utils = ApiUtils.get_instance()
         self.user_id = user_id
         self.game_mode = game_mode
         self.beatmap_count = 0

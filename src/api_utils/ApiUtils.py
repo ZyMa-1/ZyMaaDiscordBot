@@ -4,8 +4,9 @@ from typing import List
 from ossapi import Ossapi, BeatmapsetSearchResult
 from ossapi.enums import Grade, BeatmapsetSearchMode
 
-from src.models.BeatmapsetSearchResults import CombinedBeatmapsetSearchResult
+from .models.CombinedBeatmapsetSearchResult import CombinedBeatmapsetSearchResult
 from .RateLimiter import RateLimiter
+from src.external_stuff.metaclasses import SingletonMeta
 
 
 def merge_beatmapset_search_results(results: List[BeatmapsetSearchResult]) -> CombinedBeatmapsetSearchResult:
@@ -20,7 +21,7 @@ def merge_beatmapset_search_results(results: List[BeatmapsetSearchResult]) -> Co
     )
 
 
-class ApiUtils:
+class ApiUtils(metaclass=SingletonMeta):
     def __init__(self, client_id, client_secret):
         self.ossapi = Ossapi(client_id, client_secret)
         self.time_period = 1
