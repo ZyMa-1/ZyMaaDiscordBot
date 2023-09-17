@@ -43,5 +43,3 @@ async def main():
 if __name__ == "__main__":
     asyncio.run(main())
 
-# TODO:
-#  1. Improve help command
