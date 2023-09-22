@@ -11,10 +11,11 @@ from src.discord_extension_stuff.MyHelpCommand import MyHelpCommand
 
 
 async def add_cogs(bot, bot_context):
-    from src.discord_extension_stuff.cogs import FunCog, LogicCog, SetupCog
-    await bot.add_cog(SetupCog(bot_context))
-    await bot.add_cog(FunCog(bot_context))
-    await bot.add_cog(LogicCog(bot_context))
+    import src.discord_extension_stuff.cogs as cogs
+    await bot.add_cog(cogs.SetupCog(bot_context))
+    await bot.add_cog(cogs.FunCog(bot_context))
+    await bot.add_cog(cogs.LogicCog(bot_context))
+    await bot.add_cog(cogs.BeatmapsetsStatsCog(bot_context))
 
 
 async def run_bot(bot):
