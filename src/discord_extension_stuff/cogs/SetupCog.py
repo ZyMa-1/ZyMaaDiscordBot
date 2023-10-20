@@ -1,6 +1,10 @@
+import logging
+
 from discord.ext import commands
 
-from BotContext import BotContext
+from core import BotContext
+
+logger = logging.getLogger()
 
 
 class SetupCog(commands.Cog):
@@ -10,8 +14,8 @@ class SetupCog(commands.Cog):
     @commands.Cog.listener()
     async def on_ready(self):
         for cog_name, cog_class in self.bot.cogs.items():
-            print(f"Loaded cog: {cog_name}")
-        print(f'Logged in as {self.bot.user}')
+            logger.info(f"Loaded cog: {cog_name}")
+        logger.info(f'Logged in as {self.bot.user}')
 
     @commands.Cog.listener()
     async def on_guild_join(self, guild):

@@ -1,39 +1,38 @@
-#  All functions from bot.py that are not commands should be here, but async definitely has other plans
 import asyncio
 
 from discord import Message
 from discord.ext.commands import Context
 
-from BotContext import BotContext
-from src.api_utils.ApiUtils import ApiUtils
-from src.statistics_managers.BeatmapsetsStatisticManager import BeatmapsetsUserStatisticManager
+from factories import UtilsFactory
+from core import BotContext
+from db_managers.data_classes.DbUserInfo import DbUserInfo
+from statistics_managers import BeatmapsetsUserStatisticManager
 
 
 class Extras:
     def __init__(self, bot_context: BotContext):
         self.bot = bot_context.bot
-        self.api_utils = ApiUtils.get_instance()
+        self.osu_api_utils = UtilsFactory.get_osu_api_utils()
 
-    async def check_if_user_exists(self, ctx: Context, discord_user_id: int) -> bool:
-        """Checks if user with specified discord_id exists."""
-        # Try to fetch the user by their ID
-        user = self.bot.get_user(discord_user_id)
+    # async def check_if_user_exists(self, ctx: Context, discord_user_id: int) -> bool:
+    #     """Checks if user with specified discord_id exists."""
+    #     # Try to fetch the user by their ID
+    #     user = self.bot.get_user(discord_user_id)
+    #
+    #     if user is None:
+    #         await ctx.reply(f"User with ID {discord_user_id} does not exist.")
+    #         return False
+    #
+    #     return True
 
-        if user is None:
-            await ctx.reply(f"User with ID {discord_user_id} does not exist.")
-            return False
-
-        return True
-
-    async def calculate_beatmapsets_stats(self, query: str, osu_user_id: int, osu_game_mode: str):
+    async def calculate_beatmapsets_stats(self, query: str, user_info: DbUserInfo):
         """Calculates beatmapsets_stats."""
-        combined_beatmapset_search_res = self.api_utils.search_all_beatmapsets(query, mode=osu_game_mode)
-        beatmapsets_stats = BeatmapsetsUserStatisticManager(combined_beatmapset_search_res.beatmapsets,
-                                                            osu_user_id,
-                                                            osu_game_mode)
-        await beatmapsets_stats.calculate_user_grades_background()
+        combined_beatmapset_search_res = self.osu_api_utils.search_all_beatmapsets(query, mode=user_info.osu_game_mode)
+        beatmapsets_stats = BeatmapsetsUserStatisticManager(combined_beatmapset_search_res.beatmapsets, user_info)
+        await beatmapsets_stats.calculate_user_grades()
         return beatmapsets_stats
 
+    # Meh, function below should work
     async def wait_for_reply(self, ctx: Context, start_msg: Message, *, reply_message_content: str,
                              timeout: int) -> bool:
         """Waits for the reply on certain message. Returns True if reply happened, False if not."""

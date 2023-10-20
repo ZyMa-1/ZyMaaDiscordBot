@@ -4,15 +4,16 @@ from typing import Tuple, List
 
 import aiofiles
 
-from BotContext import BotContext
-from src.PathManager import PathManager
+import my_logging.get_loggers
+from core import PathManager
+
+logger = my_logging.get_loggers.data_utilities_logger()
 
 
 class DataUtils:
-    def __init__(self, bot_context: BotContext):
-        self.bot = bot_context.bot  # for populate function
 
-    async def load_trusted_users(self, populate=False) -> List[Tuple[int, str]] | List[str]:
+    @staticmethod
+    async def load_trusted_users() -> List[int]:
         """
         Returns tuple of discord_user_id and discord_username.
         Discord_username is not stored and obtained on fly.
@@ -20,23 +21,15 @@ class DataUtils:
         async with aiofiles.open(PathManager.TRUSTED_USERS_PATH, "r") as file:
             data = await file.read()
             config_data = json.loads(data)
-            _trusted_users = config_data["trusted_users"]
-            return await self.populate_discord_id_list(_trusted_users) if populate else _trusted_users
+            logger.info(f"load_trusted_users: {config_data['trusted_users']}")
+            return config_data["trusted_users"]
 
-    async def load_admin_users(self, populate=False) -> List[Tuple[int, str]] | List[str]:
+    @staticmethod
+    async def load_admin_users() -> List[int]:
         async with aiofiles.open(PathManager.ADMIN_USERS_PATH, "r") as file:
             data = await file.read()
             config_data = json.loads(data)
-            _admin_users = config_data["admins"]
-            return await self.populate_discord_id_list(_admin_users) if populate else _admin_users
-
-    async def populate_discord_id_list(self, discord_user_id_list: List[int]) -> List[Tuple[int, str]]:
-        """Adds discord username to every list entry."""
-        res = []
-        for user_id in discord_user_id_list:
-            user = await self.bot.fetch_user(user_id)
-            res.append((user_id, user.name))
-        return res
+            return config_data["admins"]
 
     @staticmethod
     async def add_trusted_user(discord_user_id: int):
@@ -64,7 +57,7 @@ class DataUtils:
         return token
 
     @staticmethod
-    def load_credentials() -> Tuple[str, str]:
+    def load_osu_api_credentials() -> Tuple[str, str]:
         client_id = os.getenv("OSU_APIV2_CLIENT_ID")
         client_secret = os.getenv("OSU_APIV2_CLIENT_SECRET")
         return client_id, client_secret

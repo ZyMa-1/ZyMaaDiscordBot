@@ -1,15 +1,46 @@
 # ZyMaaDiscordBot
-Just a bot I made to interact with Osu! Api with a bunch of commands
+[![Python Version](https://img.shields.io/badge/Python-3.10-blue.svg)](https://www.python.org/downloads/release/python-310/)
 
-What I learned:
-- Discord bot events
-- Predicates and checks before a command
-- Async, Await usage
-- Rate limiting requests (kinda silly way)
-- You can attach sync api to async things does not matter
-- Managing some singleton classes in a whole project
+Discord bot with a bunch of cool commands.
+
+## Commands
+
+### Fun
+
+- Test command, that sends `test` message (`^test`)
+- Beer command, that sends user `n` number of beer emojis (`^beer` `<cnt>`)
+
+### Logic
+
+- Config change. Changes the user config variables (`^config_change` `<osu_user_id>` `<osu_game_mode>`)
+- Config checks. Prints out user's config variables (`^config_check`)
+- Trusted users. Prints out a list of discord users, who can use the logic of the bot (`^trusted_users`)
+- Admins. Prints out a list of discord users, who can add/remove trusted users (`^admins`)
+- Add trusted user (`^add_trusted_user <user>`)
+- Remove trusted user (`^remove_trusted_user <user>`)
+
+### OsuApiLogic
+
+- Get a grade stats on a certain group of beatmapsets obtained by query search (`beatmapsets_stats  <query>`)
+
+### Help
+
+- Custom help command (`^help`)
+
+## Settings up the bot
+
+To make the bot run, the following env variables should be there:
+
+```
+DISCORD_BOT_TOKEN=
+OSU_APIV2_CLIENT_ID=
+OSU_APIV2_CLIENT_SECRET=
+```
+
+The Python version should be 3.10 and all the requirements should be satisfied.
+
+---
+
+Annoying stuff stumbled upon developing:
 - Default help command invokes predicates for no reason
-- PathManager is kinda cool to have in all projects, how to create
-- How to terminate one async task when other is finished and obtain the result (assume you have pair of tasks)
-- Api pagitation via Cursor
-- How to perform Async File/Database operations
+- Singleton issues (Factory is much better)

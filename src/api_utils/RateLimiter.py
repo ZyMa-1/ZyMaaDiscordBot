@@ -1,25 +1,24 @@
 import time
+from functools import wraps
 
 
-class RateLimiter:
-    def __init__(self, max_requests, time_period):
-        self.max_requests = max_requests
-        self.time_period = time_period
-        self.tokens = max_requests
-        self.last_refill_time = time.time()
+def rate_limit(max_requests: int, per_seconds: int):
+    def decorator(func):
+        last_request_times = []
 
-    def _refill_tokens(self):
-        current_time = time.time()
-        time_passed = current_time - self.last_refill_time
-        tokens_to_add = int(time_passed / self.time_period)
+        @wraps(func)
+        def wrapper(*args, **kwargs):
+            now = time.time()
+            last_request_times.append(now)
 
-        if tokens_to_add > 0:
-            self.tokens = min(self.max_requests, self.tokens + tokens_to_add)
-            self.last_refill_time = current_time
+            # Prune old request times
+            last_request_times[:] = [t for t in last_request_times if t > now - per_seconds]
 
-    def can_make_request(self):
-        self._refill_tokens()
-        if self.tokens > 0:
-            self.tokens -= 1
-            return True
-        return False
+            if len(last_request_times) > max_requests:
+                time.sleep(last_request_times[0] + per_seconds - now)
+
+            return func(*args, **kwargs)
+
+        return wrapper
+
+    return decorator

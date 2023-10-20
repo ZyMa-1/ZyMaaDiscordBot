@@ -1,12 +1,14 @@
-import asyncio
 from typing import List
 
 from ossapi import Ossapi, BeatmapsetSearchResult
 from ossapi.enums import Grade, BeatmapsetSearchMode
 
+import my_logging.get_loggers
+from db_managers.data_classes.DbUserInfo import DbUserInfo
+from .RateLimiter import rate_limit
 from .models.CombinedBeatmapsetSearchResult import CombinedBeatmapsetSearchResult
-from .RateLimiter import RateLimiter
-from src.external_stuff.metaclasses import SingletonMeta
+
+logger = my_logging.get_loggers.osu_api_logger()
 
 
 def merge_beatmapset_search_results(results: List[BeatmapsetSearchResult]) -> CombinedBeatmapsetSearchResult:
@@ -21,13 +23,11 @@ def merge_beatmapset_search_results(results: List[BeatmapsetSearchResult]) -> Co
     )
 
 
-class ApiUtils(metaclass=SingletonMeta):
+class OsuApiUtils:
     def __init__(self, client_id, client_secret):
         self.ossapi = Ossapi(client_id, client_secret)
-        self.time_period = 1
-        self.max_requests = 2
-        self.rate_limiter = RateLimiter(max_requests=self.max_requests, time_period=self.time_period)
 
+    @rate_limit(max_requests=2, per_seconds=1)
     def search_all_beatmapsets(self, *args, **kwargs) -> CombinedBeatmapsetSearchResult:
         """
         Search for beatmapsets using various criteria.
@@ -53,24 +53,17 @@ class ApiUtils(metaclass=SingletonMeta):
 
         total_results = []
         while True:
-            print("im in searching")
-            while not self.rate_limiter.can_make_request():  # bruh the rate limit thing turned out ugly
-                asyncio.sleep(self.time_period)
-
+            logger.info(f'ossapi.search_beatmapsets: {args=} {kwargs=}')
             cur_res = self.ossapi.search_beatmapsets(*args, **kwargs)
-
-            print("hello im searching")
-
             cursor = cur_res.cursor
             kwargs['cursor'] = cursor
             total_results.append(cur_res)
             if cursor is None or len(cur_res.beatmapsets) == 0 or cur_res.error is not None:
                 return merge_beatmapset_search_results(total_results)
 
+    @rate_limit(max_requests=2, per_seconds=1)
     def check_if_user_exists(self, user_id: int) -> bool:
-        while not self.rate_limiter.can_make_request():  # bruh the rate limit thing turned out ugly
-            asyncio.sleep(self.time_period)
-
+        logger.info(f'ossapi.user: {user_id=}')
         try:
             user = self.ossapi.user(user_id)
         except ValueError:  # User does not exist
@@ -81,11 +74,17 @@ class ApiUtils(metaclass=SingletonMeta):
 
         return False
 
-    def get_user_beatmap_score_grade(self, beatmap_id: int, user_id: int, mode: str) -> Grade | None:
-        print("hello, im calcing grade", beatmap_id, user_id, mode)
+    @rate_limit(max_requests=2, per_seconds=1)
+    def get_user_beatmap_score_grade(self, beatmap_id: int, user_info: DbUserInfo) -> Grade | None:
+        logger.info(f'ossapi.beatmap_user_score: {beatmap_id=} { user_info.osu_user_id=} {user_info.osu_game_mode=}')
         try:
-            beatmap_user_score = self.ossapi.beatmap_user_score(beatmap_id, user_id, mode=mode)
+            beatmap_user_score = self.ossapi.beatmap_user_score(beatmap_id, user_info.osu_user_id,
+                                                                mode=user_info.osu_game_mode)
         except ValueError:  # Score does not exist
             return None
         score_grade = beatmap_user_score.score.rank
         return score_grade
+
+    @rate_limit(max_requests=2, per_seconds=1)
+    def get_user_beatmap_playcount(self, beatmap_id: int, user_id: int, mode: str):
+        pass

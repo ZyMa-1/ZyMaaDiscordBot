@@ -1,12 +1,13 @@
-from typing import Tuple
-
 import aiosqlite
 
-from src.PathManager import PathManager
-from src.external_stuff import SingletonMeta
+import my_logging.get_loggers
+from core import PathManager
+from db_managers.data_classes.DbUserInfo import DbUserInfo
+
+logger = my_logging.get_loggers.database_utilities_logger()
 
 
-class DiscordUsersDataDbManager(metaclass=SingletonMeta):
+class DiscordUsersDataDbManager:
     def __init__(self, db_name=PathManager.DISCORD_USERS_DATA_DB_PATH):
         self.db_name = db_name
 
@@ -15,30 +16,35 @@ class DiscordUsersDataDbManager(metaclass=SingletonMeta):
             cursor = await db.cursor()
             await cursor.execute('''
                 CREATE TABLE IF NOT EXISTS users (
-                    discord_username TEXT PRIMARY KEY,
+                    discord_user_id INTEGER PRIMARY KEY,
                     osu_user_id INTEGER,
                     osu_game_mode TEXT
                 )
             ''')
+            logger.info("create_users_table: Database created")
             await db.commit()
 
-    async def insert_user_info(self, discord_username: str, osu_user_id: int, osu_game_mode: str):
-        print('insert', discord_username, osu_user_id, osu_game_mode)
+    async def insert_user_info(self, user_info: DbUserInfo) -> bool:
+        if not user_info.is_config_set_up():
+            return False
+
         async with aiosqlite.connect(self.db_name) as db:
             cursor = await db.cursor()
             await cursor.execute(
-                'INSERT OR REPLACE INTO users (discord_username, osu_user_id, osu_game_mode) VALUES (?, ?, ?)',
-                (discord_username, osu_user_id, osu_game_mode))
+                'INSERT OR REPLACE INTO users (discord_user_id, osu_user_id, osu_game_mode) VALUES (?, ?, ?)',
+                user_info.as_tuple())
             await db.commit()
 
-    async def get_user_info(self, discord_username: str) -> Tuple[int, str] | Tuple[None, None]:
+            return True
+
+    async def get_user_info(self, discord_user_id: int) -> DbUserInfo:
         async with aiosqlite.connect(self.db_name) as db:
             cursor = await db.cursor()
-            await cursor.execute('SELECT osu_user_id, osu_game_mode FROM users WHERE discord_username = ?',
-                                 (discord_username,))
+            await cursor.execute('SELECT osu_user_id, osu_game_mode FROM users WHERE discord_user_id = ?',
+                                 (discord_user_id,))
             result = await cursor.fetchone()
             if result:
                 osu_user_id, osu_game_mode = result
-                return osu_user_id, osu_game_mode
+                return DbUserInfo(discord_user_id, osu_user_id, osu_game_mode)
             else:
-                return None, None
+                return DbUserInfo(discord_user_id, None, None)

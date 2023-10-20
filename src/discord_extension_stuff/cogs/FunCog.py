@@ -1,7 +1,7 @@
 from discord.ext import commands
 from discord.ext.commands import Context
 
-from BotContext import BotContext
+from core import BotContext
 
 
 class FunCog(commands.Cog):
