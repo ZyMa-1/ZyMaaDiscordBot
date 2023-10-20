@@ -17,6 +17,7 @@ def create_directories():
 async def main():
     # Set the project root first
     PathManager.set_project_root(Path(__file__).resolve().parent.parent)
+    os.chdir(PathManager.PROJECT_ROOT)
 
     # Create directories if there are not there
     create_directories()

@@ -3,8 +3,8 @@ import os
 
 
 def create_log_directories():
-    log_directories = ['../logs', '../logs/root', '../logs/osu_api', '../logs/data_utilities',
-                       '../logs/database_utilities']
+    log_directories = ['logs', 'logs/root', 'logs/osu_api', 'logs/data_utilities',
+                       'logs/database_utilities']
 
     for directory in log_directories:
         os.makedirs(directory, exist_ok=True)
