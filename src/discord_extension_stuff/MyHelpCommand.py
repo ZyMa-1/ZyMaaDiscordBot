@@ -22,14 +22,15 @@ class MyHelpCommand(commands.DefaultHelpCommand):
         for cog, cog_commands in mapping.items():
             if cog:
                 self.paginator.add_line(f'-' * 15)
-                self.paginator.add_line(f'**{cog.qualified_name}**')
+                self.paginator.add_line(f'{cog.qualified_name}')
                 self.paginator.add_line('-' * 15)
 
             for command in cog_commands:
                 self.paginator.add_line('')  # Extra line
                 self.paginator.add_line(self.get_command_signature(command))
-                if command.short_doc:
-                    self.paginator.add_line(command.short_doc)
+                if command.help:
+                    docstring_lines = command.help.split('\n')
+                    self.paginator.add_line(docstring_lines[0])  # Display the first line of the docstring
                 else:
                     self.paginator.add_line("No description available")
 

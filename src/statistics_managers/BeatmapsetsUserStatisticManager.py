@@ -13,7 +13,7 @@ from factories import UtilsFactory
 class BeatmapsetsUserStatisticManager:
     def __init__(self, beatmapsets: List[Beatmapset], user_info: DbUserInfo):
         self.beatmapsets = beatmapsets
-        self.api_utils = UtilsFactory.get_osu_api_utils()
+        self.osu_api_utils = UtilsFactory.get_osu_api_utils()
         self.user_info = user_info
         self.beatmap_count = 0
         self.grades: Dict[Any, int] = {
@@ -31,9 +31,7 @@ class BeatmapsetsUserStatisticManager:
     async def calculate_user_grades(self):
         for beatmapset in self.beatmapsets:
             for beatmap in beatmapset.beatmaps:
-                grade = await asyncio.to_thread(self.api_utils.get_user_beatmap_score_grade,
-                                                beatmap.id,
-                                                self.user_info)
+                grade = await self.osu_api_utils.get_user_beatmap_score_grade(beatmap.id, self.user_info)
                 self.grades[grade] += 1
             self.beatmap_count += len(beatmapset.beatmaps)
 

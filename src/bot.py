@@ -11,7 +11,7 @@ async def add_cogs(bot, bot_context):
     await bot.add_cog(cogs.SetupCog(bot_context))
     await bot.add_cog(cogs.FunCog(bot_context))
     await bot.add_cog(cogs.LogicCog(bot_context))
-    await bot.add_cog(cogs.BeatmapsetsStatsCog(bot_context))
+    await bot.add_cog(cogs.OsuApiLogicCog(bot_context))
 
 
 async def run_bot(bot):

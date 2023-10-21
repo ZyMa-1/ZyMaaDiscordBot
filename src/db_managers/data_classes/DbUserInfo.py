@@ -1,5 +1,6 @@
 import dataclasses
 from dataclasses import dataclass
+from typing import Optional
 
 from ossapi import GameMode
 
@@ -7,8 +8,8 @@ from ossapi import GameMode
 @dataclass
 class DbUserInfo:
     discord_user_id: int
-    osu_user_id: int | None
-    osu_game_mode: str | None
+    osu_user_id: Optional[int]
+    osu_game_mode: Optional[str]
 
     def is_config_set_up(self) -> bool:
         if None in dataclasses.asdict(self).values():

@@ -32,7 +32,7 @@ async def main():
     from factories import UtilsFactory
     await UtilsFactory.create_all_instances()
 
-    # Starting the bot
+    # Starting  the bot
     await bot.main()
 
 

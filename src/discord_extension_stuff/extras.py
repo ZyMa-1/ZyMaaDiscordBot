@@ -3,9 +3,9 @@ import asyncio
 from discord import Message
 from discord.ext.commands import Context
 
-from factories import UtilsFactory
 from core import BotContext
 from db_managers.data_classes.DbUserInfo import DbUserInfo
+from factories import UtilsFactory
 from statistics_managers import BeatmapsetsUserStatisticManager
 
 
@@ -27,7 +27,8 @@ class Extras:
 
     async def calculate_beatmapsets_stats(self, query: str, user_info: DbUserInfo):
         """Calculates beatmapsets_stats."""
-        combined_beatmapset_search_res = self.osu_api_utils.search_all_beatmapsets(query, mode=user_info.osu_game_mode)
+        combined_beatmapset_search_res = await self.osu_api_utils.search_all_beatmapsets(query,
+                                                                                         mode=user_info.osu_game_mode)
         beatmapsets_stats = BeatmapsetsUserStatisticManager(combined_beatmapset_search_res.beatmapsets, user_info)
         await beatmapsets_stats.calculate_user_grades()
         return beatmapsets_stats
@@ -37,20 +38,18 @@ class Extras:
                              timeout: int) -> bool:
         """Waits for the reply on certain message. Returns True if reply happened, False if not."""
 
-        def check_reply(reply_message: Message):
+        def check_reply(msg: Message):
             return (
-                    reply_message.author == ctx.author
-                    and reply_message.channel == ctx.channel
-                    and reply_message.reference.message_id == start_msg.id
+                    msg.author == ctx.author
+                    and msg.channel == ctx.channel
+                    and msg.reference.message_id == start_msg.id
+                    and msg.content.lower() == reply_message_content
             )
 
         try:
-            reply_msg = await self.bot.wait_for("message", check=check_reply, timeout=timeout)
-            # If the user replied with `reply_message_content`, cancel the command
-            if reply_msg.content == reply_message_content:
-                return True  # Command was cancelled
+            await self.bot.wait_for("message", check=check_reply, timeout=timeout)
 
         except asyncio.TimeoutError:
-            pass  # No ^stop reply within the timeout
+            pass  # No stop reply within the timeout
 
         return False  # Command was not cancelled

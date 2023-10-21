@@ -9,7 +9,7 @@ async def check_is_trusted(ctx: Context) -> bool:
     if ctx.author.id in trusted_users:
         return True
     else:
-        await ctx.reply("Sorry, but you must have the permission to use this command")
+        await ctx.reply("Sorry, but you must have the `trusted user` permission to use this command")
         return False
 
 
@@ -18,7 +18,7 @@ async def check_is_admin(ctx: Context) -> bool:
     if ctx.author.id in admins:
         return True
     else:
-        await ctx.reply("Sorry, but you must have the permission to use this command")
+        await ctx.reply(f"Sorry, but you must have the `admin` permission to use this command")
         return False
 
 
