@@ -1,6 +1,6 @@
 from typing import List, Optional, Any
 
-from ossapi import Beatmapset
+from ossapi import Beatmapset, BeatmapsetSearchResult
 
 
 class CombinedBeatmapsetSearchResult:
@@ -19,3 +19,15 @@ class CombinedBeatmapsetSearchResult:
         self.recommended_difficulty = recommended_difficulty
         self.cursor = cursor
         self.cursor_string = cursor_string
+
+    @staticmethod
+    def merge_beatmapset_search_results(results: List[BeatmapsetSearchResult]):
+        return CombinedBeatmapsetSearchResult(
+            beatmapsets=[s for r in results for s in r.beatmapsets],
+            total=sum(r.total for r in results),
+            errors=[r.error for r in results],
+            search=results[0].search,
+            recommended_difficulty=results[0].recommended_difficulty,
+            cursor=None,
+            cursor_string=None
+        )

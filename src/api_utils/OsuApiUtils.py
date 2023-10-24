@@ -11,18 +11,6 @@ from .models.CombinedBeatmapsetSearchResult import CombinedBeatmapsetSearchResul
 logger = my_logging.get_loggers.osu_api_logger()
 
 
-def merge_beatmapset_search_results(results: List[BeatmapsetSearchResult]) -> CombinedBeatmapsetSearchResult:
-    return CombinedBeatmapsetSearchResult(
-        beatmapsets=[s for r in results for s in r.beatmapsets],
-        total=sum(r.total for r in results),
-        errors=[r.error for r in results],
-        search=results[0].search,
-        recommended_difficulty=results[0].recommended_difficulty,
-        cursor=None,
-        cursor_string=None
-    )
-
-
 class OsuApiUtils:
     def __init__(self, client_id, client_secret):
         self.ossapi = OssapiAsync(client_id, client_secret)
@@ -60,7 +48,7 @@ class OsuApiUtils:
             kwargs['cursor'] = cursor
             total_results.append(cur_res)
             if cursor is None or len(cur_res.beatmapsets) == 0 or cur_res.error is not None:
-                return merge_beatmapset_search_results(total_results)
+                return CombinedBeatmapsetSearchResult.merge_beatmapset_search_results(total_results)
 
     async def check_if_user_exists(self, user_id: int) -> bool:
         logger.info(f'{__name__}: {user_id=}')
