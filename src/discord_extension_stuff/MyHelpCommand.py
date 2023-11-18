@@ -21,6 +21,10 @@ class MyHelpCommand(commands.DefaultHelpCommand):
 
         for cog, cog_commands in mapping.items():
             if cog:
+                if len(cog_commands) == 0:
+                    continue
+
+                self.paginator.add_line('')
                 self.paginator.add_line(f'-' * 15)
                 self.paginator.add_line(f'{cog.qualified_name}')
                 self.paginator.add_line('-' * 15)
