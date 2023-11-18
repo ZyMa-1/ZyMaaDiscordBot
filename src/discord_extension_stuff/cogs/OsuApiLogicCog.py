@@ -23,6 +23,7 @@ class OsuApiLogicCog(commands.Cog):
     async def beatmapsets_stats_command(self, ctx: Context, query: str):
         """
         Get grade stats on certain group of beatmapsets.
+        To stop the command, reply 'stop' to the message.
 
         Parameters:
             - query (str)   : The search query. Can include filters like ranked<2019.
@@ -57,6 +58,7 @@ class OsuApiLogicCog(commands.Cog):
     async def beatmap_playcount_slow_command(self, ctx: Context, beatmap_id: int):
         """
         Get user playcount on a beatmap by iterating over all MOST PLAYED beatmaps.
+        To stop the command, reply 'stop' to the message.
 
         Parameters:
             - beatmap_id (int)
