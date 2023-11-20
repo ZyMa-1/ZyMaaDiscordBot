@@ -1,7 +1,9 @@
 # ZyMaaDiscordBot
 [![Python Version](https://img.shields.io/badge/Python-3.10-blue.svg)](https://www.python.org/downloads/release/python-310/)
 
-Discord bot with a bunch of cool commands.
+Discord bot with a bunch of cool commands build around Osu! (the game)
+
+Commands are designed to be nerdy, but not boring, and not easy accessible, so thinking is required.
 
 ## Commands
 
@@ -23,6 +25,7 @@ Discord bot with a bunch of cool commands.
 
 - Get a grade stats on a certain group of beatmapsets obtained by query search (`^beatmapsets_stats` `<query>`)
 - Get user's playcount on a beatmap (`^beatmap_playcount_slow` `<beatmap_id`)
+- Get user's most recent play info (`^most_recent`)
 
 
 
@@ -32,7 +35,7 @@ Discord bot with a bunch of cool commands.
 
 ## Settings up the bot
 
-To make the bot running, the following env variables should be set:
+To make the bot running, the following environment variables should be set (in '.env' file or somewhere else):
 
 ```
 DISCORD_BOT_TOKEN=
@@ -43,7 +46,11 @@ OSU_APIV2_CLIENT_SECRET=
 The Python version should be 3.10 and all the requirements should be satisfied.
 
 ---
+## Funny
 
 Annoying stuff stumbled upon developing:
 - Default help command invokes predicates for no reason
 - Singleton issues (Factory is much better)
+- No obsession pls
+
+---
