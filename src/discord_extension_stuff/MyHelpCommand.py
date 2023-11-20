@@ -25,9 +25,7 @@ class MyHelpCommand(commands.DefaultHelpCommand):
                     continue
 
                 self.paginator.add_line('')
-                self.paginator.add_line(f'-' * 15)
-                self.paginator.add_line(f'{cog.qualified_name}')
-                self.paginator.add_line('-' * 15)
+                self.paginator.add_line(f'{cog.qualified_name}:')
 
             for command in cog_commands:
                 self.paginator.add_line('')  # Extra line
