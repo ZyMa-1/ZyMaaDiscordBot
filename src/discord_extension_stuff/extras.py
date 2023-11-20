@@ -1,5 +1,7 @@
 import asyncio
+from typing import List, Tuple
 
+import discord
 from discord import Message
 from discord.ext.commands import Context
 
@@ -33,7 +35,7 @@ class Extras:
         await beatmapsets_stats.calculate_user_grades()
         return beatmapsets_stats
 
-    # Meh, function below should work
+    # Function below actually works completely fine.
     async def wait_for_reply(self, ctx: Context, start_msg: Message, *, reply_message_content: str,
                              timeout: int) -> bool:
         """Waits for the reply on certain message. Returns True if reply happened, False if not."""
@@ -50,6 +52,24 @@ class Extras:
             await self.bot.wait_for("message", check=check_reply, timeout=timeout)
 
         except asyncio.TimeoutError:
-            pass  # No stop reply within the timeout
+            return False  # Command was not cancelled
 
-        return False  # Command was not cancelled
+        return True
+
+    async def populate_discord_id_list(self, discord_user_id_list: List[int]) -> List[Tuple[int, str]]:
+        """Adds extra info to the `discord_user_id_list` and returns the new list"""
+        user_info_list = []
+
+        for user_id in discord_user_id_list:
+            try:
+                user = await self.bot.fetch_user(user_id)
+                user_info = (user.id, user.name)
+                user_info_list.append(user_info)
+
+            except discord.NotFound:
+                user_info_list.append((user_id, "User not found"))
+
+            except discord.HTTPException:
+                user_info_list.append((user_id, "Error fetching user"))
+
+        return user_info_list
