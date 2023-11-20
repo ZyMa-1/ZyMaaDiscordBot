@@ -36,7 +36,7 @@ class BeatmapsetsUserStatisticManager:
             self.beatmap_count += len(beatmapset.beatmaps)
 
     def get_pretty_stats(self):
-        percent_completion = round(1 - self.grades[None] / self.beatmap_count, 2)
+        percent_completion = round((1 - self.grades[None] / self.beatmap_count) * 100, 2)
         return f"""Silver SS - {self.grades[Grade.SSH]:<10}
 Silver S  - {self.grades[Grade.SH]:<10}
 Just SS   - {self.grades[Grade.SS]:<10}
