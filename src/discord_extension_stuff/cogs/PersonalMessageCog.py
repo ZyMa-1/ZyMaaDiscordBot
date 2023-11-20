@@ -18,4 +18,4 @@ class PersonalMessageCog(commands.Cog):
             if not message.content.startswith(self.bot.command_prefix):
                 await message.channel.send("I do not understand you. Type `^help` for help")
 
-        await self.bot.process_commands(message)
+        # await self.bot.process_commands(message)
