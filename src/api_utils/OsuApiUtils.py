@@ -95,10 +95,10 @@ class OsuApiUtils:
 
             offset += limit
 
-    async def get_user_most_recent_score(self, user_info: DbUserInfo) -> Score:
+    async def get_user_most_recent_score(self, user_info: DbUserInfo) -> Score | None:
         scores: List[Score] = await self.ossapi.user_recent_activity(user_info.osu_user_id,
                                                                      type=ScoreType.RECENT,
                                                                      include_fails=True,
                                                                      mode=user_info.osu_game_mode,
                                                                      limit=1)
-        return scores[0]
+        return scores[0] if scores else None
