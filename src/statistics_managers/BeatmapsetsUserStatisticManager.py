@@ -36,6 +36,7 @@ class BeatmapsetsUserStatisticManager:
             self.beatmap_count += len(beatmapset.beatmaps)
 
     def get_pretty_stats(self):
+        percent_completion = round(1 - self.grades[None] / self.beatmap_count, 2)
         return f"""Silver SS - {self.grades[Grade.SSH]:<10}
 Silver S  - {self.grades[Grade.SH]:<10}
 Just SS   - {self.grades[Grade.SS]:<10}
@@ -43,13 +44,16 @@ Just S    - {self.grades[Grade.S]:<10}
 A         - {self.grades[Grade.A]:<10}
 B         - {self.grades[Grade.B]:<10}
 C         - {self.grades[Grade.C]:<10}
-D(ick)    - {self.grades[Grade.D]:<10}
+D         - {self.grades[Grade.D]:<10}
 No scores - {self.grades[None]:<10}
 ----------------------------------
 Total map count: {self.beatmap_count}
+----------------------------------
+So far {percent_completion}% completion!
 """
 
     def get_grade_distribution_plot(self):
+        # MAKE A PIE PLOT INSTEAD DUDE
         grades = list([str(key.value) if isinstance(key, Grade) else str(key) for key in self.grades.keys()])
         values = list(self.grades.values())
         plt.figure(figsize=(8, 6))
