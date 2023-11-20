@@ -17,7 +17,7 @@ class FunCog(commands.Cog):
         await ctx.send(response)
 
     @commands.command(aliases=['пиво', 'пива', 'пивасик', 'пивасика', 'beer'])
-    async def beer_command(self, ctx: Context, cnt: int = 1):
+    async def beer_command(self, ctx: Context, *, cnt: int = 1):
         """
         Gives user a beer.
 

@@ -20,7 +20,7 @@ class OsuApiLogicCog(commands.Cog):
 
     @commands.command(name='beatmapsets_stats')
     @commands.check(predicates.check_is_trusted and predicates.check_is_config_set_up)
-    async def beatmapsets_stats_command(self, ctx: Context, query: str):
+    async def beatmapsets_stats_command(self, ctx: Context, *, query: str):
         """
         Get grade stats on certain group of beatmapsets.
         To stop the command, reply 'stop' to the message.
@@ -55,7 +55,7 @@ class OsuApiLogicCog(commands.Cog):
 
     @commands.command(name='beatmap_playcount_slow')
     @commands.check(predicates.check_is_trusted and predicates.check_is_config_set_up)
-    async def beatmap_playcount_slow_command(self, ctx: Context, beatmap_id: int):
+    async def beatmap_playcount_slow_command(self, ctx: Context, *, beatmap_id: int):
         """
         Get user playcount on a beatmap by iterating over all MOST PLAYED beatmaps.
         To stop the command, reply 'stop' to the message.
