@@ -1,7 +1,7 @@
 from typing import List
 
-from ossapi import BeatmapsetSearchResult, BeatmapPlaycount, OssapiAsync
-from ossapi.enums import Grade, BeatmapsetSearchMode, UserBeatmapType
+from ossapi import BeatmapsetSearchResult, BeatmapPlaycount, OssapiAsync, Score
+from ossapi.enums import Grade, BeatmapsetSearchMode, UserBeatmapType, ScoreType
 
 import my_logging.get_loggers
 from db_managers.data_classes.DbUserInfo import DbUserInfo
@@ -94,3 +94,11 @@ class OsuApiUtils:
                 return beatmap_playcount.count
 
             offset += limit
+
+    async def get_user_most_recent_score(self, user_info: DbUserInfo) -> Score:
+        scores: List[Score] = await self.ossapi.user_recent_activity(user_info.osu_user_id,
+                                                                     type=ScoreType.RECENT,
+                                                                     include_fails=True,
+                                                                     mode=user_info.osu_game_mode,
+                                                                     limit=1)
+        return scores[0]
