@@ -56,8 +56,8 @@ class Extras:
 
         return True
 
-    async def populate_discord_id_list(self, discord_user_id_list: List[int]) -> List[Tuple[int, str]]:
-        """Adds extra info to the `discord_user_id_list` and returns the new list"""
+    async def populate_discord_id_list(self, discord_user_id_list: List[int]) -> str:
+        """Adds extra info to the `discord_user_id_list` and returns ready to be printed string"""
         user_info_list = []
 
         for user_id in discord_user_id_list:
@@ -72,4 +72,5 @@ class Extras:
             except discord.HTTPException:
                 user_info_list.append((user_id, "Error fetching user"))
 
-        return user_info_list
+        user_info_formatted = '\n'.join([str(item) for item in user_info_list])
+        return user_info_formatted

@@ -28,10 +28,10 @@ class LogicCog(commands.Cog):
             - osu_game_mode (str)   : 'osu', 'catch', 'taiko', 'mania'
         """
         user_info = DbUserInfo(ctx.author.id, osu_user_id, osu_game_mode)
-        if not user_info.is_fields_valid():
+        if not user_info.are_fields_valid():
             response = "Sorry, but specified fields are not valid"
         elif not await self.osu_api_utils.check_if_user_exists(user_info.osu_user_id):
-            response = "Sorry, but osu user with specified id does not exist."
+            response = "Sorry, but osu user with specified id does not exist"
         else:
             await self.db_manager.insert_user_info(user_info)
             response = (f"Successfully changed `osu_user_id` to {user_info.osu_user_id} and `osu_game_mode` to "
@@ -53,7 +53,8 @@ class LogicCog(commands.Cog):
         """
         Prints out trusted users list.
         """
-        response = f"Trusted users:\n{await DataUtils.load_trusted_users()}"
+        data_str = await self.extras.populate_discord_id_list(await DataUtils.load_trusted_users())
+        response = f"Trusted users:\n{data_str}"
         await ctx.send(response)
 
     @commands.command(name='admins')
@@ -61,7 +62,8 @@ class LogicCog(commands.Cog):
         """
         Prints out admins list.
         """
-        response = f"Admin users:\n{await DataUtils.load_admin_users()}"
+        data_str = await self.extras.populate_discord_id_list(await DataUtils.load_admin_users())
+        response = f"Admin users:\n{data_str}"
         await ctx.send(response)
 
     @commands.command(name='add_trusted_user')
@@ -74,9 +76,10 @@ class LogicCog(commands.Cog):
             - user (discord.Member) : Mention of a user (For example @Amogus)
         """
         await DataUtils.add_trusted_user(user.id)
-        response = f"User with id: {user.id} added to trusted users."
+        response = f"User with id: {user.id} added to trusted users"
         await ctx.send(response)
-        response = f"Trusted users:\n{await DataUtils.load_trusted_users()}"
+        data_str = await self.extras.populate_discord_id_list(await DataUtils.load_trusted_users())
+        response = f"Trusted users:\n{data_str}"
         await ctx.send(response)
 
     @commands.command(name='remove_trusted_user')
@@ -89,7 +92,8 @@ class LogicCog(commands.Cog):
             - user (discord.Member) : Mention of a user (For example @Amogus)
         """
         await DataUtils.remove_trusted_user(user.id)
-        response = f"User with id: {user.id} was removed from trusted users."
+        response = f"User with id: {user.id} was removed from trusted users"
         await ctx.send(response)
-        response = f"Trusted users:\n{await DataUtils.load_trusted_users()}"
+        data_str = await self.extras.populate_discord_id_list(await DataUtils.load_trusted_users())
+        response = f"Trusted users:\n{data_str}"
         await ctx.send(response)

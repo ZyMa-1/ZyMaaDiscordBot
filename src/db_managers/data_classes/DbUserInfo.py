@@ -17,7 +17,7 @@ class DbUserInfo:
 
         return True
 
-    def is_fields_valid(self) -> bool:
+    def are_fields_valid(self) -> bool:
         if self.osu_game_mode not in [mode.value for mode in GameMode]:
             return False
 
