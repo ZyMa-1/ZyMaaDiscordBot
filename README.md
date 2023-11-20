@@ -45,6 +45,8 @@ OSU_APIV2_CLIENT_SECRET=
 
 The Python version should be 3.10 and all the requirements should be satisfied.
 
+Starting point of the bot is `start.py`.
+
 ---
 ## Funny
 
