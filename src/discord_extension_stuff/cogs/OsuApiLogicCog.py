@@ -23,7 +23,7 @@ class OsuApiLogicCog(commands.Cog):
     async def beatmapsets_stats_command(self, ctx: Context, *, query: str):
         """
         Get grade stats on certain group of beatmapsets.
-        To stop the command, reply 'stop' to the message.
+        To stop the command, reply 'stop' to the 'Calculating...' message.
 
         Parameters:
             - query (str)   : The search query. Can include filters like ranked<2019.
@@ -31,7 +31,7 @@ class OsuApiLogicCog(commands.Cog):
         """
         user_info = await self.db_manager.get_user_info(ctx.author.id)
         start_msg = await \
-            ctx.send("Calculating...")
+            ctx.send("Calculating... (reply stop to stop)")
         calc_task = asyncio.create_task(self.extras.calculate_beatmapsets_stats(query, user_info))
         wait_for_reply_task = asyncio.create_task(
             self.extras.wait_for_reply(ctx, start_msg, reply_message_content='stop', timeout=3600))
@@ -58,14 +58,14 @@ class OsuApiLogicCog(commands.Cog):
     async def beatmap_playcount_slow_command(self, ctx: Context, *, beatmap_id: int):
         """
         Get user playcount on a beatmap by iterating over all MOST PLAYED beatmaps.
-        To stop the command, reply 'stop' to the message.
+        To stop the command, reply 'stop' to the 'Calculating...' message.
 
         Parameters:
             - beatmap_id (int)
         """
         user_info = await self.db_manager.get_user_info(ctx.author.id)
         start_msg = await \
-            ctx.send("Calculating...")
+            ctx.send("Calculating... (reply stop to stop)")
         calc_task = asyncio.create_task(self.osu_api_utils.get_user_beatmap_playcount(beatmap_id, user_info))
         wait_for_reply_task = asyncio.create_task(
             self.extras.wait_for_reply(ctx, start_msg, reply_message_content='stop', timeout=3600))
@@ -83,3 +83,18 @@ class OsuApiLogicCog(commands.Cog):
         else:
             response = "Command canceled"
             await ctx.reply(response)
+
+    @commands.command(name='most_recent')
+    @commands.check(predicates.check_is_trusted and predicates.check_is_config_set_up)
+    async def most_recent_play_command(self, ctx: Context):
+        """
+        Get user's most recent play.
+        """
+        # Add embed preview here, would be nice
+        user_info = await self.db_manager.get_user_info(ctx.author.id)
+        user_most_recent_score = await self.osu_api_utils.get_user_most_recent_score(user_info)
+        if user_most_recent_score is not None:
+            await ctx.reply(f"It is an {user_most_recent_score.rank.value}, "
+                            f"{round(user_most_recent_score.accuracy * 100, 2)} acc play")
+        else:
+            await ctx.reply("No score")
