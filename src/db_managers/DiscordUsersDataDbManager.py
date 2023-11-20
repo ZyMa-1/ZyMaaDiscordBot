@@ -21,7 +21,7 @@ class DiscordUsersDataDbManager:
                     osu_game_mode TEXT
                 )
             ''')
-            logger.info("create_users_table: Database created")
+            logger.info("create_users_table: Database created (or initialized)")
             await db.commit()
 
     async def insert_user_info(self, user_info: DbUserInfo) -> bool:
