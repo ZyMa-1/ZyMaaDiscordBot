@@ -25,6 +25,8 @@ async def main():
     intents.presences = True
 
     bot = commands.Bot(command_prefix='^', intents=intents)
+
+    # Overwriting default help command
     bot.help_command = MyHelpCommand()
 
     await add_cogs(bot, BotContext(bot))
