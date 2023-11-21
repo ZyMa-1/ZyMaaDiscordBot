@@ -46,7 +46,7 @@ class OsuApiLogicCog(commands.Cog):
             beatmapsets_stats: BeatmapsetsUserStatisticManager = calc_task.result()
             response = beatmapsets_stats.get_pretty_stats()
             await ctx.reply(response)
-            image_bytes = beatmapsets_stats.get_grade_distribution_plot()
+            image_bytes = beatmapsets_stats.get_bar_plot()
             image_file = discord.File(fp=image_bytes, filename=f"grade_distribution.png")
             await ctx.reply(file=image_file)
         else:
