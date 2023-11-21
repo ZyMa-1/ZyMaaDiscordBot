@@ -16,8 +16,8 @@ class BeatmapsetsUserStatisticManager:
         self.osu_api_utils = UtilsFactory.get_osu_api_utils()
         self.user_info = user_info
 
-        self.beatmap_count = 0
-        self.percent_completion = 0
+        self.beatmap_count: int = 0
+        self.percent_completion: float = 0
         self.is_calculated = False
         self.grades: Dict[Any, int] = {
             Grade.SSH: 0,

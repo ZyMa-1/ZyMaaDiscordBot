@@ -1,4 +1,5 @@
 import asyncio
+from asyncio import Task
 from typing import List, Tuple
 
 import discord
@@ -56,7 +57,7 @@ class Extras:
 
         return True
 
-    async def populate_discord_id_list(self, discord_user_id_list: List[int]) -> str:
+    async def format_discord_id_list(self, discord_user_id_list: List[int]) -> str:
         """Adds extra info to the `discord_user_id_list` and returns ready to be printed string"""
         user_info_list = []
 
@@ -74,3 +75,26 @@ class Extras:
 
         user_info_formatted = '\n'.join([str(item) for item in user_info_list])
         return user_info_formatted
+
+    async def wait_till_task_complete(self, ctx: Context, *, calc_task: Task) -> bool:
+        """
+        Creates a task that can be terminated be a discord user.
+        Handles interaction between discord user and bot.
+        Returns true if the task was completed, false otherwise.
+        """
+        start_msg = await ctx.send("Calculating... (reply stop to stop)")
+        wait_for_reply_task = asyncio.create_task(
+            self.wait_for_reply(ctx, start_msg, reply_message_content='stop', timeout=3600))
+        done, pending = await asyncio.wait([calc_task, wait_for_reply_task], return_when=asyncio.FIRST_COMPLETED)
+
+        await start_msg.delete()
+
+        for task in pending:
+            task.cancel()
+
+        if calc_task in done:
+            return True
+        else:
+            response = "Command canceled"
+            await ctx.reply(response)
+            return False

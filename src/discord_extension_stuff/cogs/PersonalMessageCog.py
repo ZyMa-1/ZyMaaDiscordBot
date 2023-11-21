@@ -15,7 +15,7 @@ class PersonalMessageCog(commands.Cog):
             return
 
         if isinstance(message.channel, discord.DMChannel):
-            if not message.content.startswith(self.bot.command_prefix):
+            if not message.content.startswith(self.bot.command_prefix) and not message.reference:
                 await message.channel.send("I do not understand you. Type `^help` for help")
 
         # await self.bot.process_commands(message)

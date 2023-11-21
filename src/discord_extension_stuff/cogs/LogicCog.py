@@ -53,7 +53,7 @@ class LogicCog(commands.Cog):
         """
         Prints out trusted users list.
         """
-        data_str = await self.extras.populate_discord_id_list(await DataUtils.load_trusted_users())
+        data_str = await self.extras.format_discord_id_list(await DataUtils.load_trusted_users())
         response = f"Trusted users:\n{data_str}"
         await ctx.send(response)
 
@@ -62,7 +62,7 @@ class LogicCog(commands.Cog):
         """
         Prints out admins list.
         """
-        data_str = await self.extras.populate_discord_id_list(await DataUtils.load_admin_users())
+        data_str = await self.extras.format_discord_id_list(await DataUtils.load_admin_users())
         response = f"Admin users:\n{data_str}"
         await ctx.send(response)
 
@@ -78,7 +78,7 @@ class LogicCog(commands.Cog):
         await DataUtils.add_trusted_user(user.id)
         response = f"User with id: {user.id} added to trusted users"
         await ctx.send(response)
-        data_str = await self.extras.populate_discord_id_list(await DataUtils.load_trusted_users())
+        data_str = await self.extras.format_discord_id_list(await DataUtils.load_trusted_users())
         response = f"Trusted users:\n{data_str}"
         await ctx.send(response)
 
@@ -94,6 +94,6 @@ class LogicCog(commands.Cog):
         await DataUtils.remove_trusted_user(user.id)
         response = f"User with id: {user.id} was removed from trusted users"
         await ctx.send(response)
-        data_str = await self.extras.populate_discord_id_list(await DataUtils.load_trusted_users())
+        data_str = await self.extras.format_discord_id_list(await DataUtils.load_trusted_users())
         response = f"Trusted users:\n{data_str}"
         await ctx.send(response)
