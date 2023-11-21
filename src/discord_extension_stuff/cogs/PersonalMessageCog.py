@@ -1,6 +1,5 @@
 import discord
 from discord.ext import commands
-from discord.ext.commands import Context
 
 from core import BotContext
 
@@ -16,6 +15,7 @@ class PersonalMessageCog(commands.Cog):
 
         if isinstance(message.channel, discord.DMChannel):
             if not message.content.startswith(self.bot.command_prefix) and not message.reference:
-                await message.channel.send("I do not understand you. Type `^help` for help")
+                await message.channel.send(
+                    f"I do not understand you. Type `{str(self.bot.command_prefix)}help` for help")
 
         # await self.bot.process_commands(message)
