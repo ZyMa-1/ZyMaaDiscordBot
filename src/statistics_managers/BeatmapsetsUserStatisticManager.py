@@ -101,3 +101,32 @@ So far {self.percent_completion}% completion!
         plt.close()
 
         return plot_bytes
+
+    def get_pie_plot(self):
+        grades = []
+        values = []
+        colors = []
+        for key, value in self.grades.items():
+            if key is not None:
+                grades.append(str(key.value))
+                values.append(value)
+                colors.append(self.grade_colors[key])
+
+        plt.figure(figsize=(8, 6))
+
+        # Create pie chart
+        plt.pie(values, labels=grades, colors=colors, autopct='%1.1f%%', startangle=140)
+
+        # Add note on 'None' scores
+        none_scores = self.grades.get(None, 0)
+        plt.text(-0.2, -0.8, f"*No scores: {none_scores}", transform=plt.gcf().transFigure)
+
+        plt.title("Grade Distribution")
+
+        plot_bytes = io.BytesIO()
+        plt.savefig(plot_bytes, format="png")
+        plot_bytes.seek(0)
+
+        plt.close()
+
+        return plot_bytes
