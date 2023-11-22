@@ -29,7 +29,7 @@ async def main():
     bot = commands.Bot(command_prefix='^', intents=intents)
 
     # Overwriting default help command
-    bot.help_command = MyHelpCommand()
+    bot.help_command = MyHelpCommand(verify_checks=False)  # IDK about that
 
     await add_cogs(bot, BotContext(bot))
     await run_bot(bot)
