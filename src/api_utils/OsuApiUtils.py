@@ -41,7 +41,8 @@ class OsuApiUtils:
 
         total_results = []
         while True:
-            logger.info(f'{__name__}: {args=} {kwargs=}')
+            logger.info(f'{__name__}: {args=} {kwargs=}',
+                        extra={'tokens_spent': 1.0})
             await self.rate_limiter.wait_for_request(tokens_required=1.0)
             cur_res = await self.ossapi.search_beatmapsets(*args, **kwargs)
             cursor = cur_res.cursor
@@ -51,7 +52,8 @@ class OsuApiUtils:
                 return CombinedBeatmapsetSearchResult.merge_beatmapset_search_results(total_results)
 
     async def check_if_user_exists(self, user_id: int) -> bool:
-        logger.info(f'{__name__}: {user_id=}')
+        logger.info(f'{__name__}: {user_id=}',
+                    extra={'tokens_spent': 1.0})
         try:
             await self.rate_limiter.wait_for_request(tokens_required=1.0)
             user = await self.ossapi.user(user_id)
@@ -64,7 +66,8 @@ class OsuApiUtils:
         return False
 
     async def get_user_beatmap_score_grade(self, beatmap_id: int, user_info: DbUserInfo) -> Grade | None:
-        logger.info(f'{__name__}: {beatmap_id=} { user_info.osu_user_id=} {user_info.osu_game_mode=}')
+        logger.info(f'{__name__}: {beatmap_id=} { user_info.osu_user_id=} {user_info.osu_game_mode=}',
+                    extra={'tokens_spent': 1.0})
         try:
             await self.rate_limiter.wait_for_request(tokens_required=1.0)
             beatmap_user_score = await self.ossapi.beatmap_user_score(beatmap_id, user_info.osu_user_id,
@@ -75,11 +78,12 @@ class OsuApiUtils:
         return score_grade
 
     async def get_user_beatmap_playcount(self, beatmap_id: int, user_info: DbUserInfo) -> int | None:
-        logger.info(f'{__name__}: {beatmap_id=} { user_info.osu_user_id=} {user_info.osu_game_mode=}')
         offset = 0
         limit = 50
         while True:
             await self.rate_limiter.wait_for_request(tokens_required=1.0)
+            logger.info(f'{__name__}: {beatmap_id=} { user_info.osu_user_id=} {user_info.osu_game_mode=}',
+                        extra={'tokens_spent': 1.0})
             beatmap_playcount_list: List[BeatmapPlaycount] = (
                 await self.ossapi.user_beatmaps(
                     user_info.osu_user_id, type=UserBeatmapType.MOST_PLAYED, limit=limit, offset=offset))
@@ -96,7 +100,8 @@ class OsuApiUtils:
             offset += limit
 
     async def get_user_most_recent_score(self, user_info: DbUserInfo) -> Score | None:
-        logger.info(f'{__name__}: { user_info.osu_user_id=} {user_info.osu_game_mode=}')
+        logger.info(f'{__name__}: { user_info.osu_user_id=} {user_info.osu_game_mode=}',
+                    extra={'tokens_spent': 1.0})
         await self.rate_limiter.wait_for_request(tokens_required=1.0)
         scores: List[Score] = await self.ossapi.user_scores(user_info.osu_user_id,
                                                             type=ScoreType.RECENT,
