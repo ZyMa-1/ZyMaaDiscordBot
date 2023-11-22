@@ -94,6 +94,21 @@ So far {self.percent_completion}% completion!
         # Set the vertical axis to show only integer values
         plt.gca().yaxis.set_major_locator(MaxNLocator(integer=True))
 
+        # Annotate the max value with an arrow and 'max' text
+        max_value = max(values)
+        max_index = values.index(max_value)
+        offset = 5  # Adjust the offset to control the distance of the arrow and text
+        plt.annotate(
+            'Max',
+            xy=(max_index, max_value),
+            xytext=(0, offset),
+            textcoords='offset points',
+            ha='center',
+            va='bottom',
+            arrowprops=dict(arrowstyle='->', connectionstyle='arc3'),
+            fontsize=8,
+        )
+
         plot_bytes = io.BytesIO()
         plt.savefig(plot_bytes, format="png")
         plot_bytes.seek(0)
