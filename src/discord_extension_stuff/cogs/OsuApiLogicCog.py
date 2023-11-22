@@ -5,6 +5,7 @@ from discord.ext import commands
 from discord.ext.commands import Context
 
 import discord_extension_stuff.predicates.permission_predicates as predicates
+from api_utils.OsuWebScraper import OsuWebScraper
 from core import BotContext
 from discord_extension_stuff.extras import Extras
 from factories import UtilsFactory
@@ -17,6 +18,7 @@ class OsuApiLogicCog(commands.Cog):
         self.db_manager = UtilsFactory.get_discord_users_data_db_manager()
         self.osu_api_utils = UtilsFactory.get_osu_api_utils()
         self.extras = Extras(bot_context)
+        self.osu_web_scrapper = OsuWebScraper()
 
     @commands.command(name='beatmapsets_stats')
     @commands.check(predicates.check_is_trusted and predicates.check_is_config_set_up)
@@ -68,7 +70,14 @@ class OsuApiLogicCog(commands.Cog):
         user_info = await self.db_manager.get_user_info(ctx.author.id)
         user_most_recent_score = await self.osu_api_utils.get_user_most_recent_score(user_info)
         if user_most_recent_score is not None:
-            await ctx.reply(f"It is an {user_most_recent_score.rank.value}, "
-                            f"{round(user_most_recent_score.accuracy * 100, 2)} acc play")
+            embed = discord.Embed(title=user_most_recent_score.beatmapset.title)
+            cover_image_path = await self.osu_web_scrapper.download_beatmap_cover(user_most_recent_score.beatmapset.id)
+            if cover_image_path is not None:
+                file = discord.File(cover_image_path, filename="thumbnail.jpg")
+                embed.set_thumbnail(url=f'attachment://thumbnail.jpg')
+                await ctx.reply(file=file, embed=embed)
+            else:
+                await ctx.reply(embed=embed)
+            await self.osu_web_scrapper.delete_temp_files()
         else:
             await ctx.reply("No score")
