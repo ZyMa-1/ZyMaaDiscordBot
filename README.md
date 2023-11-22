@@ -7,6 +7,8 @@ Commands are designed to be nerdy, but not boring, and not easy accessible, so t
 
 ## Commands
 
+Not updating, use '^help' to see recent updates on commands.
+
 ### Fun
 
 - Test command, that sends `test` message (`^test`)
@@ -53,6 +55,6 @@ Starting point of the bot is `start.py`.
 Annoying stuff stumbled upon developing:
 - Default help command invokes predicates for no reason
 - Singleton issues (Factory is much better)
-- No obsession pls
+- No obsessions pls
 
 ---
