@@ -12,7 +12,7 @@ from core import PathManager
 
 def create_directories():
     os.makedirs(PathManager.DATA_DIR, exist_ok=True)
-    os.makedirs(PathManager.TEMP_DIR, exist_ok=True)
+    os.makedirs(PathManager.TEMP_DIR, exist_ok=True) # not used for now
 
 
 async def main():
