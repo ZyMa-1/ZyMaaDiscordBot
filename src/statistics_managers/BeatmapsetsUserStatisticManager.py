@@ -114,17 +114,21 @@ So far {self.percent_completion}% completion!
 
         plt.figure(figsize=(8, 6))
 
-        # Create pie chart
-        plt.pie(values, labels=grades, colors=colors, autopct='%1.1f%%', startangle=140)
+        # Create pie chart without autopct
+        wedges, texts, autotexts = plt.pie(values, labels=None, colors=colors, startangle=140, autopct='')
 
         # Add note on 'None' scores
         none_scores = self.grades.get(None, 0)
-        plt.text(-0.2, -0.8, f"*No scores: {none_scores}", transform=plt.gcf().transFigure)
+        plt.text(0.25, 0.15, f"*No scores: {none_scores}", transform=plt.gcf().transFigure)
 
         plt.title("Grade Distribution")
 
+        # Add legend
+        legend_entries = [f"{grade}: {value}" for grade, value, color in zip(grades, values, colors)]
+        plt.legend(legend_entries, title="Grades", loc="center left", bbox_to_anchor=(1, 0.5))
+
         plot_bytes = io.BytesIO()
-        plt.savefig(plot_bytes, format="png")
+        plt.savefig(plot_bytes, format="png", bbox_inches='tight')
         plot_bytes.seek(0)
 
         plt.close()
