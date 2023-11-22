@@ -115,7 +115,7 @@ So far {self.percent_completion}% completion!
         plt.figure(figsize=(8, 6))
 
         # Create pie chart without autopct
-        wedges, texts, autotexts = plt.pie(values, labels=None, colors=colors, startangle=140, autopct='')
+        plt.pie(values, labels=None, colors=colors, startangle=140, autopct='')
 
         # Add note on 'None' scores
         none_scores = self.grades.get(None, 0)
