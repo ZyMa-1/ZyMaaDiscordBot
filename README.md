@@ -3,6 +3,8 @@
 
 Discord bot with a bunch of cool commands build around Osu! (the game)
 
+Add him - ZyMaa's bot#8455
+
 Commands are designed to be nerdy, but not boring, and not easy accessible, so thinking is required.
 
 ## Commands
