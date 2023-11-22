@@ -68,15 +68,21 @@ class LogicCog(commands.Cog):
 
     @commands.command(name='add_trusted_user')
     @commands.check(predicates.check_is_admin)
-    async def add_trusted_user_command(self, ctx: Context, *, user: discord.Member):
+    async def add_trusted_user_command(self, ctx: Context, *, user: discord.Member | int):
         """
-        Add trusted user.
+        Adds trusted user.
 
         Parameters:
-            - user (discord.Member) : Mention of a user (For example @Amogus)
+            - user (discord.Member | int) : Mention of a discord user OR user id
         """
-        await DataUtils.add_trusted_user(user.id)
-        response = f"User with id: {user.id} added to trusted users"
+        user_id = -1
+        if isinstance(user, discord.Member):
+            user_id = user.id
+        elif isinstance(user, int):
+            user_id = user
+
+        await DataUtils.add_trusted_user(user_id)
+        response = f"User with id: {user_id} added to trusted users"
         await ctx.send(response)
         data_str = await self.extras.format_discord_id_list(await DataUtils.load_trusted_users())
         response = f"Trusted users:\n{data_str}"
@@ -84,15 +90,21 @@ class LogicCog(commands.Cog):
 
     @commands.command(name='remove_trusted_user')
     @commands.check(predicates.check_is_admin)
-    async def remove_trusted_user_command(self, ctx: Context, *, user: discord.Member):
+    async def remove_trusted_user_command(self, ctx: Context, *, user: discord.Member | int):
         """
         Removes trusted user.
 
         Parameters:
-            - user (discord.Member) : Mention of a user (For example @Amogus)
+            - user (discord.Member | int) : Mention of a discord user OR user id
         """
-        await DataUtils.remove_trusted_user(user.id)
-        response = f"User with id: {user.id} was removed from trusted users"
+        user_id = -1
+        if isinstance(user, discord.Member):
+            user_id = user.id
+        elif isinstance(user, int):
+            user_id = user
+
+        await DataUtils.remove_trusted_user(user_id)
+        response = f"User with id: {user_id} was removed from trusted users"
         await ctx.send(response)
         data_str = await self.extras.format_discord_id_list(await DataUtils.load_trusted_users())
         response = f"Trusted users:\n{data_str}"
