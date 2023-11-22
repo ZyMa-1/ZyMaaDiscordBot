@@ -1,4 +1,5 @@
 import asyncio
+from typing import List
 
 import discord
 from discord.ext import commands
@@ -22,12 +23,13 @@ class OsuApiLogicCog(commands.Cog):
     @commands.check(predicates.check_is_trusted and predicates.check_is_config_set_up)
     async def beatmapsets_stats_command(self, ctx: commands.Context, *, query: str):
         """
-        Get grade stats on certain group of beatmapsets.
+        Get grade stats on a certain group of beatmapsets.
         To stop the command, reply 'stop' to the 'Calculating...' message.
 
         Parameters:
             - query (str)     : The search query. Can include filters like ranked<2019.
-            - plot_type (str) : 'bar' (default), 'pie'. If the last word of the query is 'bar' or 'pie',
+            - plot_type (str) : 'bar' (default), 'pie', 'bar&pie', 'pie&bar'.
+                                If the last word of the query contains '&' symbol,
                                 changes the 'plot_type' accordingly.
 
         Example usage:
@@ -38,30 +40,53 @@ class OsuApiLogicCog(commands.Cog):
         2. beatmapsets_stats amogus not-a-pie
            query="amogus not-a-pie"
            plot_type="bar"
+
+        3. beatmapsets_stats amogus pie&bar
+           query="amogus"
+           plot_type="pie&bar"
         """
+
+        def check_plot_types(p_type_list: List[str]) -> bool:
+            p_type_set = {"bar", "pie"}
+            if len(set(p_type_list)) != len(p_type_list):
+                return False
+            if not all(_ in p_type_set for _ in p_type_list):
+                return False
+            return True
+
+        async def send_plot(plot_type: str):
+            image_bytes = None
+            if plot_type == "bar":
+                image_bytes = beatmapsets_stats.get_bar_plot()
+            elif plot_type == "pie":
+                image_bytes = beatmapsets_stats.get_pie_plot()
+
+            if image_bytes:
+                image_file = discord.File(fp=image_bytes, filename=f"{p_type}_plot.png")
+                await ctx.reply(file=image_file)
+
         query_words = query.split()
 
-        plot_type = "bar"
-        if query_words and query_words[-1] in ["pie", "bar"]:
-            plot_type = query_words.pop()
+        last_word = query_words[-1]
+        plot_types_list = last_word.split('&')
+        if check_plot_types(plot_types_list):
+            query_words.pop()
+        else:
+            plot_types_list = ["bar"]
 
         query = ' '.join(query_words)
 
         user_info = await self.db_manager.get_user_info(ctx.author.id)
         calc_task = asyncio.create_task(self.extras.calculate_beatmapsets_stats(query, user_info))
         is_task_completed = await self.extras.wait_till_task_complete(ctx, calc_task=calc_task)
+
         if is_task_completed:
             beatmapsets_stats: BeatmapsetsUserStatisticManager = calc_task.result()
             response = beatmapsets_stats.get_pretty_stats()
             await ctx.reply(response)
 
-            image_bytes = None
-            if plot_type == "bar":
-                image_bytes = beatmapsets_stats.get_bar_plot()
-            elif plot_type == "pie":
-                image_bytes = beatmapsets_stats.get_pie_plot()
-            image_file = discord.File(fp=image_bytes, filename=f"{plot_type}_plot.png")
-            await ctx.reply(file=image_file)
+            for p_type in plot_types_list:
+                await send_plot(p_type)
 
     @commands.command(name='beatmap_playcount_slow')
     @commands.check(predicates.check_is_trusted and predicates.check_is_config_set_up)
