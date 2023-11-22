@@ -66,7 +66,6 @@ class OsuApiLogicCog(commands.Cog):
         """
         Get user's most recent play.
         """
-        # Add embed preview here, would be nice
         user_info = await self.db_manager.get_user_info(ctx.author.id)
         user_most_recent_score = await self.osu_api_utils.get_user_most_recent_score(user_info)
         if user_most_recent_score is not None:
