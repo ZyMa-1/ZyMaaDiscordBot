@@ -17,19 +17,23 @@ class Extras:
         self.bot = bot_context.bot
         self.osu_api_utils = UtilsFactory.get_osu_api_utils()
 
-    # async def check_if_user_exists(self, ctx: Context, discord_user_id: int) -> bool:
-    #     """Checks if user with specified discord_id exists."""
-    #     # Try to fetch the user by their ID
-    #     user = self.bot.get_user(discord_user_id)
-    #
-    #     if user is None:
-    #         await ctx.reply(f"User with ID {discord_user_id} does not exist.")
-    #         return False
-    #
-    #     return True
+    async def check_if_discord_user_exists(self, discord_user_id: int) -> bool:
+        """
+        Checks if discord user with specified id exists.
+        """
+        # Try to fetch the user by their ID
+        user = self.bot.get_user(discord_user_id)
 
-    async def calculate_beatmapsets_stats(self, query: str, user_info: DbUserInfo):
-        """Calculates beatmapsets_stats."""
+        if user is None:
+            return False
+
+        return True
+
+    async def calculate_beatmapsets_stats(self, query: str, user_info: DbUserInfo) -> BeatmapsetsUserStatisticManager:
+        """
+        Calculates beatmapsets_stats by querying 'search_all_beatmapsets' method of 'OsuApiUtils'.
+        Wraps it into the 'BeatmapsetsUserStatisticManager' class at last.
+        """
         combined_beatmapset_search_res = await self.osu_api_utils.search_all_beatmapsets(query,
                                                                                          mode=user_info.osu_game_mode)
         beatmapsets_stats = BeatmapsetsUserStatisticManager(combined_beatmapset_search_res.beatmapsets, user_info)
@@ -39,7 +43,10 @@ class Extras:
     # Function below actually works completely fine.
     async def wait_for_reply(self, ctx: Context, start_msg: Message, *, reply_message_content: str,
                              timeout: int) -> bool:
-        """Waits for the reply on certain message. Returns True if reply happened, False if not."""
+        """
+        Waits for the reply on certain message.
+        Returns True if reply happened, False if not.
+        """
 
         def check_reply(msg: Message):
             return (
@@ -58,7 +65,9 @@ class Extras:
         return True
 
     async def format_discord_id_list(self, discord_user_id_list: List[int]) -> str:
-        """Adds extra info to the `discord_user_id_list` and returns ready to be printed string"""
+        """
+        Adds extra info to the 'discord_user_id_list' and returns ready to be printed string.
+        """
         user_info_list = []
 
         for user_id in discord_user_id_list:

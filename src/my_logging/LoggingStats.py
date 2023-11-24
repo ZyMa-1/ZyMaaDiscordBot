@@ -10,6 +10,10 @@ from core import PathManager
 class LoggingStats:
     @staticmethod
     async def calculate_stats(time_periods: Optional[List[int]] = None):
+        """
+        Calculates stats in a given list of time frames counting from now to the past.
+        Stats are based on 'osu_api_utils' logging data file. (file, not files)
+        """
         if time_periods is None:
             time_periods = [60, 300, 3600, 24 * 3600]
 
@@ -24,6 +28,10 @@ class LoggingStats:
 
     @staticmethod
     async def calculate_tokens_spent(time_period_seconds: int) -> int:
+        """
+        Calculates amount of token spent between period of time.
+        Stats are based on 'osu_api_utils' logging data file. (file, not files)
+        """
         if time_period_seconds < 0 or time_period_seconds > 3600 * 24:
             raise RuntimeError("Function does not designed to work on that time_period yet.")
 

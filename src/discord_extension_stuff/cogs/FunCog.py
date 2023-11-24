@@ -11,7 +11,7 @@ class FunCog(commands.Cog):
     @commands.command(name='test')
     async def test_command(self, ctx: Context):
         """
-        Test whether discord bot working or not.
+        Test whether discord bot is working or not.
         """
         response = "test"
         await ctx.send(response)
@@ -22,7 +22,7 @@ class FunCog(commands.Cog):
         Gives user a beer.
 
         Parameters:
-        - cnt (int): Number of the beers.
+        - cnt (int): Number of beers.
         """
         response = "Вот ваше пиво месье: " + "🍺" * cnt
         await ctx.reply(response)

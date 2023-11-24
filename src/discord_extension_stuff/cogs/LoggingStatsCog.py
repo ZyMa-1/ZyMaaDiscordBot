@@ -13,7 +13,7 @@ class LoggingStatsCog(commands.Cog):
     @commands.command(name='logging_stats')
     async def logging_stats_command(self, ctx: Context):
         """
-        Logging stats of osu! api v2 calls via 'ossapi' python wrapper.
+        Logging stats for 'OsuApiUtils' class (osu! api v2 calls via 'ossapi' python wrapper).
         """
         response = await self.logging_stats.calculate_stats()
         await ctx.send(response)

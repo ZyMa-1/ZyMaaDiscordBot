@@ -11,13 +11,11 @@ logger = my_logging.get_loggers.data_utilities_logger()
 
 
 class DataUtils:
-
+    """
+    Data utilities class to work with files.
+    """
     @staticmethod
     async def load_trusted_users() -> List[int]:
-        """
-        Returns tuple of discord_user_id and discord_username.
-        Discord_username is not stored and obtained on fly.
-        """
         async with aiofiles.open(PathManager.TRUSTED_USERS_PATH, "r") as file:
             data = await file.read()
             config_data = json.loads(data)

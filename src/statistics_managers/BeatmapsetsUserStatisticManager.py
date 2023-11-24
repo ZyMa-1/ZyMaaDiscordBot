@@ -42,6 +42,10 @@ class BeatmapsetsUserStatisticManager:
         }
 
     async def calculate_user_grades(self):
+        """
+        Calculates what this class is created for.
+        Expected to be done only once.
+        """
         if self.is_calculated:
             raise RuntimeError(f"Class instance cannot call {__name__} more than once")
 
@@ -53,7 +57,10 @@ class BeatmapsetsUserStatisticManager:
             self.beatmap_count += len(beatmapset.beatmaps)
         self.percent_completion = round((1 - self.grades[None] / self.beatmap_count) * 100, 2)
 
-    def get_pretty_stats(self):
+    def get_pretty_stats(self) -> str:
+        """
+        Returns pretty stats string.
+        """
         return f"""Silver SS - {self.grades[Grade.SSH]:<10}
 Silver S  - {self.grades[Grade.SH]:<10}
 Just SS   - {self.grades[Grade.SS]:<10}
@@ -69,7 +76,11 @@ Total map count: {self.beatmap_count}
 So far {self.percent_completion}% completion!
 """
 
-    def get_bar_plot(self):
+    def get_bar_plot(self) -> io.BytesIO:
+        """
+        Builds bar plot using 'matplotlib'.
+        Returns plot image bytes.
+        """
         grades = []
         values = []
         colors = []
@@ -117,7 +128,11 @@ So far {self.percent_completion}% completion!
 
         return plot_bytes
 
-    def get_pie_plot(self):
+    def get_pie_plot(self) -> io.BytesIO:
+        """
+        Builds pie plot using 'matplotlib'.
+        Returns plot image bytes.
+        """
         grades = []
         values = []
         colors = []

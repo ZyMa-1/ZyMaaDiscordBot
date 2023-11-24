@@ -4,6 +4,9 @@ from db_managers import DiscordUsersDataDbManager
 
 
 class UtilsFactory:
+    """
+    Utilities factory for all the 'Singleton' type of classes.
+    """
     _discord_users_data_db_manager = None
     _osu_api_utils = None
 
@@ -14,13 +17,13 @@ class UtilsFactory:
         cls._osu_api_utils = OsuApiUtils(*DataUtils.load_osu_api_credentials())
 
     @classmethod
-    def get_discord_users_data_db_manager(cls):
+    def get_discord_users_data_db_manager(cls) -> DiscordUsersDataDbManager:
         if not isinstance(cls._discord_users_data_db_manager, DiscordUsersDataDbManager):
             raise ValueError
         return cls._discord_users_data_db_manager
 
     @classmethod
-    def get_osu_api_utils(cls):
+    def get_osu_api_utils(cls) -> OsuApiUtils:
         if not isinstance(cls._osu_api_utils, OsuApiUtils):
             raise ValueError
         return cls._osu_api_utils

@@ -8,6 +8,9 @@ logger = my_logging.get_loggers.database_utilities_logger()
 
 
 class DiscordUsersDataDbManager:
+    """
+    Class for managing database operations (aiosqlite).
+    """
     def __init__(self, db_name=PathManager.DISCORD_USERS_DATA_DB_PATH):
         self.db_name = db_name
 
@@ -25,7 +28,7 @@ class DiscordUsersDataDbManager:
             await db.commit()
 
     async def insert_user_info(self, user_info: DbUserInfo) -> bool:
-        if not user_info.is_config_set_up():
+        if not user_info.is_config_set_up() or not user_info.are_fields_valid():
             return False
 
         async with aiosqlite.connect(self.db_name) as db:

@@ -23,11 +23,11 @@ class OsuApiLogicCog(commands.Cog):
     @commands.check(predicates.check_is_trusted and predicates.check_is_config_set_up)
     async def beatmapsets_stats_command(self, ctx: commands.Context, *, query: str):
         """
-        Get grade stats on a certain group of beatmapsets.
+        Gets grade stats on a certain group of beatmapsets.
         To stop the command, reply 'stop' to the 'Calculating...' message.
 
         Parameters:
-            - query (str)     : The search query. Can include filters like ranked<2019.
+            - query (str)     : The search query. Can include filters like `ranked<2019` or `artist=""some artist""`
             - plot_type (str) : 'bar' (default), 'pie', 'bar&pie', 'pie&bar'.
                                 If the last word of the query contains '&' symbol,
                                 changes the 'plot_type' accordingly.
@@ -92,7 +92,7 @@ class OsuApiLogicCog(commands.Cog):
     @commands.check(predicates.check_is_trusted and predicates.check_is_config_set_up)
     async def beatmap_playcount_slow_command(self, ctx: Context, *, beatmap_id: int):
         """
-        Get user playcount on a beatmap by iterating over all MOST PLAYED beatmaps.
+        Gets user's playcount on a beatmap by iterating over all MOST PLAYED beatmaps.
         To stop the command, reply 'stop' to the 'Calculating...' message.
 
         Parameters:

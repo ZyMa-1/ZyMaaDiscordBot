@@ -2,6 +2,9 @@ import pathlib
 
 
 class PathManager:
+    """
+    Path manager class to store all path to the files/directories in more convenient way.
+    """
     PROJECT_ROOT: pathlib.Path | None
     DATA_DIR: pathlib.Path | None
     TEMP_DIR: pathlib.Path | None

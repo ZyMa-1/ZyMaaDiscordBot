@@ -4,7 +4,7 @@ from discord.ext import commands
 
 from core import BotContext
 
-logger = logging.getLogger()
+logger = logging.getLogger()  # root logger
 
 
 class SetupCog(commands.Cog):
