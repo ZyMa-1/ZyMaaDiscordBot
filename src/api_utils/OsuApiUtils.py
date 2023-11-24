@@ -18,7 +18,8 @@ class OsuApiUtils:
 
     async def search_all_beatmapsets(self, *args, **kwargs) -> CombinedBeatmapsetSearchResult:
         """
-        Searches for beatmapsets using various criteria. Utilizes 'ossapi' 'search_beatmapsets' endpoint.
+        Searches for beatmapsets using various criteria.
+        Utilizes 'ossapi' 'search_beatmapsets' endpoint.
 
         Parameters:
             *args: Positional arguments for forwarding to 'search_beatmapsets' endpoint.
@@ -27,7 +28,8 @@ class OsuApiUtils:
         Returns:
             List[BeatmapsetSearchResult]: A list of BeatmapsetSearchResult objects.
 
-        Forwards the search parameters to the 'search_beatmapsets' function and collects the cumulative results.
+        Forwards search parameters to the 'search_beatmapsets' function
+        and collects cumulative results into 'CombinedBeatmapsetSearchResult' class.
         """
         match kwargs['mode']:
             case 'osu':
@@ -52,7 +54,10 @@ class OsuApiUtils:
                 return CombinedBeatmapsetSearchResult.merge_beatmapset_search_results(total_results)
 
     async def check_if_user_exists(self, user_id: int) -> bool:
-        """Checks If osu! user with specified 'user_id' exists. Utilizes 'ossapi' 'user' endpoint."""
+        """
+        Checks If osu! user with specified 'user_id' exists.
+        Utilizes 'ossapi' 'user' endpoint.
+        """
         logger.info(f'{__name__}: {user_id=}',
                     extra={'tokens_spent': 1.0})
         try:
@@ -67,7 +72,10 @@ class OsuApiUtils:
         return False
 
     async def get_user_beatmap_score_grade(self, beatmap_id: int, user_info: DbUserInfo) -> Grade | None:
-        """Gets grade of the user's top score on the given beatmap. Utilizes 'ossapi' 'beatmap_user_score' endpoint."""
+        """
+        Gets grade of the user's top score on the given beatmap.
+        Utilizes 'ossapi' 'beatmap_user_score' endpoint.
+        """
         logger.info(f'{__name__}: {beatmap_id=} { user_info.osu_user_id=} {user_info.osu_game_mode=}',
                     extra={'tokens_spent': 1.0})
         try:
@@ -80,7 +88,10 @@ class OsuApiUtils:
         return score_grade
 
     async def get_user_beatmap_playcount(self, beatmap_id: int, user_info: DbUserInfo) -> int | None:
-        """Gets user's playcount on the given beatmap by iterating over ALL most played maps. Utilizes 'ossapi' 'user_beatmaps' endpoint."""
+        """
+        Gets user's playcount on the given beatmap by iterating over ALL most played maps.
+        Utilizes 'ossapi' 'user_beatmaps' endpoint.
+        """
         offset = 0
         limit = 100  # 100 is the max possible limit
         while True:
@@ -103,7 +114,10 @@ class OsuApiUtils:
             offset += limit
 
     async def get_user_most_recent_score(self, user_info: DbUserInfo) -> Score | None:
-        """Gets user's most recent score. Utilizes 'ossapi' 'user_scores' endpoint."""
+        """
+        Gets user's most recent score.
+        Utilizes 'ossapi' 'user_scores' endpoint.
+        """
         logger.info(f'{__name__}: { user_info.osu_user_id=} {user_info.osu_game_mode=}',
                     extra={'tokens_spent': 1.0})
         await self.rate_limiter.wait_for_request(tokens_required=1.0)
@@ -115,7 +129,11 @@ class OsuApiUtils:
         return scores[0] if scores else None
 
     async def get_all_user_beatmap_ids(self, user_info: DbUserInfo) -> List[int]:
-        """Gets ALL beatmaps from the user's MOST_PLAYED section of the profile. Returns a list of beatmap_ids. Utilizes 'ossapi' 'user_beatmaps' endpoint."""
+        """
+        Gets ALL beatmaps from the user's MOST_PLAYED section of the profile.
+        Returns a list of beatmap_ids.
+        Utilizes 'ossapi' 'user_beatmaps' endpoint.
+        """
         offset = 0
         limit = 100  # 100 is the max possible limit
         beatmap_id_list = []
@@ -137,7 +155,7 @@ class OsuApiUtils:
 
         return beatmap_id_list
 
-    async def get_user_country_top_x_stats(self, user_info: DbUserInfo) -> List[int]:
+    async def get_user_country_top_x_stats(self, beatmap_id_list: List[int], user_info: DbUserInfo) -> List[int]:
         """
         In development...
         """
