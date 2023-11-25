@@ -116,7 +116,7 @@ class OsuApiLogicCog(commands.Cog):
         score = await self.osu_api_utils.get_user_most_recent_score(user_info)
         if score is not None:
             beatmapset_id = score.beatmapset.id
-            beatmapset_title = score.beatmapset.title
+            beatmapset_title = score.beatmapset.title_unicode
             beatmap_url = score.beatmap.url
             embed = discord.Embed()
             embed.add_field(name="{}".format(score.user_id),
