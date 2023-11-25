@@ -29,7 +29,7 @@ class LoggingStats:
     @staticmethod
     async def calculate_tokens_spent(time_period_seconds: int) -> int:
         """
-        Calculates amount of token spent between period of time.
+        Calculates amount of token spent between the present and (present - 'time_period_seconds') period of time.
         Stats are based on 'osu_api_utils' logging data file. (file, not files)
         """
         if time_period_seconds < 0 or time_period_seconds > 3600 * 24:

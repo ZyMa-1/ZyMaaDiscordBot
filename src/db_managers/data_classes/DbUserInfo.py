@@ -16,7 +16,7 @@ class DbUserInfo:
 
     def is_config_set_up(self) -> bool:
         """
-        Checks If all 'Optional' of the dataclass instance are not 'None'.
+        Checks If all 'Optional' fields of the dataclass instance are not 'None'.
         """
         if None in dataclasses.asdict(self).values():
             return False

@@ -26,7 +26,7 @@ class OsuApiUtils:
             **kwargs: Keyword arguments for forwarding to 'search_beatmapsets' endpoint.
 
         Returns:
-            List[BeatmapsetSearchResult]: A list of BeatmapsetSearchResult objects.
+            'CombinedBeatmapsetSearchResult' class instance.
 
         Forwards search parameters to the 'search_beatmapsets' function
         and collects cumulative results into 'CombinedBeatmapsetSearchResult' class.
@@ -91,7 +91,7 @@ class OsuApiUtils:
 
     async def get_user_beatmap_playcount(self, beatmap_id: int, user_info: DbUserInfo) -> int | None:
         """
-        Gets user's playcount on the given beatmap by iterating over ALL most played maps.
+        Gets user's playcount on the given beatmap by iterating over ALL most played beatmaps.
         Utilizes 'ossapi' 'user_beatmaps' endpoint.
         """
         offset = 0
@@ -108,10 +108,8 @@ class OsuApiUtils:
                 return None
 
             for beatmap_playcount in beatmap_playcount_list:
-                if beatmap_playcount.beatmap_id != beatmap_id:
-                    continue
-
-                return beatmap_playcount.count
+                if beatmap_playcount.beatmap_id == beatmap_id:
+                    return beatmap_playcount.count
 
             offset += limit
 

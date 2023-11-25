@@ -20,7 +20,7 @@ class BeatmapsUserCountryStatsManager:
 
     async def calculate_scores(self):
         """
-        Calculates user's scores which are at least top 50 in the country leaderboard.
+        Calculates user's scores which are at least top 50 in the country's leaderboard.
         Expected to be done only once.
         """
         if self.is_calculated:

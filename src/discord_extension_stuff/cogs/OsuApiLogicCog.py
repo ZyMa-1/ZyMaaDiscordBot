@@ -57,9 +57,9 @@ class OsuApiLogicCog(commands.Cog):
         async def send_plot(plot_type: str):
             image_bytes = None
             if plot_type == "bar":
-                image_bytes = beatmaps_grade_stats.get_bar_plot()
+                image_bytes = stats.get_bar_plot()
             elif plot_type == "pie":
-                image_bytes = beatmaps_grade_stats.get_pie_plot()
+                image_bytes = stats.get_pie_plot()
 
             if image_bytes:
                 image_file = discord.File(fp=image_bytes, filename=f"{p_type}_plot.png")
@@ -131,6 +131,7 @@ class OsuApiLogicCog(commands.Cog):
     async def most_recent_play_command(self, ctx: Context):
         """
         Gets user's country stats on all the maps EVER played by the user.
+        To stop the command, reply 'stop' to the 'Calculating...' message.
         """
         user_info = await self.db_manager.get_user_info(ctx.author.id)
         calc_task = asyncio.create_task(self.extras.calculate_all_user_country_stats(user_info))
