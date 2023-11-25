@@ -79,8 +79,8 @@ class LogicCog(commands.Cog):
         if isinstance(user, discord.Member):
             user_id = user.id
         elif isinstance(user, int):
-            if not self.extras.check_if_discord_user_exists(user):
-                ctx.reply("Discord user with specified id does not exist.")
+            if not await self.extras.check_if_discord_user_exists(user):
+                await ctx.reply("Discord user with specified id does not exist.")
                 return
 
             user_id = user
@@ -105,10 +105,6 @@ class LogicCog(commands.Cog):
         if isinstance(user, discord.Member):
             user_id = user.id
         elif isinstance(user, int):
-            if not self.extras.check_if_discord_user_exists(user):
-                ctx.reply("Discord user with specified id does not exist.")
-                return
-
             user_id = user
 
         await DataUtils.remove_trusted_user(user_id)
