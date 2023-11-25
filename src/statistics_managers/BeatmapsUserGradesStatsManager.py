@@ -3,16 +3,15 @@ from typing import Dict, List, Any
 
 import matplotlib.pyplot as plt
 from matplotlib.ticker import MaxNLocator
-from ossapi import Beatmapset
 from ossapi.enums import Grade
 
 from db_managers.data_classes.DbUserInfo import DbUserInfo
 from factories import UtilsFactory
 
 
-class BeatmapsetsUserStatisticManager:
-    def __init__(self, beatmapsets: List[Beatmapset], user_info: DbUserInfo):
-        self.beatmapsets = beatmapsets
+class BeatmapsUserGradesStatsManager:
+    def __init__(self, beatmap_ids: List[int], user_info: DbUserInfo):
+        self.beatmap_ids = beatmap_ids
         self.osu_api_utils = UtilsFactory.get_osu_api_utils()
         self.user_info = user_info
 
@@ -50,11 +49,11 @@ class BeatmapsetsUserStatisticManager:
             raise RuntimeError(f"Class instance cannot call {__name__} more than once")
 
         self.is_calculated = True
-        for beatmapset in self.beatmapsets:
-            for beatmap in beatmapset.beatmaps:
-                grade = await self.osu_api_utils.get_user_beatmap_score_grade(beatmap.id, self.user_info)
-                self.grades[grade] += 1
-            self.beatmap_count += len(beatmapset.beatmaps)
+        for beatmap_id in self.beatmap_ids:
+            grade = await self.osu_api_utils.get_user_beatmap_score_grade(beatmap_id, self.user_info)
+            self.grades[grade] += 1
+            self.beatmap_count += 1
+
         self.percent_completion = round((1 - self.grades[None] / self.beatmap_count) * 100, 2)
 
     def get_pretty_stats(self) -> str:

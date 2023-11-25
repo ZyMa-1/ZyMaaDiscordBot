@@ -9,7 +9,7 @@ import discord_extension_stuff.predicates.permission_predicates as predicates
 from core import BotContext
 from discord_extension_stuff.extras import Extras
 from factories import UtilsFactory
-from statistics_managers import BeatmapsetsUserStatisticManager
+from statistics_managers import BeatmapsUserGradesStatsManager
 
 
 class OsuApiLogicCog(commands.Cog):
@@ -57,9 +57,9 @@ class OsuApiLogicCog(commands.Cog):
         async def send_plot(plot_type: str):
             image_bytes = None
             if plot_type == "bar":
-                image_bytes = beatmapsets_stats.get_bar_plot()
+                image_bytes = beatmaps_grade_stats.get_bar_plot()
             elif plot_type == "pie":
-                image_bytes = beatmapsets_stats.get_pie_plot()
+                image_bytes = beatmaps_grade_stats.get_pie_plot()
 
             if image_bytes:
                 image_file = discord.File(fp=image_bytes, filename=f"{p_type}_plot.png")
@@ -77,12 +77,12 @@ class OsuApiLogicCog(commands.Cog):
         query = ' '.join(query_words)
 
         user_info = await self.db_manager.get_user_info(ctx.author.id)
-        calc_task = asyncio.create_task(self.extras.calculate_beatmapsets_stats(query, user_info))
+        calc_task = asyncio.create_task(self.extras.calculate_beatmapsets_grade_stats(query, user_info))
         is_task_completed = await self.extras.wait_till_task_complete(ctx, calc_task=calc_task)
 
         if is_task_completed:
-            beatmapsets_stats: BeatmapsetsUserStatisticManager = calc_task.result()
-            response = beatmapsets_stats.get_pretty_stats()
+            beatmaps_grade_stats: BeatmapsUserGradesStatsManager = calc_task.result()
+            response = beatmaps_grade_stats.get_pretty_stats()
             await ctx.reply(response)
 
             for p_type in plot_types_list:

@@ -1,1 +1,1 @@
-from .BeatmapsetsUserStatisticManager import BeatmapsetsUserStatisticManager
+from .BeatmapsUserGradesStatsManager import BeatmapsUserGradesStatsManager

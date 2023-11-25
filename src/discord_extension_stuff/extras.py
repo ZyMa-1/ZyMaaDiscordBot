@@ -1,6 +1,6 @@
 import asyncio
 from asyncio import Task
-from typing import List, Tuple
+from typing import List
 
 import discord
 from discord import Message
@@ -9,7 +9,7 @@ from discord.ext.commands import Context
 from core import BotContext
 from db_managers.data_classes.DbUserInfo import DbUserInfo
 from factories import UtilsFactory
-from statistics_managers import BeatmapsetsUserStatisticManager
+from statistics_managers import BeatmapsUserGradesStatsManager
 
 
 class Extras:
@@ -29,14 +29,20 @@ class Extras:
 
         return True
 
-    async def calculate_beatmapsets_stats(self, query: str, user_info: DbUserInfo) -> BeatmapsetsUserStatisticManager:
+    async def calculate_beatmapsets_grade_stats(self, query: str, user_info: DbUserInfo) \
+            -> BeatmapsUserGradesStatsManager:
         """
         Calculates beatmapsets_stats by querying 'search_all_beatmapsets' method of 'OsuApiUtils'.
-        Wraps it into the 'BeatmapsetsUserStatisticManager' class at last.
+        Wraps it into the 'BeatmapsetsUserGradesStatisticManager' class at last.
         """
         combined_beatmapset_search_res = await self.osu_api_utils.search_all_beatmapsets(query,
                                                                                          mode=user_info.osu_game_mode)
-        beatmapsets_stats = BeatmapsetsUserStatisticManager(combined_beatmapset_search_res.beatmapsets, user_info)
+        beatmap_ids: List[int] = []
+        for beatmapset in combined_beatmapset_search_res.beatmapsets:
+            for beatmap in beatmapset.beatmaps:
+                beatmap_ids.append(beatmap.id)
+
+        beatmapsets_stats = BeatmapsUserGradesStatsManager(beatmap_ids, user_info)
         await beatmapsets_stats.calculate_user_grades()
         return beatmapsets_stats
 
