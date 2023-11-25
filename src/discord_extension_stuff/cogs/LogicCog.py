@@ -19,7 +19,7 @@ class LogicCog(commands.Cog):
 
     @commands.command(name='config_change')
     @commands.check(predicates.check_is_trusted)
-    async def config_change_command(self, ctx: Context, *, osu_user_id: int, osu_game_mode: str):
+    async def config_change_command(self, ctx: Context, osu_user_id: int, osu_game_mode: str):
         """
         Changes the user's config parameters.
 
