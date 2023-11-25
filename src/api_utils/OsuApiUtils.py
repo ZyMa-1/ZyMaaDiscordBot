@@ -60,8 +60,8 @@ class OsuApiUtils:
         """
         logger.info(f'{__name__}: {user_id=}',
                     extra={'tokens_spent': 1.0})
+        await self.rate_limiter.wait_for_request(tokens_required=1.0)
         try:
-            await self.rate_limiter.wait_for_request(tokens_required=1.0)
             user = await self.ossapi.user(user_id)
         except ValueError:  # User does not exist
             return False
@@ -78,12 +78,14 @@ class OsuApiUtils:
         """
         logger.info(f'{__name__}: {beatmap_id=} { user_info.osu_user_id=} {user_info.osu_game_mode=}',
                     extra={'tokens_spent': 1.0})
+        await self.rate_limiter.wait_for_request(tokens_required=1.0)
         try:
-            await self.rate_limiter.wait_for_request(tokens_required=1.0)
-            beatmap_user_score = await self.ossapi.beatmap_user_score(beatmap_id, user_info.osu_user_id,
-                                                                      mode=user_info.osu_game_mode)
+            beatmap_user_score: BeatmapUserScore = await self.ossapi.beatmap_user_score(beatmap_id,
+                                                                                        user_info.osu_user_id,
+                                                                                        mode=user_info.osu_game_mode)
         except ValueError:  # Score does not exist
             return None
+
         score_grade = beatmap_user_score.score.rank
         return score_grade
 
@@ -95,9 +97,9 @@ class OsuApiUtils:
         offset = 0
         limit = 100  # 100 is the max possible limit
         while True:
-            await self.rate_limiter.wait_for_request(tokens_required=1.0)
             logger.info(f'{__name__}: {beatmap_id=} { user_info.osu_user_id=} {user_info.osu_game_mode=}',
                         extra={'tokens_spent': 1.0})
+            await self.rate_limiter.wait_for_request(tokens_required=1.0)
             beatmap_playcount_list: List[BeatmapPlaycount] = (
                 await self.ossapi.user_beatmaps(
                     user_info.osu_user_id, type=UserBeatmapType.MOST_PLAYED, limit=limit, offset=offset))
@@ -138,9 +140,9 @@ class OsuApiUtils:
         limit = 100  # 100 is the max possible limit
         beatmap_id_list = []
         while True:
-            await self.rate_limiter.wait_for_request(tokens_required=1.0)
             logger.info(f'{__name__}: { user_info.osu_user_id=} {user_info.osu_game_mode=}',
                         extra={'tokens_spent': 1.0})
+            await self.rate_limiter.wait_for_request(tokens_required=1.0)
             beatmap_playcount_list: List[BeatmapPlaycount] = (
                 await self.ossapi.user_beatmaps(
                     user_info.osu_user_id, type=UserBeatmapType.MOST_PLAYED, limit=limit, offset=offset))
@@ -161,20 +163,21 @@ class OsuApiUtils:
         Returns a 'Score' If 'rank_country' <= 'top_x'. Returns 'None' otherwise.
         Utilizes 'ossapi' 'beatmap_user_score' endpoint.
         """
-        await self.rate_limiter.wait_for_request(tokens_required=1.0)
         logger.info(f'{__name__}: { user_info.osu_user_id=} {user_info.osu_game_mode=}',
                     extra={'tokens_spent': 1.0})
+        await self.rate_limiter.wait_for_request(tokens_required=1.0)
         try:
             beatmap_user_score: BeatmapUserScore = await self.ossapi.beatmap_user_score(beatmap_id,
                                                                                         user_info.osu_user_id,
                                                                                         mode=user_info.osu_game_mode)
-            if beatmap_user_score.score.rank_country is not None and beatmap_user_score.score.rank_country <= top_x:
-                return beatmap_user_score.score
 
         except ValueError:  # Score does not exist
             return None
-        except Exception as e:
-            print(e)
+
+        if beatmap_user_score.score.rank_country is None:
             return None
+
+        if beatmap_user_score.score.rank_country <= top_x:
+            return beatmap_user_score.score
 
         return None

@@ -29,8 +29,8 @@ class BeatmapsUserCountryStatsManager:
         self.is_calculated = True
         for beatmap_id in self.beatmap_ids:
             score = await self.osu_api_utils.get_user_country_top_x_score(beatmap_id, self.user_info, top_x=50)
-            rank_country = score.rank_country
             if score is not None:
+                rank_country = score.rank_country
                 self.scores.append(score)
                 if rank_country <= 1:
                     self.top_1_country_count += 1
