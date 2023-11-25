@@ -1,6 +1,6 @@
 from typing import List
 
-from ossapi import BeatmapsetSearchResult, BeatmapPlaycount, OssapiAsync, Score
+from ossapi import BeatmapsetSearchResult, BeatmapPlaycount, OssapiAsync, Score, BeatmapUserScore
 from ossapi.enums import Grade, BeatmapsetSearchMode, UserBeatmapType, ScoreType
 
 import my_logging.get_loggers
@@ -155,8 +155,23 @@ class OsuApiUtils:
 
         return beatmap_id_list
 
-    async def get_user_country_top_x_stats(self, beatmap_id_list: List[int], user_info: DbUserInfo) -> List[int]:
+    async def get_user_country_top_x_stats(self, beatmap_id_list: List[int], user_info: DbUserInfo) \
+            -> List[BeatmapUserScore]:
         """
-        In development...
+        Gets a list of the best scores ('BeatmapUserScore') on a given 'beatmap_id_list'.
+        Utilizes 'ossapi' 'beatmap_user_score' endpoint.
         """
-        pass
+        beatmap_user_scores = []
+        for beatmap_id in beatmap_id_list:
+            await self.rate_limiter.wait_for_request(tokens_required=1.0)
+            logger.info(f'{__name__}: { user_info.osu_user_id=} {user_info.osu_game_mode=}',
+                        extra={'tokens_spent': 1.0})
+            try:
+                score: BeatmapUserScore = await self.ossapi.beatmap_user_score(beatmap_id,
+                                                                               user_info.osu_user_id,
+                                                                               mode=user_info.osu_game_mode)
+                beatmap_user_scores.append(score)
+            except ValueError:  # Score does not exist
+                continue
+
+        return beatmap_user_scores
