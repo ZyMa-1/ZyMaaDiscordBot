@@ -155,26 +155,23 @@ class OsuApiUtils:
 
         return beatmap_id_list
 
-    async def get_user_country_top_x_scores(self, beatmap_ids: List[int], user_info: DbUserInfo, *, top_x: int) \
-            -> List[Score]:
+    async def get_user_country_top_x_score(self, beatmap_id: int, user_info: DbUserInfo, *, top_x: int) \
+            -> Score | None:
         """
-        Gets a list of the best scores ('BeatmapUserScore') on a given beatmaps,
-        where user is in 'top_x' in a country leaderboards.
+        Returns a 'Score' If 'rank_country' <= 'top_x'. Returns 'None' otherwise.
         Utilizes 'ossapi' 'beatmap_user_score' endpoint.
         """
-        beatmap_user_scores = []
-        for beatmap_id in beatmap_ids:
-            await self.rate_limiter.wait_for_request(tokens_required=1.0)
-            logger.info(f'{__name__}: { user_info.osu_user_id=} {user_info.osu_game_mode=}',
-                        extra={'tokens_spent': 1.0})
-            try:
-                beatmap_user_score: BeatmapUserScore = await self.ossapi.beatmap_user_score(beatmap_id,
-                                                                                            user_info.osu_user_id,
-                                                                                            mode=user_info.osu_game_mode
-                                                                                            )
-                if beatmap_user_score.score.rank_country is not None and beatmap_user_score.score.rank_country <= top_x:
-                    beatmap_user_scores.append(beatmap_user_score.score)
-            except ValueError:  # Score does not exist
-                continue
+        await self.rate_limiter.wait_for_request(tokens_required=1.0)
+        logger.info(f'{__name__}: { user_info.osu_user_id=} {user_info.osu_game_mode=}',
+                    extra={'tokens_spent': 1.0})
+        try:
+            beatmap_user_score: BeatmapUserScore = await self.ossapi.beatmap_user_score(beatmap_id,
+                                                                                        user_info.osu_user_id,
+                                                                                        mode=user_info.osu_game_mode)
+            if beatmap_user_score.score.rank_country is not None and beatmap_user_score.score.rank_country <= top_x:
+                return beatmap_user_score.score
 
-        return beatmap_user_scores
+        except ValueError:  # Score does not exist
+            return None
+
+        return None

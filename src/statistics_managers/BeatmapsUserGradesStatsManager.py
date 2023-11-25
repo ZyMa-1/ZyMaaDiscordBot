@@ -42,7 +42,7 @@ class BeatmapsUserGradesStatsManager:
 
     async def calculate_user_grades(self):
         """
-        Calculates what this class is created for.
+        Calculates user's grades, fills in statistic variables.
         Expected to be done only once.
         """
         if self.is_calculated:
@@ -60,15 +60,15 @@ class BeatmapsUserGradesStatsManager:
         """
         Returns pretty stats string.
         """
-        return f"""Silver SS - {self.grades[Grade.SSH]:<10}
-Silver S  - {self.grades[Grade.SH]:<10}
-Just SS   - {self.grades[Grade.SS]:<10}
-Just S    - {self.grades[Grade.S]:<10}
-A         - {self.grades[Grade.A]:<10}
-B         - {self.grades[Grade.B]:<10}
-C         - {self.grades[Grade.C]:<10}
-D         - {self.grades[Grade.D]:<10}
-No scores - {self.grades[None]:<10}
+        return f"""Silver SS - {self.grades[Grade.SSH]:>7}
+Silver S  - {self.grades[Grade.SH]:>7}
+Just SS   - {self.grades[Grade.SS]:>7}
+Just S    - {self.grades[Grade.S]:>7}
+A         - {self.grades[Grade.A]:>7}
+B         - {self.grades[Grade.B]:>7}
+C         - {self.grades[Grade.C]:>7}
+D         - {self.grades[Grade.D]:>7}
+No scores - {self.grades[None]:>7}
 ----------------------------------
 Total map count: {self.beatmap_count}
 ----------------------------------

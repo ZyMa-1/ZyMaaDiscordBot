@@ -9,7 +9,7 @@ import discord_extension_stuff.predicates.permission_predicates as predicates
 from core import BotContext
 from discord_extension_stuff.extras import Extras
 from factories import UtilsFactory
-from statistics_managers import BeatmapsUserGradesStatsManager
+from statistics_managers import BeatmapsUserGradesStatsManager, BeatmapsUserCountryStatsManager
 
 
 class OsuApiLogicCog(commands.Cog):
@@ -81,8 +81,8 @@ class OsuApiLogicCog(commands.Cog):
         is_task_completed = await self.extras.wait_till_task_complete(ctx, calc_task=calc_task)
 
         if is_task_completed:
-            beatmaps_grade_stats: BeatmapsUserGradesStatsManager = calc_task.result()
-            response = beatmaps_grade_stats.get_pretty_stats()
+            stats: BeatmapsUserGradesStatsManager = calc_task.result()
+            response = stats.get_pretty_stats()
             await ctx.reply(response)
 
             for p_type in plot_types_list:
@@ -110,7 +110,7 @@ class OsuApiLogicCog(commands.Cog):
     @commands.check(predicates.check_is_trusted and predicates.check_is_config_set_up)
     async def most_recent_play_command(self, ctx: Context):
         """
-        Get user's most recent play.
+        Gets user's most recent play.
         """
         user_info = await self.db_manager.get_user_info(ctx.author.id)
         score = await self.osu_api_utils.get_user_most_recent_score(user_info)
@@ -125,3 +125,17 @@ class OsuApiLogicCog(commands.Cog):
             await ctx.reply(embed=embed)
         else:
             await ctx.reply("No score")
+
+    @commands.command(name='country_stats_all')
+    @commands.check(predicates.check_is_trusted and predicates.check_is_config_set_up)
+    async def most_recent_play_command(self, ctx: Context):
+        """
+        Gets user's country stats on all the maps EVER played by the user.
+        """
+        user_info = await self.db_manager.get_user_info(ctx.author.id)
+        calc_task = asyncio.create_task(self.extras.calculate_all_user_country_stats(user_info))
+        is_task_completed = await self.extras.wait_till_task_complete(ctx, calc_task=calc_task)
+        if is_task_completed:
+            stats: BeatmapsUserCountryStatsManager = calc_task.result()
+            response = stats.get_pretty_stats()
+            await ctx.reply(response)

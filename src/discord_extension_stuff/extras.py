@@ -9,7 +9,7 @@ from discord.ext.commands import Context
 from core import BotContext
 from db_managers.data_classes.DbUserInfo import DbUserInfo
 from factories import UtilsFactory
-from statistics_managers import BeatmapsUserGradesStatsManager
+from statistics_managers import BeatmapsUserGradesStatsManager, BeatmapsUserCountryStatsManager
 
 
 class Extras:
@@ -42,11 +42,21 @@ class Extras:
             for beatmap in beatmapset.beatmaps:
                 beatmap_ids.append(beatmap.id)
 
-        beatmapsets_stats = BeatmapsUserGradesStatsManager(beatmap_ids, user_info)
-        await beatmapsets_stats.calculate_user_grades()
-        return beatmapsets_stats
+        stats = BeatmapsUserGradesStatsManager(beatmap_ids, user_info)
+        await stats.calculate_user_grades()
+        return stats
 
-    # Function below actually works completely fine.
+    async def calculate_all_user_country_stats(self, user_info: DbUserInfo) \
+            -> BeatmapsUserCountryStatsManager:
+        """
+        Calculates all the country stats of a user. VERY WEIGHTY METHOD, A LOT OF OSSAPI CALLS IS REQUIRED.
+        Wraps it into the 'BeatmapsUserCountryStatsManager' class at last.
+        """
+        beatmap_ids = await self.osu_api_utils.get_all_user_beatmap_ids(user_info)
+        stats = BeatmapsUserCountryStatsManager(beatmap_ids, user_info)
+        await stats.calculate_scores()
+        return stats
+
     async def wait_for_reply(self, ctx: Context, start_msg: Message, *, reply_message_content: str,
                              timeout: int) -> bool:
         """
