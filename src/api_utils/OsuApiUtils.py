@@ -158,7 +158,8 @@ class OsuApiUtils:
     async def get_user_country_top_x_scores(self, beatmap_ids: List[int], user_info: DbUserInfo, *, top_x: int) \
             -> List[Score]:
         """
-        Gets a list of the best scores ('BeatmapUserScore') on a given 'beatmap_id_list'.
+        Gets a list of the best scores ('BeatmapUserScore') on a given beatmaps,
+        where user is in 'top_x' in a country leaderboards.
         Utilizes 'ossapi' 'beatmap_user_score' endpoint.
         """
         beatmap_user_scores = []
