@@ -78,7 +78,8 @@ class OsuApiLogicCog(commands.Cog):
 
         user_info = await self.db_manager.get_user_info(ctx.author.id)
         calc_task = asyncio.create_task(self.extras.calculate_beatmapsets_grade_stats(query, user_info))
-        is_task_completed = await self.extras.wait_till_task_complete(ctx, calc_task=calc_task)
+        is_task_completed = await self.extras.wait_till_task_complete(ctx, calc_task=calc_task,
+                                                                      timeout_sec=3600)
 
         if is_task_completed:
             stats: BeatmapsUserGradesStatsManager = calc_task.result()
@@ -100,7 +101,8 @@ class OsuApiLogicCog(commands.Cog):
         """
         user_info = await self.db_manager.get_user_info(ctx.author.id)
         calc_task = asyncio.create_task(self.osu_api_utils.get_user_beatmap_playcount(beatmap_id, user_info))
-        is_task_completed = await self.extras.wait_till_task_complete(ctx, calc_task=calc_task)
+        is_task_completed = await self.extras.wait_till_task_complete(ctx, calc_task=calc_task,
+                                                                      timeout_sec=3600)
         if is_task_completed:
             playcount = calc_task.result()
             response = f"You have `{playcount}` playcount on a `{beatmap_id}` beatmap"
@@ -135,7 +137,8 @@ class OsuApiLogicCog(commands.Cog):
         """
         user_info = await self.db_manager.get_user_info(ctx.author.id)
         calc_task = asyncio.create_task(self.extras.calculate_all_user_country_stats(user_info))
-        is_task_completed = await self.extras.wait_till_task_complete(ctx, calc_task=calc_task)
+        is_task_completed = await self.extras.wait_till_task_complete(ctx, calc_task=calc_task,
+                                                                      timeout_sec=3600 * 24)
         if is_task_completed:
             stats: BeatmapsUserCountryStatsManager = calc_task.result()
             response = stats.get_pretty_stats()

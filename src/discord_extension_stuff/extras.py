@@ -22,12 +22,17 @@ class Extras:
         Checks if discord user with specified id exists.
         """
         # Try to fetch the user by their ID
-        user = self.bot.get_user(discord_user_id)
+        try:
+            user = await self.bot.fetch_user(discord_user_id)
+            if user is None:
+                return False
+            return True
 
-        if user is None:
+        except discord.NotFound:
             return False
 
-        return True
+        except discord.HTTPException:
+            return False
 
     async def calculate_beatmapsets_grade_stats(self, query: str, user_info: DbUserInfo) \
             -> BeatmapsUserGradesStatsManager:
@@ -101,7 +106,7 @@ class Extras:
         user_info_formatted = '\n'.join([str(item) for item in user_info_list])
         return user_info_formatted
 
-    async def wait_till_task_complete(self, ctx: Context, *, calc_task: Task) -> bool:
+    async def wait_till_task_complete(self, ctx: Context, *, calc_task: Task, timeout_sec: int = 3600) -> bool:
         """
         Creates a task that can be terminated be a discord user.
         Handles interaction between discord user and bot.
@@ -109,7 +114,7 @@ class Extras:
         """
         start_msg = await ctx.send("Calculating... (reply stop to stop)")
         wait_for_reply_task = asyncio.create_task(
-            self.wait_for_reply(ctx, start_msg, reply_message_content='stop', timeout=3600))
+            self.wait_for_reply(ctx, start_msg, reply_message_content='stop', timeout=timeout_sec))
         done, pending = await asyncio.wait([calc_task, wait_for_reply_task], return_when=asyncio.FIRST_COMPLETED)
 
         await start_msg.delete()
