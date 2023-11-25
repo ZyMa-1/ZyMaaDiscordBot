@@ -1,5 +1,6 @@
 import logging
 
+import discord
 from discord.ext import commands
 
 from core import BotContext
@@ -16,6 +17,7 @@ class SetupCog(commands.Cog):
         for cog_name, cog_class in self.bot.cogs.items():
             logger.info(f"Loaded cog: {cog_name}")
         logger.info(f'Logged in as {self.bot.user}')
+        await self.bot.change_presence(activity=discord.Game(name='osu!'))
 
     @commands.Cog.listener()
     async def on_guild_join(self, guild):
