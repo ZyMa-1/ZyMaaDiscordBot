@@ -1,6 +1,6 @@
 from typing import List
 
-from ossapi import BeatmapsetSearchResult, BeatmapPlaycount, OssapiAsync, Score, BeatmapUserScore
+from ossapi import BeatmapPlaycount, OssapiAsync, Score, BeatmapUserScore
 from ossapi.enums import Grade, BeatmapsetSearchMode, UserBeatmapType, ScoreType
 
 import my_logging.get_loggers
@@ -154,28 +154,3 @@ class OsuApiUtils:
             offset += limit
 
         return beatmap_id_list
-
-    async def get_user_country_top_x_score(self, beatmap_id: int, user_info: DbUserInfo, *, top_x: int) \
-            -> Score | None:
-        """
-        Returns a 'Score' If 'rank_country' <= 'top_x'. Returns 'None' otherwise.
-        Utilizes 'ossapi' 'beatmap_user_score' endpoint.
-        """
-        logger.info(f'{__name__}: { user_info.osu_user_id=} {user_info.osu_game_mode=}',
-                    extra={'tokens_spent': 1.0})
-        await self.rate_limiter.wait_for_request(tokens_required=1.0)
-        try:
-            beatmap_user_score: BeatmapUserScore = await self.ossapi.beatmap_user_score(beatmap_id,
-                                                                                        user_info.osu_user_id,
-                                                                                        mode=user_info.osu_game_mode)
-
-        except ValueError:  # Score does not exist
-            return None
-
-        if beatmap_user_score.score.rank_country is None:
-            return None
-
-        if beatmap_user_score.score.rank_country <= top_x:
-            return beatmap_user_score.score
-
-        return None

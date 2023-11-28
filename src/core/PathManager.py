@@ -15,7 +15,7 @@ class PathManager:
     DOT_ENV_PATH: pathlib.Path | None
 
     LOGS_DIR: pathlib.Path | None
-    OSU_API_MAIN_LOG_PATH: pathlib.Path | None
+    OSU_API_LOGS_PATH: pathlib.Path | None
 
     @classmethod
     def set_project_root(cls, project_root: pathlib.Path):
@@ -29,4 +29,4 @@ class PathManager:
         cls.DOT_ENV_PATH = cls.PROJECT_ROOT / ".env"
 
         cls.LOGS_DIR = cls.PROJECT_ROOT / "logs"
-        cls.OSU_API_MAIN_LOG_PATH = cls.PROJECT_ROOT / "logs" / "osu_api" / "osu_api.log"
+        cls.OSU_API_LOGS_PATH = cls.PROJECT_ROOT / "logs" / "osu_api"

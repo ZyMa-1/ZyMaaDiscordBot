@@ -1,4 +1,5 @@
 import datetime
+import glob
 import re
 from typing import List, Optional
 
@@ -29,34 +30,42 @@ class LoggingStats:
     @staticmethod
     async def calculate_tokens_spent(time_period_seconds: int) -> int:
         """
-        Calculates amount of token spent between the present and (present - 'time_period_seconds') period of time.
-        Stats are based on 'osu_api_utils' logging data file. (file, not files)
+        Calculates the amount of tokens spent between
+        the present and (present - 'time_period_seconds') period of time.
+        Stats are based on 'osu_api_utils' logging data files.
         """
         if time_period_seconds < 0 or time_period_seconds > 3600 * 24:
-            raise RuntimeError("Function does not designed to work on that time_period yet.")
+            raise RuntimeError("Function is not designed to work on that time_period yet.")
 
-        async with aiofiles.open(PathManager.OSU_API_MAIN_LOG_PATH, "r") as file:
-            logs = await file.readlines()
-
-        log_pattern = re.compile(
-            r'(?P<timestamp>\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}).*tokens_spent=(?P<tokens_spent>\d+)')
-
-        total_tokens_spent = 0
         current_time = datetime.datetime.now()
+        total_tokens_spent = 0
 
-        for log_entry in reversed(logs):
-            match = log_pattern.search(log_entry)
-            if match:
-                timestamp_str = match.group('timestamp')
-                tokens_spent = int(match.group('tokens_spent'))
+        # Find log files matching the time period
+        log_files_pattern = PathManager.OSU_API_LOGS_PATH / "osu_api*.log"
+        log_files = glob.glob(str(log_files_pattern))
+        log_files.sort(reverse=True)  # Sort in descending order to process the latest first
 
-                # Parse the timestamp
-                timestamp = datetime.datetime.strptime(timestamp_str, '%Y-%m-%d %H:%M:%S')
+        for log_file_path in log_files:
+            async with aiofiles.open(log_file_path, "r") as file:
+                logs = await file.readlines()
 
-                # Check If timestamp is within the time period
-                if (current_time - timestamp).total_seconds() <= time_period_seconds:
-                    total_tokens_spent += tokens_spent
-                else:
-                    break
+            log_pattern = re.compile(
+                r'(?P<timestamp>\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}).*tokens_spent=(?P<tokens_spent>\d+)')
+
+            for log_entry in reversed(logs):
+                match = log_pattern.search(log_entry)
+                if match:
+                    timestamp_str = match.group('timestamp')
+                    tokens_spent = int(match.group('tokens_spent'))
+
+                    # Parse the timestamp
+                    timestamp = datetime.datetime.strptime(timestamp_str, '%Y-%m-%d %H:%M:%S')
+
+                    # Check If timestamp is within the time period
+                    if (current_time - timestamp).total_seconds() <= time_period_seconds:
+                        total_tokens_spent += tokens_spent
+                    else:
+                        # No need to check further log files
+                        break
 
         return total_tokens_spent
