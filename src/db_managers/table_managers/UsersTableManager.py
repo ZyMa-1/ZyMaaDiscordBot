@@ -16,6 +16,9 @@ class UsersTableManager:
         self.db_name = db_name
 
     async def create_users_table(self):
+        """
+        Initializes 'users' table.
+        """
         async with aiosqlite.connect(self.db_name) as db:
             await db.execute('''
                 CREATE TABLE IF NOT EXISTS users (
@@ -28,6 +31,10 @@ class UsersTableManager:
             await db.commit()
 
     async def insert_user_info(self, user_info: DbUserInfo) -> bool:
+        """
+        Inserts entry to 'users' table.
+        Returns True If operation was successful, False otherwise.
+        """
         if not user_info.is_config_set_up() or not user_info.are_fields_valid():
             return False
 
@@ -35,12 +42,16 @@ class UsersTableManager:
             cursor = await db.cursor()
             await cursor.execute(
                 'INSERT OR REPLACE INTO users (discord_user_id, osu_user_id, osu_game_mode) VALUES (?, ?, ?)',
-                user_info.as_tuple())
+                (user_info.discord_user_id, user_info.osu_user_id, user_info.osu_game_mode))
             await db.commit()
 
             return True
 
     async def get_user_info(self, discord_user_id: int) -> DbUserInfo:
+        """
+        Returns 'users' table entry with specified 'discord_user_id'.
+        Returns 'DbUserInfo' If the entry was not even found (for predicates).
+        """
         async with aiosqlite.connect(self.db_name) as db:
             cursor = await db.cursor()
             await cursor.execute('SELECT osu_user_id, osu_game_mode FROM users WHERE discord_user_id = ?',

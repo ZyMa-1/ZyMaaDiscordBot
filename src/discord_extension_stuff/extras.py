@@ -13,6 +13,10 @@ from statistics_managers import BeatmapsUserGradesStatsManager
 
 
 class Extras:
+    """
+    Class designed to mix things up!
+    """
+
     def __init__(self, bot_context: BotContext):
         self.bot = bot_context.bot
         self.osu_api_utils = UtilsFactory.get_osu_api_utils()
@@ -77,6 +81,7 @@ class Extras:
     async def format_discord_id_list(self, discord_user_id_list: List[int]) -> str:
         """
         Adds extra info to the 'discord_user_id_list' and returns ready to be printed string.
+        Used for 'trusted_users' and 'admins' commands.
         """
         user_info_list = []
 
@@ -97,9 +102,11 @@ class Extras:
 
     async def wait_till_task_complete(self, ctx: Context, *, calc_task: Task, timeout_sec: int = 3600) -> bool:
         """
-        Creates a task that can be terminated be a discord user.
+        Creates a task that can be terminated by a discord user.
         Handles interaction between discord user and bot.
-        Returns true if the task was completed, false otherwise.
+        Returns True If the task was completed, False otherwise.
+
+        Further scaling of 'wait_for_reply'.
         """
         start_msg = await ctx.send("Calculating... (reply stop to stop)")
         wait_for_reply_task = asyncio.create_task(

@@ -10,6 +10,10 @@ from factories import UtilsFactory
 
 
 class BeatmapsUserGradesStatsManager:
+    """
+    Class designed to easily calculate user's grade statistics on certain group of beatmaps.
+    """
+
     def __init__(self, beatmap_ids: List[int], user_info: DbUserInfo):
         self.beatmap_ids = beatmap_ids
         self.osu_api_utils = UtilsFactory.get_osu_api_utils()

@@ -12,6 +12,10 @@ logger = my_logging.get_loggers.osu_api_logger()
 
 
 class OsuApiUtils:
+    """
+    Class to interact 'ossapi' in various ways. Extension of 'ossapi' for the needs.
+    """
+
     def __init__(self, client_id, client_secret):
         self.ossapi = OssapiAsync(client_id, client_secret)
         self.rate_limiter = LeakyBucketRateLimiter(tokens_per_second=2.0, max_tokens=2.0)
@@ -45,7 +49,7 @@ class OsuApiUtils:
         while True:
             logger.info(f'{__name__}: {args=} {kwargs=}',
                         extra={'tokens_spent': 1.0})
-            await self.rate_limiter.wait_for_request(tokens_required=1.0)
+            await self.rate_limiter.process_request(tokens_required=1.0)
             cur_res = await self.ossapi.search_beatmapsets(*args, **kwargs)
             cursor = cur_res.cursor
             kwargs['cursor'] = cursor
@@ -55,12 +59,12 @@ class OsuApiUtils:
 
     async def check_if_user_exists(self, user_id: int) -> bool:
         """
-        Checks If osu! user with specified 'user_id' exists.
+        Checks If user with specified 'user_id' exists.
         Utilizes 'ossapi' 'user' endpoint.
         """
         logger.info(f'{__name__}: {user_id=}',
                     extra={'tokens_spent': 1.0})
-        await self.rate_limiter.wait_for_request(tokens_required=1.0)
+        await self.rate_limiter.process_request(tokens_required=1.0)
         try:
             user = await self.ossapi.user(user_id)
         except ValueError:  # User does not exist
@@ -78,7 +82,7 @@ class OsuApiUtils:
         """
         logger.info(f'{__name__}: {beatmap_id=} { user_info.osu_user_id=} {user_info.osu_game_mode=}',
                     extra={'tokens_spent': 1.0})
-        await self.rate_limiter.wait_for_request(tokens_required=1.0)
+        await self.rate_limiter.process_request(tokens_required=1.0)
         try:
             beatmap_user_score: BeatmapUserScore = await self.ossapi.beatmap_user_score(beatmap_id,
                                                                                         user_info.osu_user_id,
@@ -99,7 +103,7 @@ class OsuApiUtils:
         while True:
             logger.info(f'{__name__}: {beatmap_id=} { user_info.osu_user_id=} {user_info.osu_game_mode=}',
                         extra={'tokens_spent': 1.0})
-            await self.rate_limiter.wait_for_request(tokens_required=1.0)
+            await self.rate_limiter.process_request(tokens_required=1.0)
             beatmap_playcount_list: List[BeatmapPlaycount] = (
                 await self.ossapi.user_beatmaps(
                     user_info.osu_user_id, type=UserBeatmapType.MOST_PLAYED, limit=limit, offset=offset))
@@ -120,7 +124,7 @@ class OsuApiUtils:
         """
         logger.info(f'{__name__}: { user_info.osu_user_id=} {user_info.osu_game_mode=}',
                     extra={'tokens_spent': 1.0})
-        await self.rate_limiter.wait_for_request(tokens_required=1.0)
+        await self.rate_limiter.process_request(tokens_required=1.0)
         scores: List[Score] = await self.ossapi.user_scores(user_info.osu_user_id,
                                                             type=ScoreType.RECENT,
                                                             include_fails=True,
@@ -140,7 +144,7 @@ class OsuApiUtils:
         while True:
             logger.info(f'{__name__}: { user_info.osu_user_id=} {user_info.osu_game_mode=}',
                         extra={'tokens_spent': 1.0})
-            await self.rate_limiter.wait_for_request(tokens_required=1.0)
+            await self.rate_limiter.process_request(tokens_required=1.0)
             beatmap_playcount_list: List[BeatmapPlaycount] = (
                 await self.ossapi.user_beatmaps(
                     user_info.osu_user_id, type=UserBeatmapType.MOST_PLAYED, limit=limit, offset=offset))
@@ -161,7 +165,7 @@ class OsuApiUtils:
         """
         logger.info(f'{__name__}: {beatmap_id=} { user_info.osu_user_id=} {user_info.osu_game_mode=}',
                     extra={'tokens_spent': 1.0})
-        await self.rate_limiter.wait_for_request(tokens_required=1.0)
+        await self.rate_limiter.process_request(tokens_required=1.0)
         try:
             beatmap_user_score: BeatmapUserScore = await self.ossapi.beatmap_user_score(beatmap_id,
                                                                                         user_info.osu_user_id,

@@ -13,7 +13,9 @@ logger = my_logging.get_loggers.data_utilities_logger()
 class DataUtils:
     """
     Data utilities class to work with files.
+    Self-explanatory methods, so no documentation.
     """
+
     @staticmethod
     async def load_trusted_users() -> List[int]:
         async with aiofiles.open(PathManager.TRUSTED_USERS_PATH, "r") as file:

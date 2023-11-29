@@ -2,6 +2,9 @@ import pathlib
 
 
 class PathManagerError(Exception):
+    """
+    Custom exception class for 'PathManager'.
+    """
     pass
 
 
@@ -9,20 +12,23 @@ class PathManager:
     """
     Path manager class to store all paths to the files/directories in more convenient way.
     """
-    PROJECT_ROOT: pathlib.Path | None
-    DATA_DIR: pathlib.Path | None
 
-    TRUSTED_USERS_PATH: pathlib.Path | None
-    ADMIN_USERS_PATH: pathlib.Path | None
-    DISCORD_USERS_DATA_DB_PATH: pathlib.Path | None
-    DOT_ENV_PATH: pathlib.Path | None
+    PROJECT_ROOT: pathlib.Path
+    DATA_DIR: pathlib.Path
 
-    LOGS_DIR: pathlib.Path | None
-    OSU_API_LOGS_PATH: pathlib.Path | None
+    TRUSTED_USERS_PATH: pathlib.Path
+    ADMIN_USERS_PATH: pathlib.Path
+    DISCORD_USERS_DATA_DB_PATH: pathlib.Path
+    DOT_ENV_PATH: pathlib.Path
+
+    LOGS_DIR: pathlib.Path
+    OSU_API_LOGS_PATH: pathlib.Path
 
     @classmethod
     def set_project_root(cls, project_root: pathlib.Path):
-        """Sets project root and creates path for all the project files/directories"""
+        """
+        Sets project root and creates path for all the project files/directories.
+        """
         cls.PROJECT_ROOT = project_root
         cls.DATA_DIR = cls.PROJECT_ROOT / "data"
 

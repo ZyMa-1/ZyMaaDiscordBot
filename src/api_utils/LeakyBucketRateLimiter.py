@@ -3,39 +3,49 @@ import time
 
 
 class LeakyBucketRateLimiter:
+    """
+    Class to rate limit the 'OsuApiUtils' class using leaky bucket approach.
+    """
+
     def __init__(self, tokens_per_second: float, max_tokens: float):
-        self.tokens_per_second = tokens_per_second
-        self.max_tokens = max_tokens
-        self.tokens = max_tokens
-        self.last_refill_time = time.monotonic()
+        self.tokens_per_second: float = tokens_per_second
+        self.max_tokens: float = max_tokens
+        self.tokens: float = max_tokens
+        self.last_refresh_time: float = time.monotonic()
         self.queue = asyncio.Queue()
 
-    def _refill_bucket(self):
+    async def _refresh_tokens(self):
+        """
+        Refreshes the amount of tokens available at the moment.
+        """
         current_time = time.monotonic()
-        elapsed_time = current_time - self.last_refill_time
-        tokens_to_add = elapsed_time * self.tokens_per_second
-        self.tokens = min(self.max_tokens, self.tokens + tokens_to_add)
-        self.last_refill_time = current_time
+        time_elapsed = current_time - self.last_refresh_time
+        self.tokens = min(self.tokens + time_elapsed * self.tokens_per_second, self.max_tokens)
+        self.last_refresh_time = current_time
 
-    def _can_make_request(self, tokens_required: float = 1):
-        self._refill_bucket()
-        if self.tokens >= tokens_required:
-            self.tokens -= tokens_required
-            return True
-        else:
-            return False
+    async def _consume_tokens(self, tokens_required: float):
+        """
+        Consumes required amount of tokens.
+        """
+        if tokens_required > self.max_tokens:
+            raise RuntimeError("The amount of tokens required cannot be greater than the 'max_tokens'")
 
-    async def wait_for_request(self, tokens_required: float):
-        if not self._can_make_request(tokens_required):
-            await self._enqueue_request(tokens_required)
-            await self._process_queue()
-
-    async def _enqueue_request(self, tokens_required: float):
-        await self.queue.put(tokens_required)
+        while self.tokens < tokens_required:
+            await self._refresh_tokens()
+            await asyncio.sleep(1 / self.tokens_per_second)
+        self.tokens -= tokens_required
 
     async def _process_queue(self):
-        while not self.queue.empty() and self.tokens >= self.queue._get()[0]:
-            request_tokens = self.queue._get()[0]
-            self.tokens -= request_tokens
-            await self.queue.get()
-            self._refill_bucket()
+        """
+        Processes the queue.
+        """
+        while not self.queue.empty():
+            tokens_required = self.queue.get_nowait()
+            await self._consume_tokens(tokens_required)
+
+    async def process_request(self, tokens_required: float):
+        """
+        Processes the request.
+        """
+        await self.queue.put(tokens_required)
+        await self._process_queue()

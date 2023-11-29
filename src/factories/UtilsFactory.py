@@ -7,8 +7,9 @@ class UtilsFactory:
     """
     Utilities factory for all the 'Singleton' type of classes.
     """
-    _db_manager = None
-    _osu_api_utils = None
+
+    _db_manager: DbManager
+    _osu_api_utils: OsuApiUtils
 
     @classmethod
     async def create_all_instances(cls):
@@ -18,12 +19,8 @@ class UtilsFactory:
 
     @classmethod
     def get_db_manager(cls) -> DbManager:
-        if not isinstance(cls._db_manager, DbManager):
-            raise ValueError
         return cls._db_manager
 
     @classmethod
     def get_osu_api_utils(cls) -> OsuApiUtils:
-        if not isinstance(cls._osu_api_utils, OsuApiUtils):
-            raise ValueError
         return cls._osu_api_utils

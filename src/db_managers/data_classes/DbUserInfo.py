@@ -10,6 +10,7 @@ class DbUserInfo:
     """
     Dataclass to wrap up and store all entries of the 'users' database table.
     """
+
     discord_user_id: int
     osu_user_id: Optional[int]
     osu_game_mode: Optional[str]
@@ -32,9 +33,3 @@ class DbUserInfo:
             return False
 
         return True
-
-    def as_tuple(self) -> tuple:
-        """
-        Returns dataclass instance represented as a tuple.
-        """
-        return self.discord_user_id, self.osu_user_id, self.osu_game_mode

@@ -4,6 +4,10 @@ from ossapi import Beatmapset, BeatmapsetSearchResult
 
 
 class CombinedBeatmapsetSearchResult:
+    """
+    Class to work with multiple 'BeatmapsetSearchResult' ossapi models.
+    """
+
     def __init__(self,
                  beatmapsets: List[Beatmapset],
                  total: int,
@@ -22,6 +26,9 @@ class CombinedBeatmapsetSearchResult:
 
     @staticmethod
     def merge_beatmapset_search_results(results: List[BeatmapsetSearchResult]):
+        """
+        Merges List[BeatmapsetSearchResult] into 'CombinedBeatmapsetSearchResult'
+        """
         return CombinedBeatmapsetSearchResult(
             beatmapsets=[s for r in results for s in r.beatmapsets],
             total=sum(r.total for r in results),

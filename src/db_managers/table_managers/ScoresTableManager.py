@@ -17,6 +17,9 @@ class ScoresTableManager:
         self.db_name = db_name
 
     async def create_scores_table(self):
+        """
+        Initializes 'scores' table.
+        """
         async with aiosqlite.connect(self.db_name) as db:
             # Enable foreign key constraints (enforcing checks on foreign keys)
             await db.execute('PRAGMA foreign_keys = ON;')
@@ -34,6 +37,10 @@ class ScoresTableManager:
             await db.commit()
 
     async def insert_score(self, score_info: DbScoreInfo) -> bool:
+        """
+        Inserts entry to 'scores' table.
+        Returns True If operation was successful, False otherwise.
+        """
         try:
             async with aiosqlite.connect(self.db_name) as db:
                 cursor = await db.cursor()
@@ -48,6 +55,10 @@ class ScoresTableManager:
             return False
 
     async def delete_score(self, _id: int) -> bool:
+        """
+        Inserts entry to 'scores' table.
+        Returns True If operation was successful, False otherwise.
+        """
         try:
             async with aiosqlite.connect(self.db_name) as db:
                 cursor = await db.cursor()
@@ -57,7 +68,10 @@ class ScoresTableManager:
         except aiosqlite.Error:
             return False
 
-    async def get_all_user_scores(self, user_info_id: int, limit: int = 10) -> List[DbScoreInfo]:
+    async def get_all_user_scores(self, user_info_id: int) -> List[DbScoreInfo]:
+        """
+        klsjklksjfldskfjdslfkjsdlkfjsdfkls todo!
+        """
         async with aiosqlite.connect(self.db_name) as db:
             cursor = await db.cursor()
             await cursor.execute('''
@@ -65,28 +79,11 @@ class ScoresTableManager:
                 FROM scores
                 WHERE user_info_id = ?
                 ORDER BY timestamp DESC
-                LIMIT ?
-            ''', (user_info_id, limit))
+            ''', (user_info_id,))
             rows = await cursor.fetchall()
-
-            scores = [
-                DbScoreInfo(id=row[0], user_info_id=row[1], score_json_data=row[2], timestamp=row[3])
-                for row in rows
-            ]
-
-        return scores
-
-    async def get_score(self, _id: int) -> DbScoreInfo | None:
-        async with aiosqlite.connect(self.db_name) as db:
-            cursor = await db.cursor()
-            await cursor.execute('''
-                   SELECT id, user_info_id, score_json_data, timestamp
-                   FROM scores
-                   WHERE id = ?
-               ''', (_id,))
-            row = await cursor.fetchone()
-
-            if row:
-                return DbScoreInfo(id=row[0], user_info_id=row[1], score_json_data=row[2], timestamp=row[3])
-
-        return None
+            for row in rows:
+                db_score_info = DbScoreInfo(id=row[0],
+                                            user_info_id=row[1],
+                                            score_json_data=row[2],
+                                            timestamp=row[3])
+                yield db_score_info

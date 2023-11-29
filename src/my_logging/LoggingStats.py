@@ -9,6 +9,10 @@ from core import PathManager
 
 
 class LoggingStats:
+    """
+    Class for logging stats.
+    """
+
     @staticmethod
     async def calculate_stats(time_periods: Optional[List[int]] = None):
         """
