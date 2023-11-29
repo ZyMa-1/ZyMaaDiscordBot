@@ -1,5 +1,5 @@
 import aiosqlite
-from typing import List
+from typing import List, Generator
 
 import my_logging.get_loggers
 from core import PathManager
@@ -68,9 +68,10 @@ class ScoresTableManager:
         except aiosqlite.Error:
             return False
 
-    async def get_all_user_scores(self, user_info_id: int) -> List[DbScoreInfo]:
+    async def get_all_user_scores(self, user_info_id: int) -> Generator[DbScoreInfo, None, None]:
         """
-        klsjklksjfldskfjdslfkjsdlkfjsdfkls todo!
+        Returns a generator for all the scores associated with a specified user
+        wrapped up into 'DbScoreInfo' dataclass.
         """
         async with aiosqlite.connect(self.db_name) as db:
             cursor = await db.cursor()

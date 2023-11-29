@@ -49,7 +49,7 @@ class UsersTableManager:
 
     async def get_user_info(self, discord_user_id: int) -> DbUserInfo:
         """
-        Returns 'users' table entry with specified 'discord_user_id'.
+        Returns 'users' table entry with specified 'discord_user_id' wrapped up into 'DbUserInfo' dataclass.
         Returns 'DbUserInfo' If the entry was not even found (for predicates).
         """
         async with aiosqlite.connect(self.db_name) as db:
