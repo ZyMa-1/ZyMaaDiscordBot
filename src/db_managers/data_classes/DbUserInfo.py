@@ -8,7 +8,7 @@ from ossapi import GameMode
 @dataclass
 class DbUserInfo:
     """
-    Dataclass to wrap up and store all entries of the 'users' database table.
+    Dataclass to wrap up and store the row entry of the 'users' database table.
     """
 
     discord_user_id: int
