@@ -12,6 +12,7 @@ Todo:
    Create separate cog for the commands that would use the 'scores' db table.
 8. Check 'logging_stats' command If it is working (I added glob thingy).
 9. Sending large files on discord may be need to 'zip' them.
+10. Maybe somehow ease the way of checking the arguments in commands and parsing them by using some function thingies.
 
 Ideas:
 1. Just get the table of all your scores with most important fields in it (not entire 'Score' model)
