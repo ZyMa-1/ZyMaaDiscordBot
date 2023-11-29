@@ -9,7 +9,7 @@ from discord.ext.commands import Context
 from core import BotContext
 from db_managers.data_classes.DbUserInfo import DbUserInfo
 from factories import UtilsFactory
-from statistics_managers import BeatmapsUserGradesStatsManager, BeatmapsUserCountryStatsManager
+from statistics_managers import BeatmapsUserGradesStatsManager
 
 
 class Extras:

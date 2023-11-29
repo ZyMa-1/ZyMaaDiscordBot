@@ -16,5 +16,5 @@ class DbManager:
         self.users_table_manager = UsersTableManager(db_name)
         self.scores_table_manager = ScoresTableManager(db_name)
 
-    def create_tables(self):
-        self.users_table_manager.create_users_table()
+    async def create_tables(self):
+        await self.users_table_manager.create_users_table()

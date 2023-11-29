@@ -1,2 +1,1 @@
-from .BeatmapsUserCountryStatsManager import BeatmapsUserCountryStatsManager
 from .BeatmapsUserGradesStatsManager import BeatmapsUserGradesStatsManager

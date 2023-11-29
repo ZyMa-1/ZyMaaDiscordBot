@@ -12,7 +12,7 @@ class UtilsFactory:
 
     @classmethod
     async def create_all_instances(cls):
-        cls._discord_users_data_db_manager = DbManager()
+        cls._db_manager = DbManager()
         await cls._db_manager.create_tables()
         cls._osu_api_utils = OsuApiUtils(*DataUtils.load_osu_api_credentials())
 

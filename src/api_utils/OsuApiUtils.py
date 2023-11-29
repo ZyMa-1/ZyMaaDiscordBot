@@ -5,7 +5,7 @@ from ossapi.enums import Grade, BeatmapsetSearchMode, UserBeatmapType, ScoreType
 
 import my_logging.get_loggers
 from db_managers.data_classes import DbUserInfo
-from .TokenBucketRateLimiter import TokenBucketRateLimiter
+from .LeakyBucketRateLimiter import LeakyBucketRateLimiter
 from .models import CombinedBeatmapsetSearchResult
 
 logger = my_logging.get_loggers.osu_api_logger()
@@ -14,7 +14,7 @@ logger = my_logging.get_loggers.osu_api_logger()
 class OsuApiUtils:
     def __init__(self, client_id, client_secret):
         self.ossapi = OssapiAsync(client_id, client_secret)
-        self.rate_limiter = TokenBucketRateLimiter(tokens_per_second=2.0)
+        self.rate_limiter = LeakyBucketRateLimiter(tokens_per_second=2.0, max_tokens=2.0)
 
     async def search_all_beatmapsets(self, *args, **kwargs) -> CombinedBeatmapsetSearchResult:
         """
