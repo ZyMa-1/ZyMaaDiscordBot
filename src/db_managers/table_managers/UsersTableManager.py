@@ -9,22 +9,22 @@ logger = my_logging.get_loggers.database_utilities_logger()
 
 class UsersTableManager:
     """
-    Class for managing database operations (aiosqlite).
+    Class for managing 'users' table database operations (aiosqlite).
     """
+
     def __init__(self, db_name=PathManager.DISCORD_USERS_DATA_DB_PATH):
         self.db_name = db_name
 
     async def create_users_table(self):
         async with aiosqlite.connect(self.db_name) as db:
-            cursor = await db.cursor()
-            await cursor.execute('''
+            await db.execute('''
                 CREATE TABLE IF NOT EXISTS users (
                     discord_user_id INTEGER PRIMARY KEY,
                     osu_user_id INTEGER,
                     osu_game_mode TEXT
                 )
             ''')
-            logger.info("create_users_table: Database created (or initialized)")
+            logger.info("create_users_table: Table created (or initialized)")
             await db.commit()
 
     async def insert_user_info(self, user_info: DbUserInfo) -> bool:

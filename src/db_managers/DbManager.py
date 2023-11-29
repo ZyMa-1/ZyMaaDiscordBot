@@ -18,3 +18,4 @@ class DbManager:
 
     async def create_tables(self):
         await self.users_table_manager.create_users_table()
+        await self.scores_table_manager.create_scores_table()
