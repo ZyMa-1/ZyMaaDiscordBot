@@ -110,7 +110,7 @@ class OsuApiLogicCog(commands.Cog):
 
     @commands.command(name='most_recent')
     @commands.check(predicates.check_is_trusted and predicates.check_is_config_set_up)
-    async def most_recent_play_command(self, ctx: Context):
+    async def most_recent_command(self, ctx: Context):
         """
         Gets user's most recent play.
         """
@@ -127,19 +127,3 @@ class OsuApiLogicCog(commands.Cog):
             await ctx.reply(embed=embed)
         else:
             await ctx.reply("No score")
-
-    @commands.command(name='country_stats_all')
-    @commands.check(predicates.check_is_trusted and predicates.check_is_config_set_up)
-    async def most_recent_play_command(self, ctx: Context):
-        """
-        Gets user's country stats on all the maps EVER played by the user.
-        To stop the command, reply 'stop' to the 'Calculating...' message.
-        """
-        user_info = await self.db_manager.get_user_info(ctx.author.id)
-        calc_task = asyncio.create_task(self.extras.calculate_all_user_country_stats(user_info))
-        is_task_completed = await self.extras.wait_till_task_complete(ctx, calc_task=calc_task,
-                                                                      timeout_sec=3600 * 24)
-        if is_task_completed:
-            stats: BeatmapsUserCountryStatsManager = calc_task.result()
-            response = stats.get_pretty_stats()
-            await ctx.reply(response)

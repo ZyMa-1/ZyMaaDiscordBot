@@ -154,3 +154,18 @@ class OsuApiUtils:
             offset += limit
 
         return beatmap_id_list
+
+    async def get_beatmap_user_best_score(self, beatmap_id: int, user_info: DbUserInfo) -> Score | None:
+        """
+        Gets the best user's score on a given beatmap and returns it.
+        """
+        logger.info(f'{__name__}: {beatmap_id=} { user_info.osu_user_id=} {user_info.osu_game_mode=}',
+                    extra={'tokens_spent': 1.0})
+        await self.rate_limiter.wait_for_request(tokens_required=1.0)
+        try:
+            beatmap_user_score: BeatmapUserScore = await self.ossapi.beatmap_user_score(beatmap_id,
+                                                                                        user_info.osu_user_id,
+                                                                                        mode=user_info.osu_game_mode)
+            return beatmap_user_score.score
+        except ValueError:  # Score does not exist
+            return None
