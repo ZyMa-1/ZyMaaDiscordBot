@@ -1,4 +1,4 @@
-eimport my_logging.get_loggers
+import my_logging.get_loggers
 from core import PathManager
 
 from .table_managers import UsersTableManager, ScoresTableManager
