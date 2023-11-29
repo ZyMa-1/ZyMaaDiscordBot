@@ -13,7 +13,8 @@ logger = my_logging.get_loggers.osu_api_logger()
 
 class OsuApiUtils:
     """
-    Class to interact with 'ossapi' in various ways. Extension of 'ossapi' for the needs.
+    Class to interact with 'ossapi' in various ways. 
+    Extension of 'ossapi' for the needs.
     """
 
     def __init__(self, client_id, client_secret):
