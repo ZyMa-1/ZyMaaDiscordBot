@@ -18,7 +18,7 @@ class DbManager:
 
     async def create_tables(self):
         """
-        Initialize all tables.
+        Initializes all tables.
         """
         await self.users_table_manager.create_users_table()
         await self.scores_table_manager.create_scores_table()
