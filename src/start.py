@@ -12,7 +12,6 @@ from core import PathManager
 
 def create_directories():
     os.makedirs(PathManager.DATA_DIR, exist_ok=True)
-    os.makedirs(PathManager.TEMP_DIR, exist_ok=True)  # Not used for now
 
 
 async def main():
@@ -32,6 +31,9 @@ async def main():
     # Creating all resources
     from factories import UtilsFactory
     await UtilsFactory.create_all_instances()
+
+    # Check paths existence
+    PathManager.check_paths_existence()
 
     # Starting  the bot
     await bot.main()
