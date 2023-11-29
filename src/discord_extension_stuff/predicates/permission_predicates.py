@@ -23,8 +23,8 @@ async def check_is_admin(ctx: Context) -> bool:
 
 
 async def check_is_config_set_up(ctx: Context) -> bool:
-    db_manager = UtilsFactory.get_discord_users_data_db_manager()
-    user_info = await db_manager.get_user_info(ctx.author.id)
+    db_manager = UtilsFactory.get_db_manager()
+    user_info = await db_manager.users_table_manager.get_user_info(ctx.author.id)
     if not user_info.is_config_set_up():
         await ctx.reply("Sorry, but you must set up the config (config_change)")
         return False

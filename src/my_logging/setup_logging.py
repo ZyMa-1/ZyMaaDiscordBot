@@ -12,5 +12,5 @@ def create_log_directories():
 
 def main():
     create_log_directories()
-    log_file_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'logging.ini')
-    logging.config.fileConfig(log_file_path)
+    ini_file_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'logging.ini')
+    logging.config.fileConfig(ini_file_path)

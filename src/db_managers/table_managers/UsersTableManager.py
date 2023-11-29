@@ -2,12 +2,12 @@ import aiosqlite
 
 import my_logging.get_loggers
 from core import PathManager
-from db_managers.data_classes.DbUserInfo import DbUserInfo
+from db_managers.data_classes import DbUserInfo
 
 logger = my_logging.get_loggers.database_utilities_logger()
 
 
-class DiscordUsersDataDbManager:
+class UsersTableManager:
     """
     Class for managing database operations (aiosqlite).
     """

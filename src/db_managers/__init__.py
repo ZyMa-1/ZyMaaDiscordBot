@@ -1,1 +1,1 @@
-from .DiscordUsersDataDbManager import DiscordUsersDataDbManager
+from .DbManager import DbManager

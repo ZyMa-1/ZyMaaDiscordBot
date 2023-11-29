@@ -4,9 +4,9 @@ from ossapi import BeatmapPlaycount, OssapiAsync, Score, BeatmapUserScore
 from ossapi.enums import Grade, BeatmapsetSearchMode, UserBeatmapType, ScoreType
 
 import my_logging.get_loggers
-from db_managers.data_classes.DbUserInfo import DbUserInfo
+from db_managers.data_classes import DbUserInfo
 from .TokenBucketRateLimiter import TokenBucketRateLimiter
-from .models.CombinedBeatmapsetSearchResult import CombinedBeatmapsetSearchResult
+from .models import CombinedBeatmapsetSearchResult
 
 logger = my_logging.get_loggers.osu_api_logger()
 

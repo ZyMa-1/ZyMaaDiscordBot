@@ -1,0 +1,2 @@
+from .UsersTableManager import UsersTableManager
+from .ScoresTableManager import ScoresTableManager

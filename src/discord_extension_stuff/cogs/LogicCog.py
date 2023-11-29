@@ -6,7 +6,7 @@ import discord_extension_stuff.predicates.permission_predicates as predicates
 from core import BotContext
 from factories import UtilsFactory
 from data_managers import DataUtils
-from db_managers.data_classes.DbUserInfo import DbUserInfo
+from db_managers.data_classes import DbUserInfo
 from discord_extension_stuff.extras import Extras
 
 
@@ -14,7 +14,7 @@ class LogicCog(commands.Cog):
     def __init__(self, bot_context: BotContext):
         self.bot = bot_context.bot
         self.osu_api_utils = UtilsFactory.get_osu_api_utils()
-        self.db_manager = UtilsFactory.get_discord_users_data_db_manager()
+        self.db_manager = UtilsFactory.get_db_manager()
         self.extras = Extras(bot_context)
 
     @commands.command(name='config_change')
@@ -33,7 +33,7 @@ class LogicCog(commands.Cog):
         elif not await self.osu_api_utils.check_if_user_exists(user_info.osu_user_id):
             response = "Sorry, but osu user with specified id does not exist"
         else:
-            await self.db_manager.insert_user_info(user_info)
+            await self.db_manager.users_table_manager.insert_user_info(user_info)
             response = (f"Successfully changed `osu_user_id` to {user_info.osu_user_id} and `osu_game_mode` to "
                         f"{user_info.osu_game_mode}")
         await ctx.reply(response)
@@ -44,7 +44,7 @@ class LogicCog(commands.Cog):
         """
         Prints out user's config.
         """
-        user_info = await self.db_manager.get_user_info(ctx.author.id)
+        user_info = await self.db_manager.users_table_manager.get_user_info(ctx.author.id)
         response = f"Your `{user_info.osu_user_id=}` and `{user_info.osu_game_mode=}`"
         await ctx.send(response)
 

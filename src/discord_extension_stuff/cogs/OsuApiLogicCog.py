@@ -9,13 +9,13 @@ import discord_extension_stuff.predicates.permission_predicates as predicates
 from core import BotContext
 from discord_extension_stuff.extras import Extras
 from factories import UtilsFactory
-from statistics_managers import BeatmapsUserGradesStatsManager, BeatmapsUserCountryStatsManager
+from statistics_managers import BeatmapsUserGradesStatsManager
 
 
 class OsuApiLogicCog(commands.Cog):
     def __init__(self, bot_context: BotContext):
         self.bot = bot_context.bot
-        self.db_manager = UtilsFactory.get_discord_users_data_db_manager()
+        self.db_manager = UtilsFactory.get_db_manager()
         self.osu_api_utils = UtilsFactory.get_osu_api_utils()
         self.extras = Extras(bot_context)
 
@@ -76,7 +76,7 @@ class OsuApiLogicCog(commands.Cog):
 
         query = ' '.join(query_words)
 
-        user_info = await self.db_manager.get_user_info(ctx.author.id)
+        user_info = await self.db_manager.users_table_manager.get_user_info(ctx.author.id)
         calc_task = asyncio.create_task(self.extras.calculate_beatmapsets_grade_stats(query, user_info))
         is_task_completed = await self.extras.wait_till_task_complete(ctx, calc_task=calc_task,
                                                                       timeout_sec=3600)
@@ -99,7 +99,7 @@ class OsuApiLogicCog(commands.Cog):
         Parameters:
             - beatmap_id (int)
         """
-        user_info = await self.db_manager.get_user_info(ctx.author.id)
+        user_info = await self.db_manager.users_table_manager.get_user_info(ctx.author.id)
         calc_task = asyncio.create_task(self.osu_api_utils.get_user_beatmap_playcount(beatmap_id, user_info))
         is_task_completed = await self.extras.wait_till_task_complete(ctx, calc_task=calc_task,
                                                                       timeout_sec=3600)
@@ -114,7 +114,7 @@ class OsuApiLogicCog(commands.Cog):
         """
         Gets user's most recent play.
         """
-        user_info = await self.db_manager.get_user_info(ctx.author.id)
+        user_info = await self.db_manager.users_table_manager.get_user_info(ctx.author.id)
         score = await self.osu_api_utils.get_user_most_recent_score(user_info)
         if score is not None:
             beatmapset_id = score.beatmapset.id
