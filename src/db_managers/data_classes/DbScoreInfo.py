@@ -25,5 +25,5 @@ class DbScoreInfo:
         return cls(id=None, user_info_id=user_info.discord_user_id,
                    score_json_data=serialize_model(score_instance))
 
-    def deserialize_score_json(self, ossapi_instance: OssapiAsync) -> Score:
-        return deserialize_model(ossapi_instance, Score, self.score_json_data)
+    def deserialize_score_json(self) -> Score:
+        return deserialize_model(Score, self.score_json_data)

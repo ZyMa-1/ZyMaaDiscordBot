@@ -80,6 +80,6 @@ class ScoresStatsCog(commands.Cog):
 
         if is_task_completed:
             score_info: DbScoreInfo = calc_task.result()
-            score: Score = score_info.deserialize_score_json(ossapi_instance=self.osu_api_utils.ossapi)
+            score: Score = score_info.deserialize_score_json()
             await ctx.reply(f"Score deserialized successefully. Here is {score.score=} as prove.")
             await ctx.reply(f"{DbScoreInfo.__name__} instance:\n{score_info}")

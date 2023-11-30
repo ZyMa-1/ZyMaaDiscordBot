@@ -1,10 +1,16 @@
+import json
 from typing import Type
 
-from ossapi import OssapiAsync
 from ossapi.utils import Model
 
 
-def deserialize_model(ossapi_instance: OssapiAsync, model_type: Type[Model], json_str: str):
-    # Since ossapi does not have the explicit deserialization method,
-    # I found something that looks like it should do the thing.
-    return ossapi_instance._instantiate_type(json_str, model_type)
+def deserialize_model(model_type: Type[Model], json_str: str):
+    # Load JSON string into a dictionary
+    json_data = json.loads(json_str)
+
+    # Create an instance of the specified model_type class
+    try:
+        model_instance = model_type(**json_data)
+        return model_instance
+    except Exception as e:
+        print(e)
