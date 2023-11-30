@@ -8,6 +8,17 @@ class FunCog(commands.Cog):
     def __init__(self, bot_context: BotContext):
         self.bot = bot_context.bot
 
+    @commands.command(name='about')
+    async def beer_command(self, ctx: Context):
+        """
+        About the bot.
+        """
+        response = ("I made this bot to play with a bunch of osu! api v2 statistics.\n"
+                    "The bot uses 'guest' osu! api v2 authorization grant\n"
+                    "That means fancy statistics is unavailable :("
+                    "Despite that, hope you will enjoy using it!")
+        await ctx.send(response)
+
     @commands.command(name='test')
     async def test_command(self, ctx: Context):
         """
