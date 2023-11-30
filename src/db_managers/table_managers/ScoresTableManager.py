@@ -56,7 +56,7 @@ class ScoresTableManager:
 
     async def delete_all_user_scores(self, user_info: DbUserInfo) -> bool:
         """
-        Deletes all scores for a given 'user_info_id'.
+        Deletes all user's scores.
         Returns True If operation was successful, False otherwise.
         """
         async with aiosqlite.connect(self.db_name) as db:
