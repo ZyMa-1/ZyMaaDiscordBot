@@ -163,6 +163,7 @@ class OsuApiUtils:
     async def get_beatmap_user_best_score(self, beatmap_id: int, user_info: DbUserInfo) -> Optional[Score]:
         """
         Gets the best user's score on a given beatmap.
+        Utilizes 'ossapi' 'beatmap_user_score' endpoint.
         """
         logger.info(f'{__name__}: {beatmap_id=} { user_info.osu_user_id=} {user_info.osu_game_mode=}',
                     extra={'tokens_spent': 1.0})
