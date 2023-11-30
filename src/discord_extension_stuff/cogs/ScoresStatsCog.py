@@ -25,14 +25,16 @@ class ScoresStatsCog(commands.Cog):
         user_info = await self.db_manager.users_table_manager.get_user_info(ctx.author.id)
         calc_task = asyncio.create_task(self.osu_api_utils.get_all_user_beatmap_ids(user_info))
         is_task_completed = await self.extras.wait_till_task_complete(ctx, calc_task=calc_task,
-                                                                      timeout_sec=3600)
+                                                                      timeout_sec=3600 * 12)
         if is_task_completed:
             beatmap_ids: List[int] = calc_task.result()
+            temp_msg = await ctx.send("Calculating (again) scores")
             for beatmap_id in beatmap_ids:
                 score = await self.osu_api_utils.get_beatmap_user_best_score(beatmap_id, user_info)
                 if score:
                     db_score_info = DbScoreInfo.from_score_and_user_info(score, user_info)
                     await self.db_manager.scores_table_manager.insert_score(db_score_info)
+            await temp_msg.delete()
             await ctx.reply(f"Inserted {len(beatmap_ids)} scores into db")
 
     @commands.command(name='delete_all_user_scores')

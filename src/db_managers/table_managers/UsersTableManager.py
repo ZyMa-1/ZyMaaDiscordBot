@@ -32,7 +32,7 @@ class UsersTableManager:
 
     async def insert_user_info(self, user_info: DbUserInfo) -> bool:
         """
-        Inserts entry to 'users' table.
+        Inserts entry to the 'users' table.
         Returns True If operation was successful, False otherwise.
         """
         if not user_info.is_config_set_up() or not user_info.are_fields_valid():
@@ -50,7 +50,7 @@ class UsersTableManager:
     async def get_user_info(self, discord_user_id: int) -> DbUserInfo:
         """
         Returns 'users' table entry with specified 'discord_user_id' wrapped up into 'DbUserInfo' dataclass.
-        Returns 'DbUserInfo' If the entry was not even found (for predicates).
+        Returns 'DbUserInfo' If the entry was not even found (needed for predicates).
         """
         async with aiosqlite.connect(self.db_name) as db:
             cursor = await db.cursor()
