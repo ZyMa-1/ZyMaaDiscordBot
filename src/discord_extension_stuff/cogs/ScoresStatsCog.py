@@ -56,7 +56,7 @@ class ScoresStatsCog(commands.Cog):
     @commands.check(predicates.check_is_trusted and
                     predicates.check_is_config_set_up and
                     predicates.check_is_user_has_scores)
-    @commands.cooldown(1, 60, commands.BucketType.user)
+    @commands.cooldown(1, 30, commands.BucketType.user)
     async def count_scores_command(self, ctx: Context):
         user_info = await self.db_manager.users_table_manager.get_user_info(ctx.author.id)
         calc_task = asyncio.create_task(self.db_manager.scores_table_manager.count_all_user_scores(user_info))
@@ -71,7 +71,7 @@ class ScoresStatsCog(commands.Cog):
     @commands.check(predicates.check_is_trusted and
                     predicates.check_is_config_set_up and
                     predicates.check_is_user_has_scores)
-    @commands.cooldown(1, 60, commands.BucketType.user)
+    @commands.cooldown(1, 30, commands.BucketType.user)
     async def get_random_score_command(self, ctx: Context):
         user_info = await self.db_manager.users_table_manager.get_user_info(ctx.author.id)
         calc_task = asyncio.create_task(self.db_manager.scores_table_manager.get_user_random_score(user_info))

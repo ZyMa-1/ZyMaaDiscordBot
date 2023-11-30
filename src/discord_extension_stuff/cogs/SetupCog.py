@@ -29,3 +29,11 @@ class SetupCog(commands.Cog):
             if channel.permissions_for(guild.me).send_messages:
                 await channel.send(welcome_message)
                 break
+
+    @commands.Cog.listener()
+    async def on_command_error(self, ctx, error):
+        if isinstance(error, commands.CommandOnCooldown):
+            # Custom cooldown message
+            await ctx.send(f'This command is on cooldown. Please try again in {error.retry_after:.2f} seconds.')
+        else:
+            await ctx.send(f'Something broke 😭\n\n{str(error)}')
