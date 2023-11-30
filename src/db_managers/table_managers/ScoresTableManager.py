@@ -3,7 +3,7 @@ from typing import Generator
 
 import my_logging.get_loggers
 from core import PathManager
-from db_managers.data_classes import DbScoreInfo
+from db_managers.data_classes import DbScoreInfo, DbUserInfo
 
 logger = my_logging.get_loggers.database_utilities_logger()
 
@@ -54,7 +54,7 @@ class ScoresTableManager:
             logger.exception(f"Foreign key violation: {e}")
             return False
 
-    async def delete_all_user_scores(self, user_info_id: int) -> bool:
+    async def delete_all_user_scores(self, user_info: DbUserInfo) -> bool:
         """
         Deletes all scores for a given 'user_info_id'.
         Returns True If operation was successful, False otherwise.
@@ -63,11 +63,11 @@ class ScoresTableManager:
             await db.execute('''
                 DELETE FROM scores
                 WHERE user_info_id = ?
-            ''', (user_info_id,))
+            ''', (user_info.discord_user_id,))
             await db.commit()
         return True
 
-    async def get_all_user_scores(self, user_info_id: int) -> Generator[DbScoreInfo, None, None]:
+    async def get_all_user_scores(self, user_info: DbUserInfo) -> Generator[DbScoreInfo, None, None]:
         """
         Returns a generator for all the scores associated with a specified user
         wrapped up into 'DbScoreInfo' dataclass.
@@ -79,7 +79,7 @@ class ScoresTableManager:
                 FROM scores
                 WHERE user_info_id = ?
                 ORDER BY timestamp DESC
-            ''', (user_info_id,))
+            ''', (user_info.discord_user_id,))
             rows = await cursor.fetchall()
             for row in rows:
                 db_score_info = DbScoreInfo(id=row[0],
@@ -88,14 +88,21 @@ class ScoresTableManager:
                                             timestamp=row[3])
                 yield db_score_info
 
-    async def has_scores_for_user(self, user_info_id: int) -> bool:
+    async def count_all_user_scores(self, user_info: DbUserInfo) -> int:
         """
-        Checks if a user has at least one score in the 'scores' table.
+        Counts amount of a user's scores in the 'scores' table.
         """
         async with aiosqlite.connect(self.db_name) as db:
             cursor = await db.execute(
-                'SELECT COUNT(*) FROM scores WHERE user_info_id = ?', (user_info_id,)
+                'SELECT COUNT(*) FROM scores WHERE user_info_id = ?',
+                (user_info.discord_user_id,)
             )
             count = await cursor.fetchone()
 
-        return count[0] > 0
+        return count[0]
+
+    async def check_if_user_has_scores(self, user_info: DbUserInfo) -> bool:
+        """
+        Checks if a user has at least one score in the 'scores' table.
+        """
+        return (await self.count_all_user_scores(user_info)) > 0

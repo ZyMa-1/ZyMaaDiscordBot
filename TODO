@@ -14,6 +14,7 @@ Todo:
 9. Sending large files on discord may be need to 'zip' them.
 10. Apply big cooldown to some commands.
 11. Implement sending request to be added to trusted users to discord owner?
+12. Permission predicates should be separated from db related stuff.
 
 Ideas:
 1. Just get the table of all your scores with most important fields in it (not entire 'Score' model)
