@@ -35,5 +35,7 @@ class SetupCog(commands.Cog):
         if isinstance(error, commands.CommandOnCooldown):
             # Custom cooldown message
             await ctx.send(f'This command is on cooldown. Please try again in {error.retry_after:.2f} seconds.')
+        elif isinstance(error, commands.CheckFailure):
+            await ctx.send(f'Check failure. nyam-nyam-nyam 🐱\n{str(error)}')
         else:
-            await ctx.send(f'Something broke 😭\n\n{str(error)}')
+            await ctx.send(f'Something broke 😭\n{str(error)}')
