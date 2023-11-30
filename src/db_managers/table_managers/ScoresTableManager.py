@@ -38,7 +38,7 @@ class ScoresTableManager:
 
     async def insert_score(self, score_info: DbScoreInfo) -> bool:
         """
-        Inserts entry to 'scores' table.
+        Inserts entry to the 'scores' table.
         Returns True If operation was successful, False otherwise.
         """
         try:

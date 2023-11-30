@@ -24,12 +24,12 @@ class CombinedBeatmapsetSearchResult:
         self.cursor = cursor
         self.cursor_string = cursor_string
 
-    @staticmethod
-    def merge_beatmapset_search_results(results: List[BeatmapsetSearchResult]):
+    @classmethod
+    def from_beatmapset_search_results(cls, results: List[BeatmapsetSearchResult]):
         """
-        Merges List[BeatmapsetSearchResult] into 'CombinedBeatmapsetSearchResult'.
+        Makes 'CombinedBeatmapsetSearchResult' from the List[BeatmapsetSearchResult].
         """
-        return CombinedBeatmapsetSearchResult(
+        return cls(
             beatmapsets=[s for r in results for s in r.beatmapsets],
             total=sum(r.total for r in results),
             errors=[r.error for r in results],

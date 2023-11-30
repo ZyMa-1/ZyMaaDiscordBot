@@ -1,4 +1,4 @@
-from typing import List
+from typing import List, Optional
 
 from ossapi import BeatmapPlaycount, OssapiAsync, Score, BeatmapUserScore
 from ossapi.enums import Grade, BeatmapsetSearchMode, UserBeatmapType, ScoreType
@@ -56,7 +56,7 @@ class OsuApiUtils:
             kwargs['cursor'] = cursor
             total_results.append(cur_res)
             if cursor is None or len(cur_res.beatmapsets) == 0 or cur_res.error is not None:
-                return CombinedBeatmapsetSearchResult.merge_beatmapset_search_results(total_results)
+                return CombinedBeatmapsetSearchResult.from_beatmapset_search_results(total_results)
 
     async def check_if_user_exists(self, user_id: int) -> bool:
         """
@@ -76,7 +76,7 @@ class OsuApiUtils:
 
         return False
 
-    async def get_user_beatmap_score_grade(self, beatmap_id: int, user_info: DbUserInfo) -> Grade | None:
+    async def get_user_beatmap_score_grade(self, beatmap_id: int, user_info: DbUserInfo) -> Optional[Grade]:
         """
         Gets grade of the user's top score on the given beatmap.
         Utilizes 'ossapi' 'beatmap_user_score' endpoint.
@@ -94,7 +94,7 @@ class OsuApiUtils:
         score_grade = beatmap_user_score.score.rank
         return score_grade
 
-    async def get_user_beatmap_playcount(self, beatmap_id: int, user_info: DbUserInfo) -> int | None:
+    async def get_user_beatmap_playcount(self, beatmap_id: int, user_info: DbUserInfo) -> Optional[int]:
         """
         Gets user's playcount on the given beatmap by iterating over ALL most played beatmaps.
         Utilizes 'ossapi' 'user_beatmaps' endpoint.
@@ -118,7 +118,7 @@ class OsuApiUtils:
 
             offset += limit
 
-    async def get_user_most_recent_score(self, user_info: DbUserInfo) -> Score | None:
+    async def get_user_most_recent_score(self, user_info: DbUserInfo) -> Optional[Score]:
         """
         Gets user's most recent score.
         Utilizes 'ossapi' 'user_scores' endpoint.
@@ -160,7 +160,7 @@ class OsuApiUtils:
 
         return beatmap_id_list
 
-    async def get_beatmap_user_best_score(self, beatmap_id: int, user_info: DbUserInfo) -> Score | None:
+    async def get_beatmap_user_best_score(self, beatmap_id: int, user_info: DbUserInfo) -> Optional[Score]:
         """
         Gets the best user's score on a given beatmap.
         """
