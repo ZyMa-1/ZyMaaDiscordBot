@@ -21,9 +21,10 @@ class DbScoreInfo:
 
     @classmethod
     def from_score_and_user_info(cls, score_instance: Score, user_info: DbUserInfo):
-        # Create a new DbScoreInfo instance using data from the Score instance
+        # Creates a new DbScoreInfo instance using data from the Score and DbUserInfo instances.
         return cls(id=None, user_info_id=user_info.discord_user_id,
                    score_json_data=serialize_model(score_instance))
 
     def deserialize_score_json(self) -> Score:
+        # Deserializes the 'Score' model from 'json_score_data' and returns it.
         return deserialize_model(Score, self.score_json_data)
