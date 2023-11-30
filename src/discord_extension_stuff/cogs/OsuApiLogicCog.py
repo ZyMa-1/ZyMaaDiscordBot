@@ -1,5 +1,5 @@
 import asyncio
-from typing import List
+from typing import List, Tuple
 
 import discord
 from discord.ext import commands
@@ -46,14 +46,22 @@ class OsuApiLogicCog(commands.Cog):
            query="amogus"
            plot_type="pie&bar"
         """
+        def process_query(_query: str) -> Tuple[str, List[str]]:
+            def check_plot_types(_p_type_list: List[str]) -> bool:
+                if len(set(_p_type_list)) != len(_p_type_list):
+                    return False
+                if not all(_ in {"bar", "pie"} for _ in _p_type_list):
+                    return False
+                return True
 
-        def check_plot_types(p_type_list: List[str]) -> bool:
-            p_type_set = {"bar", "pie"}
-            if len(set(p_type_list)) != len(p_type_list):
-                return False
-            if not all(_ in p_type_set for _ in p_type_list):
-                return False
-            return True
+            _query_words = query.split()
+            _plot_types_list = _query_words[-1].split('&')
+            if check_plot_types(_plot_types_list):
+                _query_words.pop()
+            else:
+                _plot_types_list = ["bar"]
+            _modified_query = ' '.join(_query_words)
+            return _modified_query, _plot_types_list
 
         async def send_plot(plot_type: str):
             image_bytes = None
@@ -63,19 +71,10 @@ class OsuApiLogicCog(commands.Cog):
                 image_bytes = stats.get_pie_plot()
 
             if image_bytes:
-                image_file = discord.File(fp=image_bytes, filename=f"{p_type}_plot.png")
+                image_file = discord.File(fp=image_bytes, filename=f"{plot_type}_plot.png")
                 await ctx.reply(file=image_file)
 
-        query_words = query.split()
-
-        last_word = query_words[-1]
-        plot_types_list = last_word.split('&')
-        if check_plot_types(plot_types_list):
-            query_words.pop()
-        else:
-            plot_types_list = ["bar"]
-
-        query = ' '.join(query_words)
+        query, p_types_list = process_query(query)
 
         user_info = await self.db_manager.users_table_manager.get_user_info(ctx.author.id)
         calc_task = asyncio.create_task(self.extras.calculate_beatmapsets_grade_stats(query, user_info))
@@ -87,7 +86,7 @@ class OsuApiLogicCog(commands.Cog):
             response = stats.get_pretty_stats()
             await ctx.reply(response)
 
-            for p_type in plot_types_list:
+            for p_type in p_types_list:
                 await send_plot(p_type)
 
     @commands.command(name='beatmap_playcount_slow')
