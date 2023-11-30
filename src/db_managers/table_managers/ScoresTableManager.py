@@ -118,4 +118,5 @@ class ScoresTableManager:
         """
         Checks if a user has at least one score in the 'scores' table.
         """
-        return (await self.count_all_user_scores(user_info)) > 0
+        scores_count = await self.count_all_user_scores(user_info)
+        return scores_count > 0

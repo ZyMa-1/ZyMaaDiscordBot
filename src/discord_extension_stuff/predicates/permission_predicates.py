@@ -46,7 +46,8 @@ async def check_is_user_has_scores(ctx: Context) -> bool:
     Checks If discord user has at least one score in 'scores' table.
     """
     db_manager = UtilsFactory.get_db_manager()
-    has_scores = await db_manager.scores_table_manager.has_scores_for_user(ctx.author.id)
+    user_info = await db_manager.users_table_manager.get_user_info(ctx.author.id)
+    has_scores = await db_manager.scores_table_manager.check_if_user_has_scores(user_info)
     if not has_scores:
         await ctx.reply("Sorry, but you have no scores (load_all_user_scores)")
         return False
