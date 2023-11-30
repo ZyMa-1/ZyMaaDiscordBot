@@ -27,7 +27,7 @@ class DbUserInfo:
     def are_fields_valid(self) -> bool:
         """
         That is the one crutch, since 'osu_game_mode' should be in values of the 'GameMode' enum class,
-        this method is used to check if it is okay.
+        this method is used to check if it is valid.
         """
         if self.osu_game_mode not in [mode.value for mode in GameMode]:
             return False
