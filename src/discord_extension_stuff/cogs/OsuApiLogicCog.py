@@ -22,7 +22,7 @@ class OsuApiLogicCog(commands.Cog):
     @commands.command(name='beatmapsets_stats')
     @commands.check(predicates.check_is_trusted and predicates.check_is_config_set_up)
     @commands.cooldown(1, 60 * 10, commands.BucketType.user)
-    async def beatmapsets_stats_command(self, ctx: commands.Context, *, query: str):
+    async def beatmapsets_stats_command(self, ctx: Context, *, query: str):
         """
         Gets grade stats on a certain group of beatmapsets.
         To stop the command, reply 'stop' to the 'Calculating...' message.
