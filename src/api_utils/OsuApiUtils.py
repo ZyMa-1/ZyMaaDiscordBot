@@ -13,7 +13,8 @@ logger = my_logging.get_loggers.osu_api_logger()
 
 class OsuApiUtils:
     """
-    Class to interact 'ossapi' in various ways. Extension of 'ossapi' for the needs.
+    Class to interact with 'ossapi' in various ways. 
+    Extension of 'ossapi' for the needs.
     """
 
     def __init__(self, client_id, client_secret):
@@ -161,7 +162,7 @@ class OsuApiUtils:
 
     async def get_beatmap_user_best_score(self, beatmap_id: int, user_info: DbUserInfo) -> Score | None:
         """
-        Gets the best user's score on a given beatmap and returns it.
+        Gets the best user's score on a given beatmap.
         """
         logger.info(f'{__name__}: {beatmap_id=} { user_info.osu_user_id=} {user_info.osu_game_mode=}',
                     extra={'tokens_spent': 1.0})

@@ -7,6 +7,9 @@ Todo:
    but a discord command that would delete all user's scores from the db would ne nice.
 4. Work with that and create cool commands!
    Create separate cog for the commands that would use the 'scores' db table.
+8. Check 'logging_stats' command If it is working (I added glob thingy).
+9. Sending large files on discord may be need to 'zip' them.
+10. Maybe somehow ease the way of checking the arguments in commands and parsing them by using some function thingies.
 5. Check 'logging_stats' command If it is working (I added glob thingy).
 6. Sending large files on discord may be need to 'zip' them.
 7. Apply big cooldown to some commands.

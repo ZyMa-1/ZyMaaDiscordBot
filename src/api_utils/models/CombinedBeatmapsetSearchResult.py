@@ -27,7 +27,7 @@ class CombinedBeatmapsetSearchResult:
     @staticmethod
     def merge_beatmapset_search_results(results: List[BeatmapsetSearchResult]):
         """
-        Merges List[BeatmapsetSearchResult] into 'CombinedBeatmapsetSearchResult'
+        Merges List[BeatmapsetSearchResult] into 'CombinedBeatmapsetSearchResult'.
         """
         return CombinedBeatmapsetSearchResult(
             beatmapsets=[s for r in results for s in r.beatmapsets],

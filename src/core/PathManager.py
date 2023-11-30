@@ -43,7 +43,7 @@ class PathManager:
     @classmethod
     def check_paths_existence(cls) -> None:
         """
-        Check if all required files and directories exist.
+        Checks if all required files and directories exist.
         Raises 'PathManagerError' if any path is missing.
         """
         paths_to_check = [

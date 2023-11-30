@@ -6,7 +6,7 @@ from typing import Optional
 @dataclass
 class DbScoreInfo:
     """
-    Dataclass to wrap up and store all entries of the 'scores' database table.
+    Dataclass to wrap up and store the row entry of the 'scores' database table.
     """
 
     id: Optional[int]
