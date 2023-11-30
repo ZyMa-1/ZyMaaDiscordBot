@@ -62,20 +62,23 @@ class BeatmapsUserGradesStatsManager:
 
     def get_pretty_stats(self) -> str:
         """
-        Returns pretty stats string.
+        Returns a pretty stats string.
         """
-        return f"""Silver SS - {self.grades[Grade.SSH]:>7}
-Silver S  - {self.grades[Grade.SH]:>7}
-Just SS   - {self.grades[Grade.SS]:>7}
-Just S    - {self.grades[Grade.S]:>7}
-A         - {self.grades[Grade.A]:>7}
-B         - {self.grades[Grade.B]:>7}
-C         - {self.grades[Grade.C]:>7}
-D         - {self.grades[Grade.D]:>7}
-No scores - {self.grades[None]:>7}
-----------------------------------
+        max_grade_length = max(len(str(value)) for value in self.grades.values())
+
+        return f"""
+Silver SS - {self.grades[Grade.SSH]:>{max_grade_length}}
+Silver S  - {self.grades[Grade.SH]:>{max_grade_length}}
+Just SS   - {self.grades[Grade.SS]:>{max_grade_length}}
+Just S    - {self.grades[Grade.S]:>{max_grade_length}}
+A         - {self.grades[Grade.A]:>{max_grade_length}}
+B         - {self.grades[Grade.B]:>{max_grade_length}}
+C         - {self.grades[Grade.C]:>{max_grade_length}}
+D         - {self.grades[Grade.D]:>{max_grade_length}}
+No scores - {self.grades[None]:>{max_grade_length}}
+{'-' * 12}
 Total map count: {self.beatmap_count}
-----------------------------------
+{'-' * 12}
 So far {self.percent_completion}% completion!
 """
 

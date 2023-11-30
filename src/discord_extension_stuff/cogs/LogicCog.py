@@ -46,7 +46,7 @@ class LogicCog(commands.Cog):
         """
         user_info = await self.db_manager.users_table_manager.get_user_info(ctx.author.id)
         response = f"Your `{user_info.osu_user_id=}` and `{user_info.osu_game_mode=}`"
-        await ctx.send(response)
+        await ctx.reply(response)
 
     @commands.command(name='trusted_users')
     async def trusted_users_command(self, ctx: Context):
@@ -55,7 +55,7 @@ class LogicCog(commands.Cog):
         """
         data_str = await self.extras.format_discord_id_list(await DataUtils.load_trusted_users())
         response = f"Trusted users:\n{data_str}"
-        await ctx.send(response)
+        await ctx.reply(response)
 
     @commands.command(name='admins')
     async def admins_command(self, ctx: Context):
@@ -64,7 +64,7 @@ class LogicCog(commands.Cog):
         """
         data_str = await self.extras.format_discord_id_list(await DataUtils.load_admin_users())
         response = f"Admin users:\n{data_str}"
-        await ctx.send(response)
+        await ctx.reply(response)
 
     @commands.command(name='add_trusted_user')
     @commands.check(predicates.check_is_admin)
@@ -87,10 +87,10 @@ class LogicCog(commands.Cog):
 
         await DataUtils.add_trusted_user(user_id)
         response = f"User with id: {user_id} added to trusted users"
-        await ctx.send(response)
+        await ctx.reply(response)
         data_str = await self.extras.format_discord_id_list(await DataUtils.load_trusted_users())
         response = f"Trusted users:\n{data_str}"
-        await ctx.send(response)
+        await ctx.reply(response)
 
     @commands.command(name='remove_trusted_user')
     @commands.check(predicates.check_is_admin)
@@ -109,7 +109,7 @@ class LogicCog(commands.Cog):
 
         await DataUtils.remove_trusted_user(user_id)
         response = f"User with id: {user_id} was removed from trusted users"
-        await ctx.send(response)
+        await ctx.reply(response)
         data_str = await self.extras.format_discord_id_list(await DataUtils.load_trusted_users())
         response = f"Trusted users:\n{data_str}"
-        await ctx.send(response)
+        await ctx.reply(response)

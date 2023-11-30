@@ -29,9 +29,7 @@ class OsuApiLogicCog(commands.Cog):
 
         Parameters:
             - query (str)     : The search query. Can include filters like `ranked<2019` or `artist=""some artist""`
-            - plot_type (str) : 'bar' (default), 'pie', 'bar&pie', 'pie&bar'.
-                                If the last word of the query contains '&' symbol,
-                                changes the 'plot_type' accordingly.
+            - plot_type (str) : 'no-graph' (default), 'bar', 'pie', 'bar&pie', 'pie&bar'.
 
         Example usage:
         1. beatmapsets_stats amogus pie
@@ -40,7 +38,7 @@ class OsuApiLogicCog(commands.Cog):
 
         2. beatmapsets_stats amogus not-a-pie
            query="amogus not-a-pie"
-           plot_type="bar"
+           plot_type="no-graph"
 
         3. beatmapsets_stats amogus pie&bar
            query="amogus"
@@ -55,11 +53,14 @@ class OsuApiLogicCog(commands.Cog):
                 return True
 
             _query_words = query.split()
-            _plot_types_list = _query_words[-1].split('&')
+            _last_word = _query_words[-1]
+            _plot_types_list = _last_word.split('&')
             if check_plot_types(_plot_types_list):
                 _query_words.pop()
+            elif _last_word == 'no-graph':
+                _plot_types_list = []
             else:
-                _plot_types_list = ["bar"]
+                _plot_types_list = []
             _modified_query = ' '.join(_query_words)
             return _modified_query, _plot_types_list
 

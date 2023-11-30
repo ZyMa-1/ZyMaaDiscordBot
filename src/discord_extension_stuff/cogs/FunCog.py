@@ -25,4 +25,4 @@ class FunCog(commands.Cog):
         - cnt (int): Number of beers.
         """
         response = "Вот ваше пиво месье: " + "🍺" * cnt
-        await ctx.reply(response)
+        await ctx.send(response)

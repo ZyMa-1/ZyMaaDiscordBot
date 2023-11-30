@@ -108,7 +108,7 @@ class Extras:
 
         Further scaling of 'wait_for_reply'.
         """
-        start_msg = await ctx.send("Calculating... (reply stop to stop)")
+        start_msg = await ctx.reply("Calculating... (reply stop to stop)")
         wait_for_reply_task = asyncio.create_task(
             self.wait_for_reply(ctx, start_msg, reply_message_content='stop', timeout=timeout_sec))
         done, pending = await asyncio.wait([calc_task, wait_for_reply_task], return_when=asyncio.FIRST_COMPLETED)

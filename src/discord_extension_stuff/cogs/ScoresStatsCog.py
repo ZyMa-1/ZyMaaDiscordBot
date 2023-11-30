@@ -36,7 +36,7 @@ class ScoresStatsCog(commands.Cog):
                                                                       timeout_sec=3600 * 12)
         if is_task_completed:
             beatmap_ids: List[int] = calc_task.result()
-            temp_msg = await ctx.send("Calculating (again) scores")
+            temp_msg = await ctx.reply("Calculating (again) scores")
             for beatmap_id in beatmap_ids:
                 score = await self.osu_api_utils.get_beatmap_user_best_score(beatmap_id, user_info)
                 if score:
