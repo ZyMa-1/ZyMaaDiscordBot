@@ -32,8 +32,8 @@ class ScoresStatsCog(commands.Cog):
             for beatmap_id in beatmap_ids:
                 score = await self.osu_api_utils.get_beatmap_user_best_score(beatmap_id, user_info)
                 if score:
-                    db_score_info = DbScoreInfo.from_score_and_user_info(score, user_info)
-                    await self.db_manager.scores_table_manager.insert_score(db_score_info)
+                    score_info = DbScoreInfo.from_score_and_user_info(score, user_info)
+                    await self.db_manager.scores_table_manager.insert_score(score_info)
             await temp_msg.delete()
             await ctx.reply(f"Inserted {len(beatmap_ids)} scores into db")
 
@@ -64,4 +64,19 @@ class ScoresStatsCog(commands.Cog):
 
         if is_task_completed:
             scores_count: int = calc_task.result()
+            await ctx.reply(f"Found {scores_count} scores")
+
+    @commands.command(name='show_random_score')
+    @commands.check(predicates.check_is_trusted and
+                    predicates.check_is_config_set_up and
+                    predicates.check_is_user_has_scores)
+    @commands.cooldown(1, 60, commands.BucketType.user)
+    async def show_random_score_command(self, ctx: Context):
+        user_info = await self.db_manager.users_table_manager.get_user_info(ctx.author.id)
+        calc_task = asyncio.create_task(self.db_manager.scores_table_manager.get_user_random_score(user_info))
+        is_task_completed = await self.extras.wait_till_task_complete(ctx, calc_task=calc_task,
+                                                                      timeout_sec=3600)
+
+        if is_task_completed:
+            score_info: DbScoreInfo = calc_task.result()
             await ctx.reply(f"Found {scores_count} scores")

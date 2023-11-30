@@ -1,5 +1,5 @@
 import aiosqlite
-from typing import Generator
+from typing import Generator, Optional
 
 import my_logging.get_loggers
 from core import PathManager
@@ -82,11 +82,8 @@ class ScoresTableManager:
             ''', (user_info.discord_user_id,))
             rows = await cursor.fetchall()
             for row in rows:
-                db_score_info = DbScoreInfo(id=row[0],
-                                            user_info_id=row[1],
-                                            score_json_data=row[2],
-                                            timestamp=row[3])
-                yield db_score_info
+                score_info = DbScoreInfo(*row)
+                yield score_info
 
     async def count_all_user_scores(self, user_info: DbUserInfo) -> int:
         """
@@ -100,6 +97,22 @@ class ScoresTableManager:
             count = await cursor.fetchone()
 
         return count[0]
+
+    async def get_user_random_score(self, user_info: DbUserInfo) -> Optional[DbScoreInfo]:
+        """
+        Returns a random score (DbScoreInfo db row entry) for the specified user.
+        """
+        async with aiosqlite.connect(self.db_name) as db:
+            cursor = await db.execute(
+                'SELECT * FROM scores WHERE user_info_id = ? ORDER BY RANDOM() LIMIT 1',
+                (user_info.discord_user_id,)
+            )
+            row = await cursor.fetchone()
+
+        if row:
+            return DbScoreInfo(*row)
+
+        return None
 
     async def check_if_user_has_scores(self, user_info: DbUserInfo) -> bool:
         """
