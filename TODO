@@ -1,17 +1,16 @@
 Todo:
 1. Improve logging messages in 'OsuApiUtils.py'
-2. Create new table 'scores' (and Db class for it) which would store all the scores obtained from 'ossapi'.
-3. There is some ideas of the commands which would utilize the database stuff and would execute almost permanently.
-4. Probably the class that would do excel operations
+2. Probably the class that would do excel operations
    (method for getting columns, method for getting values needed from the 'Score')
    To ease the flow, class would accept the database filters and itself request the needed scores from the db.
-5. Database size can turn out to be pretty big!!! (thousand of scores, big json string).
-6. No auto-deletion (when time passed) for now,
+3. No auto-deletion (when time passed) for now,
    but a discord command that would delete all user's scores from the db would ne nice.
-7. Work with that and create cool commands!
+4. Work with that and create cool commands!
    Create separate cog for the commands that would use the 'scores' db table.
-8. Check 'logging_stats' command If it is working (I added glob thingy).
-9. Sending large files on discord may be need to 'zip' them.
+5. Check 'logging_stats' command If it is working (I added glob thingy).
+6. Sending large files on discord may be need to 'zip' them.
+7. Apply big cooldown to some commands.
+8. Implement sending request to be added to trusted users to discord owner?
 
 Ideas:
 1. Just get the table of all your scores with most important fields in it (not entire 'Score' model)

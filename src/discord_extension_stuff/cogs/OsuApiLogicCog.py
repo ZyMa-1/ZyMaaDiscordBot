@@ -21,6 +21,7 @@ class OsuApiLogicCog(commands.Cog):
 
     @commands.command(name='beatmapsets_stats')
     @commands.check(predicates.check_is_trusted and predicates.check_is_config_set_up)
+    @commands.cooldown(1, 60 * 10, commands.BucketType.user)
     async def beatmapsets_stats_command(self, ctx: commands.Context, *, query: str):
         """
         Gets grade stats on a certain group of beatmapsets.
@@ -91,6 +92,7 @@ class OsuApiLogicCog(commands.Cog):
 
     @commands.command(name='beatmap_playcount_slow')
     @commands.check(predicates.check_is_trusted and predicates.check_is_config_set_up)
+    @commands.cooldown(1, 60 * 10, commands.BucketType.user)
     async def beatmap_playcount_slow_command(self, ctx: Context, *, beatmap_id: int):
         """
         Gets user's playcount on a beatmap by iterating over all MOST PLAYED beatmaps.
@@ -110,6 +112,7 @@ class OsuApiLogicCog(commands.Cog):
 
     @commands.command(name='most_recent')
     @commands.check(predicates.check_is_trusted and predicates.check_is_config_set_up)
+    @commands.cooldown(1, 10, commands.BucketType.user)
     async def most_recent_command(self, ctx: Context):
         """
         Gets user's most recent play.

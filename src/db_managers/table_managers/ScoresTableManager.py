@@ -1,5 +1,5 @@
 import aiosqlite
-from typing import List, Generator
+from typing import Generator
 
 import my_logging.get_loggers
 from core import PathManager
@@ -54,19 +54,18 @@ class ScoresTableManager:
             logger.exception(f"Foreign key violation: {e}")
             return False
 
-    async def delete_score(self, _id: int) -> bool:
+    async def delete_all_user_scores(self, user_info_id: int) -> bool:
         """
-        Inserts entry to 'scores' table.
+        Deletes all scores for a given 'user_info_id'.
         Returns True If operation was successful, False otherwise.
         """
-        try:
-            async with aiosqlite.connect(self.db_name) as db:
-                cursor = await db.cursor()
-                await cursor.execute('DELETE FROM scores WHERE id = ?', (_id,))
-                await db.commit()
-            return True
-        except aiosqlite.Error:
-            return False
+        async with aiosqlite.connect(self.db_name) as db:
+            await db.execute('''
+                DELETE FROM scores
+                WHERE user_info_id = ?
+            ''', (user_info_id,))
+            await db.commit()
+        return True
 
     async def get_all_user_scores(self, user_info_id: int) -> Generator[DbScoreInfo, None, None]:
         """
