@@ -87,3 +87,15 @@ class ScoresTableManager:
                                             score_json_data=row[2],
                                             timestamp=row[3])
                 yield db_score_info
+
+    async def has_scores_for_user(self, user_info_id: int) -> bool:
+        """
+        Checks if a user has at least one score in the 'scores' table.
+        """
+        async with aiosqlite.connect(self.db_name) as db:
+            cursor = await db.execute(
+                'SELECT COUNT(*) FROM scores WHERE user_info_id = ?', (user_info_id,)
+            )
+            count = await cursor.fetchone()
+
+        return count[0] > 0
