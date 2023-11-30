@@ -3,6 +3,7 @@ from typing import List
 
 from discord.ext import commands
 from discord.ext.commands import Context
+from ossapi import Score
 
 from core import BotContext
 import discord_extension_stuff.predicates.permission_predicates as predicates
@@ -79,4 +80,6 @@ class ScoresStatsCog(commands.Cog):
 
         if is_task_completed:
             score_info: DbScoreInfo = calc_task.result()
-            await ctx.reply(f"Found {scores_count} scores")
+            score: Score = score_info.deserialize_score_json(ossapi_instance=self.osu_api_utils.ossapi)
+            await ctx.reply(f"Score deserialized successefully. Here is {score.score=} as prove.")
+            await ctx.reply(f"{DbScoreInfo.__name__} instance:\n{score_info}")
