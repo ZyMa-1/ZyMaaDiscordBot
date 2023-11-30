@@ -1,7 +1,8 @@
+import pathlib
+
 import aiosqlite
 
 import my_logging.get_loggers
-from core import PathManager
 from db_managers.data_classes import DbUserInfo
 
 logger = my_logging.get_loggers.database_utilities_logger()
@@ -12,7 +13,7 @@ class UsersTableManager:
     Class for managing 'users' table database operations (aiosqlite).
     """
 
-    def __init__(self, db_name=PathManager.DISCORD_USERS_DATA_DB_PATH):
+    def __init__(self, db_name: pathlib.Path):
         self.db_name = db_name
 
     async def create_users_table(self):

@@ -1,8 +1,9 @@
+import pathlib
+
 import aiosqlite
 from typing import Generator, Optional
 
 import my_logging.get_loggers
-from core import PathManager
 from db_managers.data_classes import DbScoreInfo, DbUserInfo
 
 logger = my_logging.get_loggers.database_utilities_logger()
@@ -13,7 +14,7 @@ class ScoresTableManager:
     Class for managing 'scores' table database operations (aiosqlite).
     """
 
-    def __init__(self, db_name=PathManager.DISCORD_USERS_DATA_DB_PATH):
+    def __init__(self, db_name: pathlib.Path):
         self.db_name = db_name
 
     async def create_scores_table(self):

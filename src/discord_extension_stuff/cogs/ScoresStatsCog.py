@@ -23,6 +23,13 @@ class ScoresStatsCog(commands.Cog):
     @commands.check(predicates.check_is_trusted and predicates.check_is_config_set_up)
     @commands.cooldown(1, 60 * 60 * 24, commands.BucketType.user)
     async def load_all_user_scores_command(self, ctx: Context):
+        """
+        Loads all scores from the MOST PLAYED section of the user's profile.
+        Packs all received data and pushes it into database table.
+
+        For example the user ever played 10000 maps.
+        It would take about 10100 requests to the api.
+        """
         user_info = await self.db_manager.users_table_manager.get_user_info(ctx.author.id)
         calc_task = asyncio.create_task(self.osu_api_utils.get_all_user_beatmap_ids(user_info))
         is_task_completed = await self.extras.wait_till_task_complete(ctx, calc_task=calc_task,
@@ -44,6 +51,9 @@ class ScoresStatsCog(commands.Cog):
                     predicates.check_is_user_has_scores)
     @commands.cooldown(1, 60, commands.BucketType.user)
     async def delete_all_user_scores_command(self, ctx: Context):
+        """
+        Deletes all user's scores from the database table.
+        """
         user_info = await self.db_manager.users_table_manager.get_user_info(ctx.author.id)
         calc_task = asyncio.create_task(self.db_manager.scores_table_manager.delete_all_user_scores(user_info))
         is_task_completed = await self.extras.wait_till_task_complete(ctx, calc_task=calc_task,
@@ -58,6 +68,9 @@ class ScoresStatsCog(commands.Cog):
                     predicates.check_is_user_has_scores)
     @commands.cooldown(1, 30, commands.BucketType.user)
     async def count_scores_command(self, ctx: Context):
+        """
+        Counts amount of user's scores in the database table.
+        """
         user_info = await self.db_manager.users_table_manager.get_user_info(ctx.author.id)
         calc_task = asyncio.create_task(self.db_manager.scores_table_manager.count_all_user_scores(user_info))
         is_task_completed = await self.extras.wait_till_task_complete(ctx, calc_task=calc_task,
@@ -73,6 +86,10 @@ class ScoresStatsCog(commands.Cog):
                     predicates.check_is_user_has_scores)
     @commands.cooldown(1, 30, commands.BucketType.user)
     async def get_random_score_command(self, ctx: Context):
+        """
+        Gets user's random score stored in the database table
+        and responds with the data accosted about it.
+        """
         user_info = await self.db_manager.users_table_manager.get_user_info(ctx.author.id)
         calc_task = asyncio.create_task(self.db_manager.scores_table_manager.get_user_random_score(user_info))
         is_task_completed = await self.extras.wait_till_task_complete(ctx, calc_task=calc_task,

@@ -16,6 +16,9 @@ class SetupCog(commands.Cog):
 
     @commands.Cog.listener()
     async def on_ready(self):
+        """
+        Logs info and changes bots presence when it is fully loaded.
+        """
         for cog_name, cog_class in self.bot.cogs.items():
             logger.info(f"Loaded cog: {cog_name}")
         logger.info(f'Logged in as {self.bot.user}')
@@ -23,7 +26,9 @@ class SetupCog(commands.Cog):
 
     @commands.Cog.listener()
     async def on_guild_join(self, guild):
-        # Respond when first entered a server.
+        """
+        Handles guild join event.
+        """
         welcome_message = f"Hello! I am a mini Discord bot made by .zymaa"
         for channel in guild.text_channels:
             if channel.permissions_for(guild.me).send_messages:
@@ -32,6 +37,9 @@ class SetupCog(commands.Cog):
 
     @commands.Cog.listener()
     async def on_command_error(self, ctx, error):
+        """
+        Handles command errors.
+        """
         if isinstance(error, commands.CommandOnCooldown):
             # Custom cooldown message
             await ctx.send(f'This command is on cooldown. Please try again in {error.retry_after:.2f} seconds.')
