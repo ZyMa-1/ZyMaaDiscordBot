@@ -18,7 +18,7 @@ class PathManager:
 
     TRUSTED_USERS_PATH: pathlib.Path
     ADMIN_USERS_PATH: pathlib.Path
-    DISCORD_USERS_DATA_DB_PATH: pathlib.Path
+    BOT_DATA_DB_PATH: pathlib.Path
     DOT_ENV_PATH: pathlib.Path
 
     LOGS_DIR: pathlib.Path
@@ -34,7 +34,7 @@ class PathManager:
 
         cls.TRUSTED_USERS_PATH = cls.PROJECT_ROOT / "data" / "trusted_users.json"
         cls.ADMIN_USERS_PATH = cls.PROJECT_ROOT / "data" / "admins.json"
-        cls.DISCORD_USERS_DATA_DB_PATH = cls.PROJECT_ROOT / "data" / "bot_data.db"
+        cls.BOT_DATA_DB_PATH = cls.PROJECT_ROOT / "data" / "bot_data.db"
         cls.DOT_ENV_PATH = cls.PROJECT_ROOT / ".env"
 
         cls.LOGS_DIR = cls.PROJECT_ROOT / "logs"
@@ -50,7 +50,7 @@ class PathManager:
             cls.DATA_DIR,
             cls.TRUSTED_USERS_PATH,
             cls.ADMIN_USERS_PATH,
-            cls.DISCORD_USERS_DATA_DB_PATH,
+            cls.BOT_DATA_DB_PATH,
             cls.DOT_ENV_PATH,
             cls.LOGS_DIR,
             cls.OSU_API_LOGS_PATH,

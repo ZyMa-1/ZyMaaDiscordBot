@@ -121,6 +121,6 @@ class Extras:
         if calc_task in done:
             return True
         else:
-            response = "Command canceled"
+            response = "Calculation canceled"
             await ctx.reply(response)
             return False

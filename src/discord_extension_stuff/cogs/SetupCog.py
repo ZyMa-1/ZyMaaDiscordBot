@@ -29,7 +29,7 @@ class SetupCog(commands.Cog):
         """
         Handles guild join event.
         """
-        welcome_message = f"Hello! I am a mini Discord bot made by .zymaa"
+        welcome_message = f"Hello! I am {self.bot.user}."
         for channel in guild.text_channels:
             if channel.permissions_for(guild.me).send_messages:
                 await channel.send(welcome_message)

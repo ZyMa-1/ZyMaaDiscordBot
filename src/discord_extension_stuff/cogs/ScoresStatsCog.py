@@ -36,14 +36,26 @@ class ScoresStatsCog(commands.Cog):
                                                                       timeout_sec=3600 * 12)
         if is_task_completed:
             beatmap_ids: List[int] = calc_task.result()
-            temp_msg = await ctx.reply("Calculating (again) scores")
-            for beatmap_id in beatmap_ids:
+            temp_msg = await ctx.reply("Calculating scores (you cannot stop this)")
+            for ind, beatmap_id in enumerate(beatmap_ids):
                 score = await self.osu_api_utils.get_beatmap_user_best_score(beatmap_id, user_info)
+                await temp_msg.edit(content=f"Calculating scores (you cannot stop this)\n"
+                                            f"Remaining: {len(beatmap_ids) - ind}")
+
+                # Check if any new replies contain the 'stop' message
+                async for msg in ctx.channel.history(limit=5):
+                    if (msg.author == ctx.author and
+                            msg.channel == ctx.channel and
+                            msg.reference.message_id == temp_msg.id and
+                            msg.content.lower() == "stop"):
+                        await ctx.reply("Calculation canceled")
+                        return  # Terminate the command
+
                 if score:
                     score_info = DbScoreInfo.from_score_and_user_info(score, user_info)
                     await self.db_manager.scores_table_manager.insert_score(score_info)
             await temp_msg.delete()
-            await ctx.reply(f"Inserted {len(beatmap_ids)} scores into db")
+            await ctx.reply(f"Inserted `{len(beatmap_ids)}` scores into db")
 
     @commands.command(name='delete_all_user_scores')
     @commands.check(predicates.check_is_trusted and
@@ -60,7 +72,7 @@ class ScoresStatsCog(commands.Cog):
                                                                       timeout_sec=3600)
         if is_task_completed:
             res: bool = calc_task.result()
-            await ctx.reply(f"Deleted: {str(res)}")
+            await ctx.reply(f"Deleted `{str(res)}` scores")
 
     @commands.command(name='count_scores')
     @commands.check(predicates.check_is_trusted and
@@ -78,7 +90,7 @@ class ScoresStatsCog(commands.Cog):
 
         if is_task_completed:
             scores_count: int = calc_task.result()
-            await ctx.reply(f"Found {scores_count} scores")
+            await ctx.reply(f"Found `{scores_count}` scores")
 
     @commands.command(name='get_random_score')
     @commands.check(predicates.check_is_trusted and
@@ -98,5 +110,5 @@ class ScoresStatsCog(commands.Cog):
         if is_task_completed:
             score_info: DbScoreInfo = calc_task.result()
             score: Score = score_info.deserialize_score_json()
-            await ctx.reply(f"Score deserialized successefully. Here is {score.score=} as prove.")
+            await ctx.reply(f"Score deserialized successefully. Here is {score.id=} as a prove.")
             await ctx.reply(f"{DbScoreInfo.__name__} instance:\n{score_info}")

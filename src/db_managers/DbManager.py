@@ -11,7 +11,7 @@ class DbManager:
     Class for managing database operations (aiosqlite).
     """
 
-    def __init__(self, db_name=PathManager.DISCORD_USERS_DATA_DB_PATH):
+    def __init__(self, db_name=PathManager.BOT_DATA_DB_PATH):
         self.db_name = db_name
         self.users_table_manager = UsersTableManager(db_name)
         self.scores_table_manager = ScoresTableManager(db_name)
