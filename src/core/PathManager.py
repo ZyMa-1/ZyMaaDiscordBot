@@ -23,6 +23,7 @@ class PathManager:
 
     LOGS_DIR: pathlib.Path
     OSU_API_LOGS_PATH: pathlib.Path
+    TEMP_DIR: pathlib.Path
 
     @classmethod
     def set_project_root(cls, project_root: pathlib.Path):
@@ -39,6 +40,7 @@ class PathManager:
 
         cls.LOGS_DIR = cls.PROJECT_ROOT / "logs"
         cls.OSU_API_LOGS_PATH = cls.PROJECT_ROOT / "logs" / "osu_api"
+        cls.TEMP_DIR = cls.PROJECT_ROOT / "data" / "temp"
 
     @classmethod
     def check_paths_existence(cls) -> None:
@@ -54,6 +56,7 @@ class PathManager:
             cls.DOT_ENV_PATH,
             cls.LOGS_DIR,
             cls.OSU_API_LOGS_PATH,
+            cls.TEMP_DIR
         ]
 
         # Check if all paths exist
