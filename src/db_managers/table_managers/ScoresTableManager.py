@@ -1,7 +1,7 @@
 import pathlib
 
 import aiosqlite
-from typing import Generator, Optional
+from typing import Optional, AsyncGenerator
 
 import my_logging.get_loggers
 from db_managers.data_classes import DbScoreInfo, DbUserInfo
@@ -68,7 +68,7 @@ class ScoresTableManager:
             await db.commit()
         return True
 
-    async def get_all_user_scores(self, user_info: DbUserInfo) -> Generator[DbScoreInfo, None, None]:
+    async def get_all_user_scores(self, user_info: DbUserInfo) -> AsyncGenerator[DbScoreInfo, None]:
         """
         Returns a generator for all the scores associated with a specified user
         wrapped up into 'DbScoreInfo' dataclass.
