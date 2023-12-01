@@ -1,6 +1,6 @@
 from typing import List, Optional
 
-from ossapi import BeatmapPlaycount, OssapiAsync, Score, BeatmapUserScore
+from ossapi import BeatmapPlaycount, OssapiAsync, Score, BeatmapUserScore, User
 from ossapi.enums import Grade, BeatmapsetSearchMode, UserBeatmapType, ScoreType
 
 import my_logging.get_loggers
@@ -75,6 +75,20 @@ class OsuApiUtils:
             return True
 
         return False
+
+    async def get_user(self, user_id: int) -> Optional[User]:
+        """
+        Returns 'ossapi' User instance for specified 'user_id'.
+        Utilizes 'ossapi' 'user' endpoint.
+        """
+        logger.info(f'{__name__}: {user_id=}',
+                    extra={'tokens_spent': 1.0})
+        await self.rate_limiter.process_request(tokens_required=1.0)
+        try:
+            user = await self.ossapi.user(user_id)
+            return user
+        except ValueError:  # User does not exist
+            return None
 
     async def get_user_beatmap_score_grade(self, beatmap_id: int, user_info: DbUserInfo) -> Optional[Grade]:
         """

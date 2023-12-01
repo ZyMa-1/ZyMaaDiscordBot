@@ -1,7 +1,6 @@
 Todo:
 1. Check 'logging_stats' command If it is working (I added glob thingy).
-2. Implement sending request to be added to trusted users to discord owner?
-3. Permission predicates should be separated from db related stuff. Probably.
+2. Permission predicates should be separated from db related stuff. Probably.
 
 Ideas:
 1. Just get the table of all your scores with most important fields in it (not entire 'Score' model)
