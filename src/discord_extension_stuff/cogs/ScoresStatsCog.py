@@ -43,7 +43,7 @@ class ScoresStatsCog(commands.Cog):
                                             f"Remaining: {len(beatmap_ids) - ind}")
 
                 # Check if any new replies contain the 'stop' message
-                async for msg in ctx.channel.history(limit=5):
+                async for msg in ctx.channel.history(limit=10):
                     if (msg.author == ctx.author and
                             msg.channel == ctx.channel and
                             msg.reference.message_id == temp_msg.id and
