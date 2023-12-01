@@ -1,6 +1,7 @@
 import asyncio
 from typing import List
 
+import discord
 from discord.ext import commands
 from discord.ext.commands import Context
 from ossapi import Score
@@ -10,6 +11,7 @@ import discord_extension_stuff.predicates.permission_predicates as predicates
 from db_managers.data_classes import DbScoreInfo
 from discord_extension_stuff.extras import Extras
 from factories import UtilsFactory
+from statistics_managers import ExcelScoresManager
 
 
 class ScoresStatsCog(commands.Cog):
@@ -97,3 +99,23 @@ class ScoresStatsCog(commands.Cog):
             score: Score = score_info.deserialize_score_json()
             await ctx.reply(f"Score deserialized successefully. Here is `{score.id=}` as a prove.")
             await ctx.reply(f"{DbScoreInfo.__name__} instance:\n{score_info}")
+
+    @commands.command(name='get_xlsx_scores_file')
+    @commands.check(predicates.check_is_trusted and
+                    predicates.check_is_config_set_up and
+                    predicates.check_is_user_has_scores)
+    @commands.cooldown(1, 30, commands.BucketType.user)
+    async def get_xlsx_scores_file_command(self, ctx: Context):
+        """
+        Gets xlsx file of all user's scores.
+        """
+        user_info = await self.db_manager.users_table_manager.get_user_info(ctx.author.id)
+
+        excel_scores_manager = ExcelScoresManager(user_info)
+        await excel_scores_manager.retrieve_rows()
+        file_path = excel_scores_manager.save_workbook()
+
+        file = discord.File(fp=file_path, filename=f"scores{excel_scores_manager.file_extension}")
+        await ctx.reply(file=file)
+
+        await excel_scores_manager.delete_temp_file()

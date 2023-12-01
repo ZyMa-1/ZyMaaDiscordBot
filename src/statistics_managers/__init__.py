@@ -1,1 +1,2 @@
 from .BeatmapsUserGradesStatsManager import BeatmapsUserGradesStatsManager
+from .ExcelScoresManager import ExcelScoresManager

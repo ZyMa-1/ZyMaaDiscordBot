@@ -11,7 +11,7 @@ from db_managers.data_classes import DbUserInfo
 from factories import UtilsFactory
 
 
-class ExcelWriter:
+class ExcelScoresManager:
     def __init__(self, user_info: DbUserInfo, file_extension='.xlsx'):
         self.user_info = user_info
         self.file_extension = file_extension
