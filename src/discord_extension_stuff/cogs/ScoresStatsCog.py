@@ -36,10 +36,10 @@ class ScoresStatsCog(commands.Cog):
                                                                       timeout_sec=3600 * 12)
         if is_task_completed:
             beatmap_ids: List[int] = calc_task.result()
-            temp_msg = await ctx.reply("Calculating scores (you cannot stop this)")
+            temp_msg = await ctx.reply("Calculating scores (reply stop to stop)")
             for ind, beatmap_id in enumerate(beatmap_ids):
                 score = await self.osu_api_utils.get_beatmap_user_best_score(beatmap_id, user_info)
-                await temp_msg.edit(content=f"Calculating scores (you cannot stop this)\n"
+                await temp_msg.edit(content=f"Calculating scores (reply stop to stop)\n"
                                             f"Remaining: {len(beatmap_ids) - ind}")
 
                 # Check if any new replies contain the 'stop' message
@@ -110,5 +110,5 @@ class ScoresStatsCog(commands.Cog):
         if is_task_completed:
             score_info: DbScoreInfo = calc_task.result()
             score: Score = score_info.deserialize_score_json()
-            await ctx.reply(f"Score deserialized successefully. Here is {score.id=} as a prove.")
+            await ctx.reply(f"Score deserialized successefully. Here is `{score.id=}` as a prove.")
             await ctx.reply(f"{DbScoreInfo.__name__} instance:\n{score_info}")

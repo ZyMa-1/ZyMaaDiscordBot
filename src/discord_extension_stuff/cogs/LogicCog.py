@@ -1,6 +1,5 @@
 from discord.ext import commands
 from discord.ext.commands import Context
-import discord
 
 import discord_extension_stuff.predicates.permission_predicates as predicates
 from core import BotContext
@@ -29,13 +28,13 @@ class LogicCog(commands.Cog):
         """
         user_info = DbUserInfo(ctx.author.id, osu_user_id, osu_game_mode)
         if not user_info.are_fields_valid():
-            response = "Sorry, but specified fields are not valid"
+            raise commands.BadArgument("Sorry, but specified fields are not valid")
         elif not await self.osu_api_utils.check_if_user_exists(user_info.osu_user_id):
-            response = "Sorry, but osu user with specified id does not exist"
-        else:
-            await self.db_manager.users_table_manager.insert_user_info(user_info)
-            response = (f"Successfully changed `osu_user_id` to {user_info.osu_user_id} and `osu_game_mode` to "
-                        f"{user_info.osu_game_mode}")
+            raise commands.BadArgument("Sorry, but osu user with specified id does not exist")
+
+        await self.db_manager.users_table_manager.insert_user_info(user_info)
+        response = (f"Successfully changed `osu_user_id` to {user_info.osu_user_id} and `osu_game_mode` to "
+                    f"{user_info.osu_game_mode}")
         await ctx.reply(response)
 
     @commands.command(name='config_check')
@@ -45,7 +44,7 @@ class LogicCog(commands.Cog):
         Prints out user's config.
         """
         user_info = await self.db_manager.users_table_manager.get_user_info(ctx.author.id)
-        response = f"Your `{user_info.osu_user_id=}` and `{user_info.osu_game_mode=}`"
+        response = f"Your `osu_user_id` is {user_info.osu_user_id} and `osu_game_mode` is {user_info.osu_game_mode}"
         await ctx.reply(response)
 
     @commands.command(name='trusted_users')
@@ -68,22 +67,14 @@ class LogicCog(commands.Cog):
 
     @commands.command(name='add_trusted_user')
     @commands.check(predicates.check_is_admin)
-    async def add_trusted_user_command(self, ctx: Context, *, user: discord.Member | int):
+    async def add_trusted_user_command(self, ctx: Context, *, user: commands.MemberConverter):
         """
         Adds trusted user.
 
         Parameters:
-            - user (discord.Member | int) : Mention of a discord user OR user id
+            - user (commands.MemberConverter)
         """
-        user_id = -1
-        if isinstance(user, discord.Member):
-            user_id = user.id
-        elif isinstance(user, int):
-            if not await self.extras.check_if_discord_user_exists(user):
-                await ctx.reply("Discord user with specified id does not exist.")
-                return
-
-            user_id = user
+        user_id: int = user.id
 
         await DataUtils.add_trusted_user(user_id)
         response = f"User with id: {user_id} added to trusted users"
@@ -94,18 +85,14 @@ class LogicCog(commands.Cog):
 
     @commands.command(name='remove_trusted_user')
     @commands.check(predicates.check_is_admin)
-    async def remove_trusted_user_command(self, ctx: Context, *, user: discord.Member | int):
+    async def remove_trusted_user_command(self, ctx: Context, *, user: commands.MemberConverter):
         """
         Removes trusted user.
 
         Parameters:
-            - user (discord.Member | int) : Mention of a discord user OR user id
+            - user (commands.MemberConverter)
         """
-        user_id = -1
-        if isinstance(user, discord.Member):
-            user_id = user.id
-        elif isinstance(user, int):
-            user_id = user
+        user_id: int = user.id
 
         await DataUtils.remove_trusted_user(user_id)
         response = f"User with id: {user_id} was removed from trusted users"

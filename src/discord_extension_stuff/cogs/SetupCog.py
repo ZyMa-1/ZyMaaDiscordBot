@@ -43,6 +43,8 @@ class SetupCog(commands.Cog):
         if isinstance(error, commands.CommandOnCooldown):
             await ctx.reply(f'This command is on cooldown. Please try again in {error.retry_after:.2f} seconds.')
         elif isinstance(error, commands.CheckFailure):
-            await ctx.reply(f'Check failure. nyam-nyam-nyam 🐱\n{str(error)}')
+            await ctx.reply(f'Check failure (you have no permission). nyam-nyam-nyam 🐱\n{str(error)}')
+        elif isinstance(error, commands.BadArgument):
+            await ctx.reply(f'Bad argument(s)\n{str(error)}')
         else:
             await ctx.reply(f'Something broke 😭\n{str(error)}')

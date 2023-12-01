@@ -21,23 +21,6 @@ class Extras:
         self.bot = bot_context.bot
         self.osu_api_utils = UtilsFactory.get_osu_api_utils()
 
-    async def check_if_discord_user_exists(self, discord_user_id: int) -> bool:
-        """
-        Checks if discord user with specified id exists.
-        """
-        # Try to fetch the user by their ID
-        try:
-            user = await self.bot.fetch_user(discord_user_id)
-            if user is None:
-                return False
-            return True
-
-        except discord.NotFound:
-            return False
-
-        except discord.HTTPException:
-            return False
-
     async def calculate_beatmapsets_grade_stats(self, query: str, user_info: DbUserInfo) \
             -> BeatmapsUserGradesStatsManager:
         """

@@ -14,8 +14,8 @@ class FunCog(commands.Cog):
         About the bot.
         """
         response = ("I made this bot to play with a bunch of osu! api v2 statistics.\n"
-                    "The bot uses 'guest' osu! api v2 authorization grant\n"
-                    "That means fancy statistics is unavailable :("
+                    "The bot uses 'guest' osu! api v2 authorization grant.\n"
+                    "That means some fancy statistics is unavailable :("
                     "Despite that, hope you will enjoy using it!")
         await ctx.send(response)
 
@@ -30,7 +30,7 @@ class FunCog(commands.Cog):
     @commands.command(name='beer', aliases=['пиво', 'пива', 'пивасик', 'пивасика'])
     async def beer_command(self, ctx: Context, *, cnt: int = 1):
         """
-        Gives user a beer.
+        Gives user a beer (on russian).
 
         Parameters:
         - cnt (int): Number of beers.
