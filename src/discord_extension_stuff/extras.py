@@ -7,6 +7,7 @@ from discord import Message
 from discord.ext.commands import Context
 
 from core import BotContext
+from db_managers.data_classes import DbScoreInfo
 from db_managers.data_classes.DbUserInfo import DbUserInfo
 from factories import UtilsFactory
 from statistics_managers import BeatmapsUserGradesStatsManager
@@ -20,6 +21,7 @@ class Extras:
     def __init__(self, bot_context: BotContext):
         self.bot = bot_context.bot
         self.osu_api_utils = UtilsFactory.get_osu_api_utils()
+        self.db_manager = UtilsFactory.get_db_manager()
 
     async def calculate_beatmapsets_grade_stats(self, query: str, user_info: DbUserInfo) \
             -> BeatmapsUserGradesStatsManager:
@@ -37,6 +39,28 @@ class Extras:
         stats = BeatmapsUserGradesStatsManager(beatmap_ids, user_info)
         await stats.calculate_user_grades()
         return stats
+
+    async def insert_best_scores_into_db(self, ctx: Context, beatmap_ids: List[int], user_info: DbUserInfo):
+        """
+        Obtains best scores of a user's on all given beatmaps and inserts them into database.
+        """
+        progress_msg = await ctx.reply("Calculating scores...\n"
+                                       f"Remaining: {len(beatmap_ids)}")
+        try:
+            for ind, beatmap_id in enumerate(beatmap_ids):
+                score = await self.osu_api_utils.get_beatmap_user_best_score(beatmap_id, user_info)
+                await progress_msg.edit(content=f"Calculating scores...\n"
+                                                f"Remaining: {len(beatmap_ids) - ind}")
+
+                if score:
+                    score_info = DbScoreInfo.from_score_and_user_info(score, user_info)
+                    await self.db_manager.scores_table_manager.insert_score(score_info)
+        except asyncio.CancelledError:
+            pass
+        finally:
+            ...
+            # await asyncio.sleep(.5)
+            # await progress_msg.delete()
 
     async def wait_for_reply(self, ctx: Context, start_msg: Message, *, reply_message_content: str,
                              timeout: int) -> bool:
@@ -57,18 +81,21 @@ class Extras:
             await self.bot.wait_for("message", check=check_reply, timeout=timeout)
 
         except asyncio.TimeoutError:
-            return False  # Command was not cancelled
+            return False
+
+        except asyncio.CancelledError:
+            return False
 
         return True
 
-    async def format_discord_id_list(self, discord_user_id_list: List[int]) -> str:
+    async def format_discord_id_list(self, discord_user_ids: List[int]) -> str:
         """
         Adds extra info to the 'discord_user_id_list' and returns ready to be printed string.
         Used for 'trusted_users' and 'admins' commands.
         """
         user_info_list = []
 
-        for user_id in discord_user_id_list:
+        for user_id in discord_user_ids:
             try:
                 user = await self.bot.fetch_user(user_id)
                 user_info = (user.id, user.name)

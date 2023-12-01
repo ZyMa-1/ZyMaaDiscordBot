@@ -36,26 +36,11 @@ class ScoresStatsCog(commands.Cog):
                                                                       timeout_sec=3600 * 12)
         if is_task_completed:
             beatmap_ids: List[int] = calc_task.result()
-            temp_msg = await ctx.reply("Calculating scores (reply stop to stop)")
-            for ind, beatmap_id in enumerate(beatmap_ids):
-                score = await self.osu_api_utils.get_beatmap_user_best_score(beatmap_id, user_info)
-                await temp_msg.edit(content=f"Calculating scores (reply stop to stop)\n"
-                                            f"Remaining: {len(beatmap_ids) - ind}")
-
-                # Check if any new replies contain the 'stop' message
-                async for msg in ctx.channel.history(limit=10):
-                    if (msg.author == ctx.author and
-                            msg.channel == ctx.channel and
-                            msg.reference.message_id == temp_msg.id and
-                            msg.content.lower() == "stop"):
-                        await ctx.reply("Calculation canceled")
-                        return  # Terminate the command
-
-                if score:
-                    score_info = DbScoreInfo.from_score_and_user_info(score, user_info)
-                    await self.db_manager.scores_table_manager.insert_score(score_info)
-            await temp_msg.delete()
-            await ctx.reply(f"Inserted `{len(beatmap_ids)}` scores into db")
+            calc_task = asyncio.create_task(self.extras.insert_best_scores_into_db(ctx, beatmap_ids, user_info))
+            is_task_completed = await self.extras.wait_till_task_complete(ctx, calc_task=calc_task,
+                                                                          timeout_sec=3600)
+            if is_task_completed:
+                await ctx.reply(f"Inserted `{len(beatmap_ids)}` scores into db")
 
     @commands.command(name='delete_all_user_scores')
     @commands.check(predicates.check_is_trusted and
