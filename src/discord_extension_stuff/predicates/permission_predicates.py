@@ -34,7 +34,7 @@ async def check_is_config_set_up(ctx: Context) -> bool:
     db_manager = UtilsFactory.get_db_manager()
     user_info = await db_manager.users_table_manager.get_user_info(ctx.author.id)
     if not user_info.is_config_set_up():
-        raise commands.CheckFailure("Sorry, but you must set up the config (config_change)")
+        raise commands.CheckFailure("Sorry, but you must set up the config first (config_change)")
 
     return True
 

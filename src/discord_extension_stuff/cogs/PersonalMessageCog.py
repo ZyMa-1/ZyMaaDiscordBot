@@ -11,7 +11,7 @@ class PersonalMessageCog(commands.Cog):
     @commands.Cog.listener()
     async def on_message(self, message):
         """
-        Some extra message handling
+        Some extra message handling.
         """
         if message.author == self.bot.user:
             return

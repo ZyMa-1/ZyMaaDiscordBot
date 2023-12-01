@@ -1,8 +1,10 @@
+import discord
 from discord.ext import commands
 from discord.ext.commands import Context
 
 import discord_extension_stuff.predicates.permission_predicates as predicates
 from core import BotContext
+from discord_extension_stuff.views import AcceptDeclineView
 from factories import UtilsFactory
 from data_managers import DataUtils
 from db_managers.data_classes import DbUserInfo
@@ -67,7 +69,7 @@ class LogicCog(commands.Cog):
 
     @commands.command(name='add_trusted_user')
     @commands.check(predicates.check_is_admin)
-    async def add_trusted_user_command(self, ctx: Context, *, user: commands.MemberConverter):
+    async def add_trusted_user_command(self, ctx: Context, user: commands.MemberConverter):
         """
         Adds trusted user.
 
@@ -77,7 +79,7 @@ class LogicCog(commands.Cog):
         user_id: int = user.id
 
         await DataUtils.add_trusted_user(user_id)
-        response = f"User with id: {user_id} added to trusted users"
+        response = f"User with id `{user_id}` added to trusted users"
         await ctx.reply(response)
         data_str = await self.extras.format_discord_id_list(await DataUtils.load_trusted_users())
         response = f"Trusted users:\n{data_str}"
@@ -85,7 +87,7 @@ class LogicCog(commands.Cog):
 
     @commands.command(name='remove_trusted_user')
     @commands.check(predicates.check_is_admin)
-    async def remove_trusted_user_command(self, ctx: Context, *, user: commands.MemberConverter):
+    async def remove_trusted_user_command(self, ctx: Context, user: commands.MemberConverter):
         """
         Removes trusted user.
 
@@ -95,8 +97,50 @@ class LogicCog(commands.Cog):
         user_id: int = user.id
 
         await DataUtils.remove_trusted_user(user_id)
-        response = f"User with id: {user_id} was removed from trusted users"
+        response = f"User with id `{user_id}` was removed from trusted users"
         await ctx.reply(response)
         data_str = await self.extras.format_discord_id_list(await DataUtils.load_trusted_users())
         response = f"Trusted users:\n{data_str}"
         await ctx.reply(response)
+
+    @commands.command(name='send_trusted_user_application')
+    @commands.cooldown(1, 60 * 10, commands.BucketType.user)
+    async def send_trusted_user_application_command(self, ctx: Context, *, application_message: str):
+        """
+        Sends trusted user application to the first admin DM and waits for the response.
+
+        Parameters:
+            - application_message (str) : Message of the application
+        """
+        if ctx.author.id in await DataUtils.load_trusted_users():
+            await ctx.reply("You are already a trusted user")
+            return
+
+        start_msg = await ctx.reply("Your trusted user application is under consideration by the admin."
+                                    "Wait for a response.")
+        view = AcceptDeclineView(timeout=60 * 60 * 24)
+        admin_user_id = await DataUtils.load_first_admin_user()
+        if admin_user_id is None:
+            ctx.reply("There is no admins at all, no one can respond to the application")
+            return
+
+        admin_dm_channel = await self.bot.get_user(admin_user_id).create_dm()
+
+        embed = discord.Embed(title="Trusted User Application",
+                              description=application_message,
+                              color=discord.Color.blue())
+        embed.add_field(name="Applicant Name", value=ctx.author.name, inline=True)
+        embed.add_field(name="Applicant ID", value=ctx.author.id, inline=True)
+
+        admin_dm_msg = await admin_dm_channel.send(embed=embed, view=view)
+        view.message = admin_dm_msg
+
+        await view.wait()
+        await start_msg.delete()
+
+        # Notify the user about the decision
+        if view.decision is True:
+            await DataUtils.add_trusted_user(ctx.author.id)
+            await ctx.reply("Your trusted user application has been accepted.")
+        else:
+            await ctx.reply("Your trusted user application has been declined.")

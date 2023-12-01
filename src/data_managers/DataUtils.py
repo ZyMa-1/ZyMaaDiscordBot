@@ -1,6 +1,6 @@
 import json
 import os
-from typing import Tuple, List
+from typing import Tuple, List, Optional
 
 import aiofiles
 
@@ -30,6 +30,13 @@ class DataUtils:
             data = await file.read()
             config_data = json.loads(data)
             return config_data["admins"]
+
+    @staticmethod
+    async def load_first_admin_user() -> Optional[int]:
+        async with aiofiles.open(PathManager.ADMIN_USERS_PATH, "r") as file:
+            data = await file.read()
+            config_data = json.loads(data)
+            return config_data["admins"][0] if config_data["admins"] else None
 
     @staticmethod
     async def add_trusted_user(discord_user_id: int):
