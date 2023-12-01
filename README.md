@@ -3,39 +3,13 @@
 
 Discord bot with a bunch of cool commands build around Osu! (the game)
 
-Add him - ZyMaa's bot#8455
+[Add the bot](https://discord.com/oauth2/authorize?client_id=1147875605052915823&permissions=8&scope=bot)
 
-Commands are designed to be nerdy, but not boring, and not easy accessible, so thinking is required.
+Commands provide a bunch of statistics, and yeah that is all.
 
 ## Commands
 
 Not updating, use '^help' to see recent updates on commands.
-
-### Fun
-
-- Test command, that sends `test` message (`^test`)
-- Beer command, that sends `n` number of beer emojis (`^beer` `<cnt>`)
-
-### Logic
-
-- Config change. Changes user's config variables (`^config_change` `<osu_user_id>` `<osu_game_mode>`)
-- Config checks. Prints out user's config variables (`^config_check`)
-- Trusted users. Prints out a list of discord users, who can use the logic of the bot (`^trusted_users`)
-- Admins. Prints out a list of discord users, who can add/remove trusted users (`^admins`)
-- Add trusted user (`^add_trusted_user` `<user>`)
-- Remove trusted user (`^remove_trusted_user`  `<user>`)
-
-### OsuApiLogic
-
-- Get a grade stats on a certain group of beatmapsets obtained by query search (`^beatmapsets_stats` `<query>`)
-- Get user's playcount on a beatmap (`^beatmap_playcount_slow` `<beatmap_id`)
-- Get user's most recent play info (`^most_recent`)
-
-
-
-### Help
-
-- Custom help command (`^help`)
 
 ## Settings up the bot
 
@@ -55,8 +29,8 @@ Starting point of the bot is `start.py`.
 ## Funny
 
 Annoying stuff stumbled upon developing:
-- Default help command invokes predicates for no reason
 - Singleton issues (Factory is much better)
 - No obsessions pls
+- Async programming my beloved
 
 ---
