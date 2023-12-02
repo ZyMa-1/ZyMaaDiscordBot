@@ -35,12 +35,12 @@ class ScoresStatsCog(commands.Cog):
         user_info = await self.db_manager.users_table_manager.get_user_info(ctx.author.id)
         calc_task = asyncio.create_task(self.osu_api_utils.get_all_user_beatmap_ids(user_info))
         is_task_completed = await self.extras.wait_till_task_complete(ctx, calc_task=calc_task,
-                                                                      timeout_sec=3600 * 12)
+                                                                      timeout_sec=60 * 60 * 2)
         if is_task_completed:
             beatmap_ids: List[int] = calc_task.result()
             calc_task = asyncio.create_task(self.extras.insert_best_scores_into_db(ctx, beatmap_ids, user_info))
             is_task_completed = await self.extras.wait_till_task_complete(ctx, calc_task=calc_task,
-                                                                          timeout_sec=3600)
+                                                                          timeout_sec=60 * 60 * 18)
             if is_task_completed:
                 await ctx.reply(f"Inserted `{len(beatmap_ids)}` scores into db")
 
@@ -56,7 +56,7 @@ class ScoresStatsCog(commands.Cog):
         user_info = await self.db_manager.users_table_manager.get_user_info(ctx.author.id)
         calc_task = asyncio.create_task(self.db_manager.scores_table_manager.delete_all_user_scores(user_info))
         is_task_completed = await self.extras.wait_till_task_complete(ctx, calc_task=calc_task,
-                                                                      timeout_sec=3600)
+                                                                      timeout_sec=60 * 60)
         if is_task_completed:
             res: bool = calc_task.result()
             await ctx.reply(f"Deleted `{str(res)}` scores")
@@ -73,7 +73,7 @@ class ScoresStatsCog(commands.Cog):
         user_info = await self.db_manager.users_table_manager.get_user_info(ctx.author.id)
         calc_task = asyncio.create_task(self.db_manager.scores_table_manager.count_all_user_scores(user_info))
         is_task_completed = await self.extras.wait_till_task_complete(ctx, calc_task=calc_task,
-                                                                      timeout_sec=3600)
+                                                                      timeout_sec=60 * 60)
 
         if is_task_completed:
             scores_count: int = calc_task.result()
@@ -92,7 +92,7 @@ class ScoresStatsCog(commands.Cog):
         user_info = await self.db_manager.users_table_manager.get_user_info(ctx.author.id)
         calc_task = asyncio.create_task(self.db_manager.scores_table_manager.get_user_random_score(user_info))
         is_task_completed = await self.extras.wait_till_task_complete(ctx, calc_task=calc_task,
-                                                                      timeout_sec=3600)
+                                                                      timeout_sec=60 * 60)
 
         if is_task_completed:
             score_info: DbScoreInfo = calc_task.result()
