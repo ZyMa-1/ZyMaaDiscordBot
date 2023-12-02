@@ -3,8 +3,8 @@ import pathlib
 import openpyxl
 import tempfile
 
+from openpyxl.cell import WriteOnlyCell
 from openpyxl.styles import Font
-from ossapi import Score
 
 from core import PathManager
 from db_managers.data_classes import DbUserInfo
@@ -25,13 +25,12 @@ class ExcelScoresManager:
         self.temp_file_path = None
 
     async def retrieve_rows(self):
-        header_row = ['Artist unicode',
-                      'Title unicode',
-                      'Diff name',
-                      'Creator',
-                      'Score',
+        header_row = ['Beatmap link',
+                      'Difficulty name',
+                      'Score link',
                       'Mods',
-                      'Accuracy']
+                      'Accuracy',
+                      'Scorev1']
         self.sheet.append(header_row)
 
         header_cell = self.sheet[1]
@@ -43,15 +42,22 @@ class ExcelScoresManager:
             score: dict = score_info.deserialize_score_json()
 
             # Check if 'beatmapset' and 'beatmap' keys exist before accessing nested keys
-            artist_unicode = score.get('beatmapset', {}).get('artist_unicode') if score.get('beatmapset') else 'None'
-            title_unicode = score.get('beatmapset', {}).get('title_unicode') if score.get('beatmapset') else 'None'
+            score_id = score.get('id')
+            score_v1 = score.get('score')
+            beatmap_id = score.get('beatmap', {}).get('id') if score.get('beatmap') else 'None'
             version = score.get('beatmap', {}).get('version') if score.get('beatmap') else 'None'
-            creator = score.get('beatmapset', {}).get('creator') if score.get('beatmapset') else 'None'
-            score_value = score.get('score')
             mods_value = score.get('mods')
             accuracy = round(score.get('accuracy', 0) * 100, 2)
 
-            row_data = [artist_unicode, title_unicode, version, creator, score_value, mods_value, accuracy]
+            score_cell = WriteOnlyCell(self.sheet, value='=HYPERLINK("{}", "{}")'.
+                                       format(f"https://osu.ppy.sh/scores/osu/{score_id}", score_id))
+            score_cell.font = Font(color="0000FF", underline="single")
+
+            beatmap_cell = WriteOnlyCell(self.sheet, value='=HYPERLINK("{}", "{}")'.
+                                         format(f"https://osu.ppy.sh/b/{beatmap_id}", beatmap_id))
+            beatmap_cell.font = Font(color="0000FF", underline="single")
+
+            row_data = [beatmap_cell, version, score_cell, mods_value, accuracy, score_v1]
             self.sheet.append(row_data)
 
     def save_workbook(self) -> pathlib.Path:
