@@ -68,7 +68,8 @@ class ScoresTableManager:
             await db.commit()
         return True
 
-    async def get_all_user_scores(self, user_info: DbUserInfo) -> AsyncGenerator[DbScoreInfo, None]:
+    async def get_all_user_scores(self, user_info: DbUserInfo, chunk_size: int = 100) \
+            -> AsyncGenerator[DbScoreInfo, None]:
         """
         Returns a generator for all the scores associated with a specified user
         wrapped up into 'DbScoreInfo' dataclass.
@@ -81,10 +82,13 @@ class ScoresTableManager:
                 WHERE user_info_id = ?
                 ORDER BY timestamp DESC
             ''', (user_info.discord_user_id,))
-            rows = await cursor.fetchall()
-            for row in rows:
-                score_info = DbScoreInfo(*row)
-                yield score_info
+            while True:
+                rows = await cursor.fetchmany(chunk_size)
+                if not rows:
+                    break
+                for row in rows:
+                    score_info = DbScoreInfo(*row)
+                    yield score_info
 
     async def count_all_user_scores(self, user_info: DbUserInfo) -> int:
         """

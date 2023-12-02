@@ -33,23 +33,26 @@ class ExcelScoresManager:
                       'Mods',
                       'Accuracy']
         self.sheet.append(header_row)
-        header_cell = self.sheet.append(header_row)
-        for cell in header_cell[0]:
+
+        header_cell = self.sheet[1]
+
+        for cell in header_cell:
             cell.font = Font(bold=True)
 
         async for score_info in self.db_manager.scores_table_manager.get_all_user_scores(self.user_info):
-            score: Score = score_info.deserialize_score_json()
-            try:
-                row_data = [score.beatmapset.artist_unicode,
-                            score.beatmapset.title_unicode,
-                            score.beatmap.version,
-                            score.beatmapset.creator,
-                            score.score,
-                            round(score.accuracy * 100, 2)]
-                self.sheet.append(row_data)
-            except ValueError:
-                row_data = [None] * len(header_row)
-                self.sheet.append(row_data)
+            score: dict = score_info.deserialize_score_json()
+
+            # Check if 'beatmapset' and 'beatmap' keys exist before accessing nested keys
+            artist_unicode = score.get('beatmapset', {}).get('artist_unicode') if score.get('beatmapset') else None
+            title_unicode = score.get('beatmapset', {}).get('title_unicode') if score.get('beatmapset') else None
+            version = score.get('beatmap', {}).get('version') if score.get('beatmap') else None
+            creator = score.get('beatmapset', {}).get('creator') if score.get('beatmapset') else None
+            score_value = score.get('score')
+            mods_value = score.get('mods')
+            accuracy = round(score.get('accuracy', 0) * 100, 2)
+
+            row_data = [artist_unicode, title_unicode, version, creator, score_value, mods_value, accuracy]
+            self.sheet.append(row_data)
 
     def save_workbook(self) -> pathlib.Path:
         temp_file = tempfile.NamedTemporaryFile(dir=PathManager.TEMP_DIR, delete=False, suffix=self.file_extension)
@@ -59,9 +62,10 @@ class ExcelScoresManager:
 
     def delete_temp_file(self):
         if self.temp_file_path:
-            try:
-                self.temp_file_path.unlink()
-            except Exception as e:
-                raise e
-            finally:
-                self.temp_file_path = None
+            if self.temp_file_path.exists():
+                try:
+                    self.temp_file_path.unlink()
+                except Exception as e:
+                    raise e
+                finally:
+                    self.temp_file_path = None

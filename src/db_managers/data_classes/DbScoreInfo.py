@@ -1,11 +1,11 @@
+import json
 from dataclasses import dataclass, field
 from datetime import datetime
 from typing import Optional
 
-from ossapi import Score, serialize_model, OssapiAsync
+from ossapi import Score, serialize_model
 
 from db_managers.data_classes import DbUserInfo
-from ossapi_extension import deserialize_model
 
 
 @dataclass
@@ -25,6 +25,5 @@ class DbScoreInfo:
         return cls(id=None, user_info_id=user_info.discord_user_id,
                    score_json_data=serialize_model(score_instance))
 
-    def deserialize_score_json(self) -> Score:
-        # Deserializes the 'Score' model from 'json_score_data' and returns it.
-        return deserialize_model(Score, self.score_json_data)
+    def deserialize_score_json(self) -> dict:
+        return json.loads(self.score_json_data)

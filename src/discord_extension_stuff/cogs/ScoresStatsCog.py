@@ -4,7 +4,6 @@ from typing import List
 import discord
 from discord.ext import commands
 from discord.ext.commands import Context
-from ossapi import Score
 
 from core import BotContext
 import discord_extension_stuff.predicates.permission_predicates as predicates
@@ -96,8 +95,8 @@ class ScoresStatsCog(commands.Cog):
 
         if is_task_completed:
             score_info: DbScoreInfo = calc_task.result()
-            score: Score = score_info.deserialize_score_json()
-            await ctx.reply(f"Score deserialized successefully. Here is `{score.id=}` as a prove.")
+            score: dict = score_info.deserialize_score_json()
+            await ctx.reply(f"Score deserialized into dictionary successefully. Here is `{score['id']=}` as a prove.")
             await ctx.reply(f"{DbScoreInfo.__name__} instance:\n{score_info}")
 
     @commands.command(name='get_xlsx_scores_file')
@@ -118,4 +117,4 @@ class ScoresStatsCog(commands.Cog):
         file = discord.File(fp=file_path, filename=f"scores{excel_scores_manager.file_extension}")
         await ctx.reply(file=file)
 
-        await excel_scores_manager.delete_temp_file()
+        excel_scores_manager.delete_temp_file()
