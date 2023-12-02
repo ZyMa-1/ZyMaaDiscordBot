@@ -114,7 +114,8 @@ class ScoresStatsCog(commands.Cog):
         await excel_scores_manager.retrieve_rows()
         file_path = excel_scores_manager.save_workbook()
 
-        file = discord.File(fp=file_path, filename=f"scores{excel_scores_manager.file_extension}")
+        file = discord.File(fp=file_path, filename=f"scores_{user_info.osu_user_id}"
+                                                   f"{excel_scores_manager.file_extension}")
         await ctx.reply(file=file)
 
         excel_scores_manager.delete_temp_file()

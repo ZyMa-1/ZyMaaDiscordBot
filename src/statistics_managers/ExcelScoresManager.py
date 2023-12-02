@@ -12,9 +12,9 @@ from factories import UtilsFactory
 
 
 class ExcelScoresManager:
-    def __init__(self, user_info: DbUserInfo, file_extension='.xlsx'):
+    def __init__(self, user_info: DbUserInfo):
         self.user_info = user_info
-        self.file_extension = file_extension
+        self.file_extension = '.xlsx'
 
         self.db_manager = UtilsFactory.get_db_manager()
 
@@ -43,10 +43,10 @@ class ExcelScoresManager:
             score: dict = score_info.deserialize_score_json()
 
             # Check if 'beatmapset' and 'beatmap' keys exist before accessing nested keys
-            artist_unicode = score.get('beatmapset', {}).get('artist_unicode') if score.get('beatmapset') else None
-            title_unicode = score.get('beatmapset', {}).get('title_unicode') if score.get('beatmapset') else None
-            version = score.get('beatmap', {}).get('version') if score.get('beatmap') else None
-            creator = score.get('beatmapset', {}).get('creator') if score.get('beatmapset') else None
+            artist_unicode = score.get('beatmapset', {}).get('artist_unicode') if score.get('beatmapset') else 'None'
+            title_unicode = score.get('beatmapset', {}).get('title_unicode') if score.get('beatmapset') else 'None'
+            version = score.get('beatmap', {}).get('version') if score.get('beatmap') else 'None'
+            creator = score.get('beatmapset', {}).get('creator') if score.get('beatmapset') else 'None'
             score_value = score.get('score')
             mods_value = score.get('mods')
             accuracy = round(score.get('accuracy', 0) * 100, 2)
