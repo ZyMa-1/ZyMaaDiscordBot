@@ -2,6 +2,7 @@ Todo:
 1. Check 'logging_stats' command If it is working (I added glob thingy).
 2. Permission predicates should be separated from db related stuff. Probably.
 3. Add owner command. As now trusted users and admins files needs to be created manually.
+4. Improve db speed.
 
 Ideas:
 1. Just get the table of all your scores with most important fields in it (not entire 'Score' model)
