@@ -41,9 +41,12 @@ class UsersTableManager:
 
         async with aiosqlite.connect(self.db_name) as db:
             cursor = await db.cursor()
-            await cursor.execute(
-                'INSERT OR REPLACE INTO users (discord_user_id, osu_user_id, osu_game_mode) VALUES (?, ?, ?)',
-                (user_info.discord_user_id, user_info.osu_user_id, user_info.osu_game_mode))
+            await cursor.execute('''
+                INSERT OR REPLACE INTO users (discord_user_id, osu_user_id, osu_game_mode)
+                VALUES (?, ?, ?)
+                ''', (user_info.discord_user_id,
+                      user_info.osu_user_id,
+                      user_info.osu_game_mode))
             await db.commit()
 
             return True
@@ -55,8 +58,9 @@ class UsersTableManager:
         """
         async with aiosqlite.connect(self.db_name) as db:
             cursor = await db.cursor()
-            await cursor.execute('SELECT osu_user_id, osu_game_mode FROM users WHERE discord_user_id = ?',
-                                 (discord_user_id,))
+            await cursor.execute(
+                'SELECT osu_user_id, osu_game_mode FROM users WHERE discord_user_id = ?',
+                (discord_user_id,))
             result = await cursor.fetchone()
             if result:
                 osu_user_id, osu_game_mode = result

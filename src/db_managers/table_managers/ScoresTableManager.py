@@ -3,6 +3,8 @@ import pathlib
 import aiosqlite
 from typing import Optional, AsyncGenerator
 
+from ossapi import Mod
+
 import my_logging.get_loggers
 from db_managers.data_classes import DbScoreInfo, DbUserInfo
 
@@ -30,6 +32,7 @@ class ScoresTableManager:
                     id INTEGER PRIMARY KEY AUTOINCREMENT,
                     user_info_id INTEGER,
                     score_json_data TEXT,
+                    mods INTEGER,
                     timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                     FOREIGN KEY(user_info_id) REFERENCES users(discord_user_id)
                 )
@@ -46,9 +49,12 @@ class ScoresTableManager:
             async with aiosqlite.connect(self.db_name) as db:
                 cursor = await db.cursor()
                 await cursor.execute('''
-                    INSERT INTO scores (user_info_id, score_json_data, timestamp)
-                    VALUES (?, ?, ?)
-                ''', (score_info.user_info_id, score_info.score_json_data, score_info.timestamp))
+                    INSERT INTO scores (user_info_id, score_json_data, mods, timestamp)
+                    VALUES (?, ?, ?, ?)
+                ''', (score_info.user_info_id,
+                      score_info.score_json_data,
+                      score_info.mods.value,
+                      score_info.timestamp))
                 await db.commit()
             return True
         except aiosqlite.IntegrityError as e:
@@ -61,10 +67,9 @@ class ScoresTableManager:
         Returns True If operation was successful, False otherwise.
         """
         async with aiosqlite.connect(self.db_name) as db:
-            await db.execute('''
-                DELETE FROM scores
-                WHERE user_info_id = ?
-            ''', (user_info.discord_user_id,))
+            await db.execute(
+                'DELETE FROM scores WHERE user_info_id = ?',
+                (user_info.discord_user_id,))
             await db.commit()
         return True
 
@@ -76,16 +81,14 @@ class ScoresTableManager:
         """
         async with aiosqlite.connect(self.db_name) as db:
             cursor = await db.cursor()
-            await cursor.execute('''
-                SELECT id, user_info_id, score_json_data, timestamp
-                FROM scores
-                WHERE user_info_id = ?
-                ORDER BY timestamp DESC
-            ''', (user_info.discord_user_id,))
+            await cursor.execute(
+                'SELECT * FROM scores WHERE user_info_id = ? ORDER BY timestamp DESC',
+                (user_info.discord_user_id,))
             while True:
                 rows = await cursor.fetchmany(chunk_size)
                 if not rows:
                     break
+
                 for row in rows:
                     score_info = DbScoreInfo(*row)
                     yield score_info
@@ -97,8 +100,7 @@ class ScoresTableManager:
         async with aiosqlite.connect(self.db_name) as db:
             cursor = await db.execute(
                 'SELECT COUNT(*) FROM scores WHERE user_info_id = ?',
-                (user_info.discord_user_id,)
-            )
+                (user_info.discord_user_id,))
             count = await cursor.fetchone()
 
         return count[0]
@@ -110,8 +112,7 @@ class ScoresTableManager:
         async with aiosqlite.connect(self.db_name) as db:
             cursor = await db.execute(
                 'SELECT * FROM scores WHERE user_info_id = ? ORDER BY RANDOM() LIMIT 1',
-                (user_info.discord_user_id,)
-            )
+                (user_info.discord_user_id,))
             row = await cursor.fetchone()
 
         if row:
@@ -125,3 +126,53 @@ class ScoresTableManager:
         """
         scores_count = await self.count_all_user_scores(user_info)
         return scores_count > 0
+
+    async def get_mods_filtered_user_scores(self, user_info: DbUserInfo, mods: Mod, chunk_size: int = 100) \
+            -> AsyncGenerator[DbScoreInfo, None]:
+        """
+        Filters the 'scores' table by 'mods' column which include provided mods.
+        Returns a generator for all the scores associated with a specified user
+        wrapped up into 'DbScoreInfo' dataclass.
+        """
+        async with aiosqlite.connect(self.db_name) as db:
+            cursor = await db.cursor()
+            await cursor.execute(
+                'SELECT * FROM scores WHERE user_info_id = ? AND (mods & ?) = ?',
+                (user_info.discord_user_id, mods.value, mods.value))
+            while True:
+                rows = await cursor.fetchmany(chunk_size)
+                if not rows:
+                    break
+
+                for row in rows:
+                    score_info = DbScoreInfo(*row)
+                    yield score_info
+
+    async def __calculate_mods(self, chunk_size: int = 100):
+        try:
+            async with aiosqlite.connect(self.db_name) as db:
+                cursor = await db.cursor()
+
+                cursor.execute('SELECT id, score_json_data FROM scores WHERE mods IS NULL')
+                while True:
+                    rows = cursor.fetchmany(chunk_size)
+                    if not rows:
+                        break
+
+                    for row in rows:
+                        row_id, score_json_data = row
+                        deserialized_json = DbScoreInfo.deserialize_score_json_static(score_json_data)
+                        try:
+                            mod_value = deserialized_json['mods']
+                        except ValueError:
+                            logger.exception("Error trying to create 'Mod' instance")
+
+                        cursor.execute(
+                            'UPDATE scores SET mods = ? WHERE id = ?',
+                            (mod_value, row_id))
+
+                db.commit()
+
+        except Exception as e:
+            db.rollback()
+            logger.exception(f"Error during mods calculation: {e}")
