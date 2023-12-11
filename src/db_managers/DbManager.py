@@ -22,3 +22,4 @@ class DbManager:
         """
         await self.users_table_manager.create_users_table()
         await self.scores_table_manager.create_scores_table()
+        await self.scores_table_manager._calculate_mods()

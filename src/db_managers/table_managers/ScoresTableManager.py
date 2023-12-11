@@ -148,7 +148,7 @@ class ScoresTableManager:
                     score_info = DbScoreInfo(*row)
                     yield score_info
 
-    async def __calculate_mods(self, chunk_size: int = 100):
+    async def _calculate_mods(self, chunk_size: int = 100):
         try:
             async with aiosqlite.connect(self.db_name) as db:
                 cursor = await db.cursor()
