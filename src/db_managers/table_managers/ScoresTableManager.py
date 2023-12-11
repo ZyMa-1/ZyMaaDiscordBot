@@ -7,6 +7,7 @@ from ossapi import Mod
 
 import my_logging.get_loggers
 from db_managers.data_classes import DbScoreInfo, DbUserInfo
+from db_managers.table_managers.decorators import elapsed_time_logger
 
 logger = my_logging.get_loggers.database_utilities_logger()
 
@@ -40,6 +41,7 @@ class ScoresTableManager:
             logger.info("create_scores_table: Table created (or initialized)")
             await db.commit()
 
+    @elapsed_time_logger
     async def insert_score(self, score_info: DbScoreInfo) -> bool:
         """
         Inserts entry to the 'scores' table.
@@ -73,6 +75,7 @@ class ScoresTableManager:
             await db.commit()
         return True
 
+    @elapsed_time_logger
     async def get_all_user_scores(self, user_info: DbUserInfo, chunk_size: int = 100) \
             -> AsyncGenerator[DbScoreInfo, None]:
         """
@@ -127,6 +130,7 @@ class ScoresTableManager:
         scores_count = await self.count_all_user_scores(user_info)
         return scores_count > 0
 
+    @elapsed_time_logger
     async def get_mods_filtered_user_scores(self, user_info: DbUserInfo, mods: Mod, chunk_size: int = 100) \
             -> AsyncGenerator[DbScoreInfo, None]:
         """
