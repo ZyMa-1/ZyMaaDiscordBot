@@ -23,6 +23,6 @@ class DbManager:
         await self.users_table_manager.create_users_table()
         await self.scores_table_manager.create_scores_table()
 
-        # Temporary method cals to change the table structure
+        # Temporary method calls to change the table structure
         await self.scores_table_manager._calculate_mods()
         await self.scores_table_manager._change_column_order()
