@@ -140,7 +140,6 @@ class ScoresTableManager:
         """
         async with aiosqlite.connect(self.db_name) as db:
             cursor = await db.cursor()
-            print(mods.value, type(mods.value))
             await cursor.execute(
                 'SELECT * FROM scores WHERE user_info_id = ? AND (mods & ?) = ?',
                 (user_info.discord_user_id, mods.value, mods.value))
@@ -150,7 +149,6 @@ class ScoresTableManager:
                     break
 
                 for row in rows:
-                    print(row)
                     score_info = DbScoreInfo.from_row(row)
                     yield score_info
 
@@ -201,7 +199,7 @@ class ScoresTableManager:
                 cursor = await db.cursor()
 
                 await db.execute('''
-                    CREATE TABLE IF NOT EXISTS scores (
+                    CREATE TABLE IF NOT EXISTS scores_new (
                         id INTEGER PRIMARY KEY AUTOINCREMENT,
                         user_info_id INTEGER,
                         score_json_data TEXT,
@@ -212,8 +210,8 @@ class ScoresTableManager:
                 ''')
 
                 await cursor.execute('''
-                     INSERT INTO scores_new (id, user_info_id, score_json_data, mods, timestamp)
-                     SELECT id, user_info_id, score_json_data, mods, timestamp FROM scores')
+                    INSERT INTO scores_new (id, user_info_id, score_json_data, mods, timestamp)
+                    SELECT id, user_info_id, score_json_data, mods, timestamp FROM scores
                 ''')
 
                 await cursor.execute('DROP TABLE IF EXISTS scores')
