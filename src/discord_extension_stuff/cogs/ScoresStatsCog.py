@@ -4,6 +4,7 @@ from typing import List
 import discord
 from discord.ext import commands
 from discord.ext.commands import Context
+from ossapi import Mod
 
 from core import BotContext
 import discord_extension_stuff.predicates.permission_predicates as predicates
@@ -110,11 +111,40 @@ class ScoresStatsCog(commands.Cog):
         """
         user_info = await self.db_manager.users_table_manager.get_user_info(ctx.author.id)
 
-        excel_scores_manager = ExcelScoresManager(user_info)
+        excel_scores_manager = ExcelScoresManager(user_info,
+                                                  self.db_manager.scores_table_manager.
+                                                  get_all_user_scores(user_info))
         await excel_scores_manager.retrieve_rows()
         file_path = excel_scores_manager.save_workbook()
 
         file = discord.File(fp=file_path, filename=f"scores_{user_info.osu_user_id}"
+                                                   f"{excel_scores_manager.file_extension}")
+        await ctx.reply(file=file)
+
+        excel_scores_manager.delete_temp_file()
+
+    @commands.command(name='get_filtered_by_mods_xlsx_scores_file')
+    @commands.check(predicates.check_is_trusted and
+                    predicates.check_is_config_set_up and
+                    predicates.check_is_user_has_scores)
+    @commands.cooldown(1, 30, commands.BucketType.user)
+    async def get_xlsx_scores_file_command(self, ctx: Context, mods: str):
+        """
+        Gets xlsx file of all user's scores that include specific mods.
+        """
+        try:
+            mods = Mod(mods)
+        except ValueError:
+            raise commands.BadArgument("Sorry, 'mods' argument is invalid")
+
+        user_info = await self.db_manager.users_table_manager.get_user_info(ctx.author.id)
+
+        excel_scores_manager = ExcelScoresManager(user_info, self.db_manager.scores_table_manager.
+                                                  get_mods_filtered_user_scores(user_info, mods))
+        await excel_scores_manager.retrieve_rows()
+        file_path = excel_scores_manager.save_workbook()
+
+        file = discord.File(fp=file_path, filename=f"scores_{user_info.osu_user_id}_filtered"
                                                    f"{excel_scores_manager.file_extension}")
         await ctx.reply(file=file)
 

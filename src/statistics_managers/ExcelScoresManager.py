@@ -1,4 +1,5 @@
 import pathlib
+from typing import AsyncGenerator
 
 import openpyxl
 import tempfile
@@ -7,21 +8,21 @@ from openpyxl.cell import WriteOnlyCell
 from openpyxl.styles import Font
 
 from core import PathManager
-from db_managers.data_classes import DbUserInfo
+from db_managers.data_classes import DbUserInfo, DbScoreInfo
 from factories import UtilsFactory
 
 
 class ExcelScoresManager:
-    def __init__(self, user_info: DbUserInfo):
+    def __init__(self, user_info: DbUserInfo, score_info_async_generator: AsyncGenerator[DbScoreInfo, None]):
         self.user_info = user_info
+        self.score_info_async_generator = score_info_async_generator
+
         self.file_extension = '.xlsx'
-
-        self.db_manager = UtilsFactory.get_db_manager()
-
+        self.sheet_name = 'Scores'
         self.workbook = openpyxl.Workbook()
         self.sheet = self.workbook.active
-        self.sheet_name = 'Scores'
 
+        self.db_manager = UtilsFactory.get_db_manager()
         self.temp_file_path = None
 
     async def retrieve_rows(self):
@@ -38,7 +39,7 @@ class ExcelScoresManager:
         for cell in header_cell:
             cell.font = Font(bold=True)
 
-        async for score_info in self.db_manager.scores_table_manager.get_all_user_scores(self.user_info):
+        async for score_info in self.score_info_async_generator:
             score: dict = score_info.deserialize_score_json()
 
             # Check if 'beatmapset' and 'beatmap' keys exist before accessing nested keys

@@ -17,6 +17,21 @@ class DataUtils:
     """
 
     @staticmethod
+    def create_files():
+        """
+        Creates files if they are not exist.
+        """
+        if not os.path.exists(PathManager.TRUSTED_USERS_PATH):
+            trusted_users_data = {'trusted_users': []}
+            with open(PathManager.TRUSTED_USERS_PATH, 'w') as file:
+                json.dump(trusted_users_data, file)
+
+        if not os.path.exists(PathManager.ADMIN_USERS_PATH):
+            admins_data = {'admins': []}
+            with open(PathManager.ADMIN_USERS_PATH, 'w') as file:
+                json.dump(admins_data, file)
+
+    @staticmethod
     async def load_trusted_users() -> List[int]:
         async with aiofiles.open(PathManager.TRUSTED_USERS_PATH, "r") as file:
             data = await file.read()

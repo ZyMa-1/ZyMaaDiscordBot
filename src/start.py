@@ -8,6 +8,7 @@ import bot
 import my_logging.get_loggers
 import my_logging.setup_logging
 from core import PathManager
+from data_managers import DataUtils
 
 
 def create_directories():
@@ -20,7 +21,7 @@ async def main():
     PathManager.set_project_root(Path(__file__).resolve().parent.parent)
     os.chdir(PathManager.PROJECT_ROOT)
 
-    # Create directories if there are not there
+    # Create directories if they are not created
     create_directories()
 
     # Load environment variables
@@ -32,6 +33,7 @@ async def main():
     # Creating all resources
     from factories import UtilsFactory
     await UtilsFactory.create_all_instances()
+    DataUtils.create_files()
 
     # Check paths existence
     PathManager.check_paths_existence()
