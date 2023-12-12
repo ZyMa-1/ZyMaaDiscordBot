@@ -54,12 +54,13 @@ class ScoresStatsCog(commands.Cog):
         Deletes all user's scores from the database table.
         """
         user_info = await self.db_manager.users_table_manager.get_user_info(ctx.author.id)
+        score_count = await self.db_manager.scores_table_manager.count_all_user_scores(user_info)
         calc_task = asyncio.create_task(self.db_manager.scores_table_manager.delete_all_user_scores(user_info))
         is_task_completed = await self.extras.wait_till_task_complete(ctx, calc_task=calc_task,
                                                                       timeout_sec=60 * 60)
         if is_task_completed:
             res: bool = calc_task.result()
-            await ctx.reply(f"Deleted `{str(res)}` scores")
+            await ctx.reply(f"Deleted ({str(res)} `{score_count}` scores")
 
     @commands.command(name='count_scores')
     @commands.check(predicates.check_is_trusted and
