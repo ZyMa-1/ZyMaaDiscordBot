@@ -5,3 +5,4 @@ from .PersonalMessageCog import PersonalMessageCog
 from .SetupCog import SetupCog
 from .LoggingStatsCog import LoggingStatsCog
 from .ScoresStatsCog import ScoresStatsCog
+from .OwnerCog import OwnerCog

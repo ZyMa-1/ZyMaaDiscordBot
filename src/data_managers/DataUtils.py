@@ -74,6 +74,26 @@ class DataUtils:
             await file.write(json.dumps(config_data, indent=4))
 
     @staticmethod
+    async def add_admin(discord_user_id: int):
+        async with aiofiles.open(PathManager.ADMIN_USERS_PATH, "r") as file:
+            data = await file.read()
+            config_data = json.loads(data)
+            if discord_user_id not in config_data["admins"]:
+                config_data["admins"].append(discord_user_id)
+        async with aiofiles.open(PathManager.ADMIN_USERS_PATH, "w") as file:
+            await file.write(json.dumps(config_data, indent=4))
+
+    @staticmethod
+    async def remove_admin(discord_user_id: int):
+        async with aiofiles.open(PathManager.ADMIN_USERS_PATH, "r") as file:
+            data = await file.read()
+            config_data = json.loads(data)
+            if discord_user_id in config_data["admins"]:
+                config_data["admins"].remove(discord_user_id)
+        async with aiofiles.open(PathManager.ADMIN_USERS_PATH, "w") as file:
+            await file.write(json.dumps(config_data, indent=4))
+
+    @staticmethod
     def load_discord_bot_token() -> str:
         token = os.getenv("DISCORD_BOT_TOKEN")
         return token

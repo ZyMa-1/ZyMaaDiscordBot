@@ -15,6 +15,7 @@ async def add_cogs(bot, bot_context):
     await bot.add_cog(cogs.PersonalMessageCog(bot_context))
     await bot.add_cog(cogs.LoggingStatsCog(bot_context))
     await bot.add_cog(cogs.ScoresStatsCog(bot_context))
+    await bot.add_cog(cogs.OwnerCog(bot_context))
 
 
 async def run_bot(bot):

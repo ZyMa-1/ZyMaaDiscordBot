@@ -64,7 +64,7 @@ class LogicCog(commands.Cog):
         Prints out admins list.
         """
         data_str = await self.extras.format_discord_id_list(await DataUtils.load_admin_users())
-        response = f"Admin users:\n{data_str}"
+        response = f"Admins:\n{data_str}"
         await ctx.reply(response)
 
     @commands.command(name='add_trusted_user')
