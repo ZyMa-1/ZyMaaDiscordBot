@@ -1,13 +1,12 @@
 Todo:
 1. Check 'logging_stats' command If it is working (I added glob thingy).
-2. Permission predicates should be separated from db related stuff. Probably.
-3. Add owner command. As now trusted users and admins files needs to be created manually.
-4. Improve and test db speed, especially 'scores' table operations.
-5. Add 'mods' INTEGER column to the 'scores' table.
+2. Add owner command. As now trusted users and admins files needs to be created manually.
+3. Improve and test db speed, especially 'scores' table operations.
+4. Add 'mods' INTEGER column to the 'scores' table.
 
 Ideas:
 1. Just get the table of all your scores with most important fields in it (not entire 'Score' model)
 ^get_xlsx_scores_file
 2. Filtering the scores, so they would include given mods (game modifications) and return the same table of them.
 ^get_filtered_by_mods_xlsx_scores_file
-3. Describe flow of the bot, how to do stuff in the readme.
+3. Describe flow of the bot, how to do stuff in the readme and ^flow command.
