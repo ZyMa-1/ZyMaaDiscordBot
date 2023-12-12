@@ -40,7 +40,7 @@ class ScoresStatsCog(commands.Cog):
             beatmap_ids: List[int] = calc_task.result()
             calc_task = asyncio.create_task(self.extras.insert_best_scores_into_db(ctx, beatmap_ids, user_info))
             is_task_completed = await self.extras.wait_till_task_complete(ctx, calc_task=calc_task,
-                                                                          timeout_sec=60 * 60 * 18)
+                                                                          timeout_sec=60 * 60 * 48)
             if is_task_completed:
                 await ctx.reply(f"Inserted `{len(beatmap_ids)}` scores into db")
 
