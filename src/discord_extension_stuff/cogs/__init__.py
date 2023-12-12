@@ -1,4 +1,4 @@
-from .FunCog import FunCog
+from .ChillCog import ChillCog
 from .LogicCog import LogicCog
 from .OsuApiLogicCog import OsuApiLogicCog
 from .PersonalMessageCog import PersonalMessageCog

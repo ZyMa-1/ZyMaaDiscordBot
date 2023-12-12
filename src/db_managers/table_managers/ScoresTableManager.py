@@ -155,11 +155,20 @@ class ScoresTableManager:
     async def _calculate_mods(self, chunk_size: int = 100):
         try:
             async with aiosqlite.connect(self.db_name) as db:
+                # Add mods INTEGER column with default value NULL
                 cursor = await db.cursor()
+                await cursor.execute("PRAGMA table_info(scores)")
+                columns = [column[1] for column in await cursor.fetchall()]  # Get column names
 
-                cursor.execute('SELECT id, score_json_data FROM scores WHERE mods IS NULL')
+                if 'mods' not in columns:
+                    await cursor.execute('ALTER TABLE scores ADD COLUMN mods INTEGER DEFAULT NULL')
+
+                # Calculate the mods for each row
+                cursor = await db.cursor()
+                await cursor.execute('SELECT id, score_json_data FROM scores WHERE mods IS NULL')
+
                 while True:
-                    rows = cursor.fetchmany(chunk_size)
+                    rows = await cursor.fetchmany(chunk_size)
                     if not rows:
                         break
 
@@ -171,12 +180,15 @@ class ScoresTableManager:
                         except ValueError:
                             logger.exception("Error trying to create 'Mod' instance")
 
-                        cursor.execute(
+                        await cursor.execute(
                             'UPDATE scores SET mods = ? WHERE id = ?',
                             (mod_value, row_id))
 
-                db.commit()
+                await db.commit()
 
         except Exception as e:
-            db.rollback()
+            try:
+                await db.rollback()
+            except Exception as e2:
+                logger.exception(f"Cannot rollback. Error during mods calculation: {e2}")
             logger.exception(f"Error during mods calculation: {e}")

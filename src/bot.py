@@ -9,7 +9,7 @@ from discord_extension_stuff.MyHelpCommand import MyHelpCommand
 async def add_cogs(bot, bot_context):
     import discord_extension_stuff.cogs as cogs
     await bot.add_cog(cogs.SetupCog(bot_context))
-    await bot.add_cog(cogs.FunCog(bot_context))
+    await bot.add_cog(cogs.ChillCog(bot_context))
     await bot.add_cog(cogs.LogicCog(bot_context))
     await bot.add_cog(cogs.OsuApiLogicCog(bot_context))
     await bot.add_cog(cogs.PersonalMessageCog(bot_context))

@@ -3,11 +3,13 @@ from discord.ext.commands import is_owner, Context
 
 from core import BotContext
 from data_managers import DataUtils
+from discord_extension_stuff.extras import Extras
 
 
-class OwnerCog(commands.cog):
+class OwnerCog(commands.Cog):
     def __init__(self, bot_context: BotContext):
         self.bot = bot_context.bot
+        self.extras = Extras(bot_context)
 
     @is_owner()
     @commands.command(name="add_admin")
