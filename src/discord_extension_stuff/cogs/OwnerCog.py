@@ -33,7 +33,7 @@ class OwnerCog(commands.Cog):
     @commands.command(name="remove_admin")
     async def remove_admin_command(self, ctx: Context, user: commands.MemberConverter):
         """
-        Adds admin.
+        Removes admin.
 
         Parameters:
             - user (commands.MemberConverter)

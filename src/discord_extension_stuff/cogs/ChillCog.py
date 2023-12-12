@@ -11,7 +11,7 @@ class ChillCog(commands.Cog):
     @commands.command(name='flow')
     async def flow_command(self, ctx: Context):
         """
-        Describes the flow of the bot and how to use it.
+        Describes the flow of the bot and how to get access to some commands.
         """
         response = ("Lets get straight to the point.\n"
                     "Assume you want to use the fancy `^get_filtered_by_mods_xlsx_scores_file` command.\n"

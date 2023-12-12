@@ -130,7 +130,7 @@ class ScoresStatsCog(commands.Cog):
     @commands.cooldown(1, 30, commands.BucketType.user)
     async def get_xlsx_scores_file_command(self, ctx: Context, mods: str):
         """
-        Gets xlsx file of all user's scores that include specific mods.
+        Gets xlsx file of all user's scores that include specific mods (game modifications).
         """
         try:
             mods = Mod(mods)
