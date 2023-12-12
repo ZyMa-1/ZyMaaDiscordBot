@@ -1,3 +1,4 @@
+from functools import wraps
 import time
 
 import my_logging.get_loggers
@@ -6,6 +7,7 @@ logger = my_logging.get_loggers.database_utilities_logger()
 
 
 def elapsed_time_logger(func):
+    @wraps(func)
     def wrapper(*args, **kwargs):
         start_time = time.perf_counter()
         result = func(*args, **kwargs)
