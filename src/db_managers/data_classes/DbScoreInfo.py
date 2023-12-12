@@ -21,12 +21,20 @@ class DbScoreInfo:
     timestamp: datetime = field(default_factory=datetime.now)
 
     @classmethod
+    def from_row(cls, row):
+        _id, _user_info_id, _score_json_data, _mods, _timestamp = row
+        return cls(id=_id,
+                   user_info_id=_user_info_id,
+                   score_json_data=_score_json_data,
+                   mods=Mod(_mods))
+
+    @classmethod
     def from_score_and_user_info(cls, score_instance: Score, user_info: DbUserInfo):
         # Creates a new DbScoreInfo instance using data from the Score and DbUserInfo instances.
         return cls(id=None,
                    user_info_id=user_info.discord_user_id,
-                   mods=score_instance.mods,
-                   score_json_data=serialize_model(score_instance))
+                   score_json_data=serialize_model(score_instance),
+                   mods=score_instance.mods)
 
     def deserialize_score_json(self) -> dict:
         return json.loads(self.score_json_data)

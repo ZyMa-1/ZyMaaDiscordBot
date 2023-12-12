@@ -93,7 +93,7 @@ class ScoresTableManager:
                     break
 
                 for row in rows:
-                    score_info = DbScoreInfo(*row)
+                    score_info = DbScoreInfo.from_row(row)
                     yield score_info
 
     async def count_all_user_scores(self, user_info: DbUserInfo) -> int:
@@ -119,7 +119,7 @@ class ScoresTableManager:
             row = await cursor.fetchone()
 
         if row:
-            return DbScoreInfo(*row)
+            return DbScoreInfo.from_row(row)
 
         return None
 
@@ -149,7 +149,7 @@ class ScoresTableManager:
                     break
 
                 for row in rows:
-                    score_info = DbScoreInfo(*row)
+                    score_info = DbScoreInfo.from_row(row)
                     yield score_info
 
     async def _calculate_mods(self, chunk_size: int = 100):
