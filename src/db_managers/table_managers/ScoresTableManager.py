@@ -140,6 +140,7 @@ class ScoresTableManager:
         """
         async with aiosqlite.connect(self.db_name) as db:
             cursor = await db.cursor()
+            print(mods.value, type(mods.value))
             await cursor.execute(
                 'SELECT * FROM scores WHERE user_info_id = ? AND (mods & ?) = ?',
                 (user_info.discord_user_id, mods.value, mods.value))
@@ -149,6 +150,7 @@ class ScoresTableManager:
                     break
 
                 for row in rows:
+                    print(row)
                     score_info = DbScoreInfo.from_row(row)
                     yield score_info
 
@@ -192,3 +194,36 @@ class ScoresTableManager:
             except Exception as e2:
                 logger.exception(f"Cannot rollback. Error during mods calculation: {e2}")
             logger.exception(f"Error during mods calculation: {e}")
+
+    async def _change_column_order(self):
+        try:
+            async with aiosqlite.connect(self.db_name) as db:
+                cursor = await db.cursor()
+
+                await db.execute('''
+                    CREATE TABLE IF NOT EXISTS scores (
+                        id INTEGER PRIMARY KEY AUTOINCREMENT,
+                        user_info_id INTEGER,
+                        score_json_data TEXT,
+                        mods INTEGER,
+                        timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                        FOREIGN KEY(user_info_id) REFERENCES users(discord_user_id)
+                    )
+                ''')
+
+                await cursor.execute('''
+                     INSERT INTO scores_new (id, user_info_id, score_json_data, mods, timestamp)
+                     SELECT id, user_info_id, score_json_data, mods, timestamp FROM scores')
+                ''')
+
+                await cursor.execute('DROP TABLE IF EXISTS scores')
+                await cursor.execute('ALTER TABLE scores_new RENAME TO scores')
+
+                await db.commit()
+
+        except Exception as e:
+            try:
+                await db.rollback()
+            except Exception as e2:
+                logger.exception(f"Cannot rollback. Error during column order modification: {e2}")
+            logger.exception(f"Error during column order modification: {e}")
