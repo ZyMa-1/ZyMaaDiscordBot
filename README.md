@@ -5,11 +5,11 @@ Discord bot with a bunch of cool commands build around Osu! (the game)
 
 [Add the bot](https://discord.com/oauth2/authorize?client_id=1147875605052915823&permissions=8&scope=bot)
 
-Commands provide a bunch of statistics, and yeah that is all.
+Commands provide a bunch of statistics around the osu!
 
 ## Commands
 
-Not updating, use '^help' to see recent updates on commands.
+Use '^help' to see recent updates on the commands.
 
 ## Settings up the bot
 
@@ -47,7 +47,5 @@ That concludes the flow of the bot!
 ---
 ## Funny
 
-Annoying stuff stumbled upon developing:
+Troubles:
 - Singleton issues (Factory is much better)
-- No obsessions pls
-- Async programming my beloved (do not forget to await)
