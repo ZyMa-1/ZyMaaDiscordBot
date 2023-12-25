@@ -7,7 +7,7 @@ from sqlalchemy.ext.asyncio import async_sessionmaker, AsyncEngine
 
 import my_logging.get_loggers
 from db_managers.data_classes import DbScoreInfo, DbUserInfo
-from db_managers.models.models import Score
+from db_managers.models.models import ScoreTable
 from db_managers.table_managers.decorators import elapsed_time_logger
 
 logger = my_logging.get_loggers.database_utilities_logger()
@@ -30,7 +30,7 @@ class ScoresTableManager:
         """
         try:
             async with self.AsyncSession() as session:
-                score = Score.from_db_score_info(score_info)
+                score = ScoreTable.from_db_score_info(score_info)
                 await session.merge(score)
                 await session.commit()
             return True
@@ -45,7 +45,7 @@ class ScoresTableManager:
         """
         async with self.AsyncSession() as session:
             await session.execute(
-                delete(Score).where(Score.user_info_id == user_info.discord_user_id)
+                delete(ScoreTable).where(ScoreTable.user_info_id == user_info.discord_user_id)
             )
             await session.commit()
         return True
@@ -57,8 +57,8 @@ class ScoresTableManager:
         wrapped up into 'DbScoreInfo' dataclass.
         """
         async with self.AsyncSession() as session:
-            stmt = select(Score).where(Score.user_info_id == user_info.discord_user_id).order_by(
-                Score.timestamp.desc()
+            stmt = select(ScoreTable).where(ScoreTable.user_info_id == user_info.discord_user_id).order_by(
+                ScoreTable.timestamp.desc()
             )
             result = await session.execute(stmt)
             scores = result.scalars().all()
@@ -69,7 +69,7 @@ class ScoresTableManager:
         Counts amount of a user's scores in the 'scores' table.
         """
         async with self.AsyncSession() as session:
-            stmt = select(func.count()).where(Score.user_info_id == user_info.discord_user_id)
+            stmt = select(func.count()).where(ScoreTable.user_info_id == user_info.discord_user_id)
             count = await session.execute(stmt)
         return count.scalar()
 
@@ -78,7 +78,7 @@ class ScoresTableManager:
         Returns a random score (DbScoreInfo db row entry) for the specified user.
         """
         async with self.AsyncSession() as session:
-            stmt = select(Score).where(Score.user_info_id == user_info.discord_user_id).order_by(
+            stmt = select(ScoreTable).where(ScoreTable.user_info_id == user_info.discord_user_id).order_by(
                 func.random()).limit(1)
             row = await session.execute(stmt)
             score = row.scalar()
@@ -103,10 +103,10 @@ class ScoresTableManager:
         wrapped up into 'DbScoreInfo' dataclass.
         """
         async with self.AsyncSession() as session:
-            stmt = select(Score).where(
+            stmt = select(ScoreTable).where(
                 and_(
-                    Score.user_info_id == user_info.discord_user_id,
-                    (Score.mods.op('&')(mods.value) == mods.value)
+                    ScoreTable.user_info_id == user_info.discord_user_id,
+                    (ScoreTable._mods.op('&')(mods.value) == mods.value)
                 )
             )
             result = await session.execute(stmt)

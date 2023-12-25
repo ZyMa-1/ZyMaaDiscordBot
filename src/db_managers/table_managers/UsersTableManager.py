@@ -5,7 +5,7 @@ from sqlalchemy.ext.asyncio import AsyncEngine, async_sessionmaker
 
 import my_logging.get_loggers
 from db_managers.data_classes import DbUserInfo
-from db_managers.models.models import User
+from db_managers.models.models import UserTable
 
 logger = my_logging.get_loggers.database_utilities_logger()
 
@@ -25,7 +25,7 @@ class UsersTableManager:
         """
         async with self.AsyncSession() as session:
             async with session.begin():
-                user = User.from_db_user_info(user_info)
+                user = UserTable.from_db_user_info(user_info)
                 await session.merge(user)
                 await session.commit()
         return True
@@ -37,7 +37,7 @@ class UsersTableManager:
         """
         async with self.AsyncSession() as session:
             result = await session.execute(
-               select(User).where(User.discord_user_id == discord_user_id)
+               select(UserTable).where(UserTable.discord_user_id == discord_user_id)
             )
             user = await result.fetchone()
             if user:

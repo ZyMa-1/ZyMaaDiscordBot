@@ -1,41 +1,47 @@
 from datetime import datetime
 
 from ossapi import GameMode, Mod
-from sqlalchemy import Column, Integer, Enum, DateTime, ForeignKey, String
+from sqlalchemy import Column, Integer, DateTime, ForeignKey, String
 from sqlalchemy.orm import relationship
 
 from .base import Base
+from .. import conversion_utils
 from ..data_classes import DbUserInfo, DbScoreInfo
 
 
-class User(Base):
+class UserTable(Base):
     __tablename__ = 'users'
 
     discord_user_id = Column(Integer, primary_key=True, autoincrement=False)
     osu_user_id = Column(Integer)
-    osu_game_mode = Column(Enum(GameMode))
+    _osu_game_mode = Column(String)
+
+    # Workaround for `Column(Enum(GameMode))`
+    @property
+    def osu_game_mode(self):
+        return GameMode(str(self._osu_game_mode))
 
     @classmethod
     def from_db_user_info(cls, user_info: DbUserInfo):
-        return cls(discord_user_id=user_info.discord_user_id,
-                   osu_user_id=user_info.osu_user_id,
-                   osu_game_mode=user_info.osu_game_mode)
+        return conversion_utils.from_db_user_info(user_info)
 
 
-class Score(Base):
+class ScoreTable(Base):
     __tablename__ = 'scores'
 
     id = Column(Integer, primary_key=True)
     user_info_id = Column(Integer, ForeignKey('users.discord_user_id'))
     score_json_data = Column(String)
-    mods = Column(Enum(Mod))
+    _mods = Column(Integer)
     timestamp = Column(DateTime, default=datetime.now)
 
-    user_info = relationship("User", back_populates="scores")
+    # Workaround for `Column(Enum(Mod))`
+    @property
+    def mods(self):
+        return Mod(int(self._mods))
+
+    user_info = relationship("UserTable", back_populates="scores")
 
     @classmethod
     def from_db_score_info(cls, score_info: DbScoreInfo):
-        return cls(user_info_id=score_info.user_info_id,
-                   score_json_data=score_info.score_json_data,
-                   mods=score_info.mods,
-                   timestamp=score_info.timestamp)
+        return conversion_utils.from_db_score_info(score_info)

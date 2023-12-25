@@ -4,11 +4,11 @@ from typing import List
 import discord
 from discord.ext import commands
 from discord.ext.commands import Context
-from ossapi import Mod
 
 import discord_extension_stuff.predicates.permission_predicates as predicates
 from core import BotContext
 from db_managers.data_classes import DbScoreInfo
+from discord_extension_stuff.converters import ModsConverter
 from discord_extension_stuff.extras import Extras
 from factories import UtilsFactory
 from statistics_managers import ExcelScoresManager
@@ -126,15 +126,10 @@ class ScoresStatsCog(commands.Cog):
                     predicates.check_is_config_set_up and
                     predicates.check_is_user_has_scores)
     @commands.cooldown(1, 30, commands.BucketType.user)
-    async def get_xlsx_scores_file_command(self, ctx: Context, mods: str):
+    async def get_xlsx_scores_file_command(self, ctx: Context, mods: ModsConverter):
         """
         Gets xlsx file of all user's scores that include specific mods (game modifications).
         """
-        try:
-            mods = Mod(mods)
-        except ValueError:
-            raise commands.BadArgument("Sorry, 'mods' argument is invalid")
-
         user_info = await self.db_manager.users_table_manager.get_user_info(ctx.author.id)
         excel_scores_manager = ExcelScoresManager(user_info, self.db_manager.scores_table_manager.
                                                   get_mods_filtered_user_scores(user_info, mods))

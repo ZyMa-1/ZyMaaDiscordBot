@@ -3,8 +3,9 @@ from dataclasses import dataclass, field
 from datetime import datetime
 from typing import Optional
 
-from ossapi import Score, serialize_model, Mod
+from ossapi import serialize_model, Mod, Score
 
+from db_managers import conversion_utils
 from db_managers.data_classes import DbUserInfo
 
 
@@ -22,11 +23,7 @@ class DbScoreInfo:
 
     @classmethod
     def from_row(cls, row):
-        _id, _user_info_id, _score_json_data, _mods, _timestamp = row
-        return cls(id=_id,
-                   user_info_id=_user_info_id,
-                   score_json_data=_score_json_data,
-                   mods=_mods)
+        return conversion_utils.from_score_row(row)
 
     @classmethod
     def from_score_and_user_info(cls, score_instance: Score, user_info: DbUserInfo):
@@ -38,7 +35,3 @@ class DbScoreInfo:
 
     def deserialize_score_json(self) -> dict:
         return json.loads(self.score_json_data)
-
-    @staticmethod
-    def deserialize_score_json_static(score_json_data: str):
-        return json.loads(score_json_data)

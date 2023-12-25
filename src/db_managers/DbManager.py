@@ -15,7 +15,7 @@ class DbManager:
 
     def __init__(self, db_name=PathManager.BOT_DATA_DB_PATH):
         self.db_name = db_name
-        self.async_engine = create_async_engine(f'sqlite:///{db_name}', echo=False)
+        self.async_engine = create_async_engine(f'sqlite+aiosqlite:///{db_name}', echo=False)
 
         self.users_table_manager = UsersTableManager(self.async_engine)
         self.scores_table_manager = ScoresTableManager(self.async_engine)

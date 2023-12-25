@@ -12,7 +12,7 @@ class GameModeConverter(commands.Converter):
             raise commands.BadArgument(f"{argument} is not a valid value for 'GameMode' argument")
 
 
-class ModConverter(commands.Converter):
+class ModsConverter(commands.Converter):
     async def convert(self, ctx, argument):
         try:
             return Mod(argument)

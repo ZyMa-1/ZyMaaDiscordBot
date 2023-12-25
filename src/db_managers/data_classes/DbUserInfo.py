@@ -2,7 +2,7 @@ from dataclasses import dataclass
 
 from ossapi import GameMode
 
-from db_managers.models.models import User
+from db_managers import conversion_utils
 
 
 @dataclass
@@ -16,7 +16,5 @@ class DbUserInfo:
     osu_game_mode: GameMode
 
     @classmethod
-    def from_row(cls, row: User):
-        return cls(discord_user_id=row.discord_user_id,
-                   osu_user_id=row.osu_user_id,
-                   osu_game_mode=row.osu_game_mode)
+    def from_row(cls, row):
+        return conversion_utils.from_user_row(row)
