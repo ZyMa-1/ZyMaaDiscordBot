@@ -1,12 +1,13 @@
-import pathlib
-
-import aiosqlite
-from typing import Optional, AsyncGenerator
+from typing import List
 
 from ossapi import Mod
+from sqlalchemy import delete, select, func, and_
+from sqlalchemy.exc import IntegrityError
+from sqlalchemy.ext.asyncio import async_sessionmaker, AsyncEngine
 
 import my_logging.get_loggers
 from db_managers.data_classes import DbScoreInfo, DbUserInfo
+from db_managers.models.models import Score
 from db_managers.table_managers.decorators import elapsed_time_logger
 
 logger = my_logging.get_loggers.database_utilities_logger()
@@ -14,32 +15,12 @@ logger = my_logging.get_loggers.database_utilities_logger()
 
 class ScoresTableManager:
     """
-    Class for managing 'scores' table database operations (aiosqlite).
+    Class for managing 'scores' table database operations (async SQLAlchemy).
     """
 
-    def __init__(self, db_name: pathlib.Path):
-        self.db_name = db_name
-
-    async def create_scores_table(self):
-        """
-        Initializes 'scores' table.
-        """
-        async with aiosqlite.connect(self.db_name) as db:
-            # Enable foreign key constraints (enforcing checks on foreign keys)
-            await db.execute('PRAGMA foreign_keys = ON;')
-
-            await db.execute('''
-                CREATE TABLE IF NOT EXISTS scores (
-                    id INTEGER PRIMARY KEY AUTOINCREMENT,
-                    user_info_id INTEGER,
-                    score_json_data TEXT,
-                    mods INTEGER,
-                    timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                    FOREIGN KEY(user_info_id) REFERENCES users(discord_user_id)
-                )
-            ''')
-            logger.info("create_scores_table: Table created (or initialized)")
-            await db.commit()
+    def __init__(self, async_engine: AsyncEngine):
+        self.async_engine = async_engine
+        self.AsyncSession = async_sessionmaker(self.async_engine, expire_on_commit=False)
 
     @elapsed_time_logger
     async def insert_score(self, score_info: DbScoreInfo) -> bool:
@@ -48,18 +29,12 @@ class ScoresTableManager:
         Returns True If operation was successful, False otherwise.
         """
         try:
-            async with aiosqlite.connect(self.db_name) as db:
-                cursor = await db.cursor()
-                await cursor.execute('''
-                    INSERT INTO scores (user_info_id, score_json_data, mods, timestamp)
-                    VALUES (?, ?, ?, ?)
-                ''', (score_info.user_info_id,
-                      score_info.score_json_data,
-                      score_info.mods.value,
-                      score_info.timestamp))
-                await db.commit()
+            async with self.AsyncSession() as session:
+                score = Score.from_db_score_info(score_info)
+                await session.merge(score)
+                await session.commit()
             return True
-        except aiosqlite.IntegrityError as e:
+        except IntegrityError as e:
             logger.exception(f"Foreign key violation: {e}")
             return False
 
@@ -68,58 +43,48 @@ class ScoresTableManager:
         Deletes all user's scores.
         Returns True If operation was successful, False otherwise.
         """
-        async with aiosqlite.connect(self.db_name) as db:
-            await db.execute(
-                'DELETE FROM scores WHERE user_info_id = ?',
-                (user_info.discord_user_id,))
-            await db.commit()
+        async with self.AsyncSession() as session:
+            await session.execute(
+                delete(Score).where(Score.user_info_id == user_info.discord_user_id)
+            )
+            await session.commit()
         return True
 
     @elapsed_time_logger
-    async def get_all_user_scores(self, user_info: DbUserInfo, chunk_size: int = 100) \
-            -> AsyncGenerator[DbScoreInfo, None]:
+    async def get_all_user_scores(self, user_info: DbUserInfo) -> List[DbScoreInfo]:
         """
         Returns a generator for all the scores associated with a specified user
         wrapped up into 'DbScoreInfo' dataclass.
         """
-        async with aiosqlite.connect(self.db_name) as db:
-            cursor = await db.cursor()
-            await cursor.execute(
-                'SELECT * FROM scores WHERE user_info_id = ? ORDER BY timestamp DESC',
-                (user_info.discord_user_id,))
-            while True:
-                rows = await cursor.fetchmany(chunk_size)
-                if not rows:
-                    break
-
-                for row in rows:
-                    score_info = DbScoreInfo.from_row(row)
-                    yield score_info
+        async with self.AsyncSession() as session:
+            stmt = select(Score).where(Score.user_info_id == user_info.discord_user_id).order_by(
+                Score.timestamp.desc()
+            )
+            result = await session.execute(stmt)
+            scores = result.scalars().all()
+            return [DbScoreInfo.from_row(score) for score in scores]
 
     async def count_all_user_scores(self, user_info: DbUserInfo) -> int:
         """
         Counts amount of a user's scores in the 'scores' table.
         """
-        async with aiosqlite.connect(self.db_name) as db:
-            cursor = await db.execute(
-                'SELECT COUNT(*) FROM scores WHERE user_info_id = ?',
-                (user_info.discord_user_id,))
-            count = await cursor.fetchone()
+        async with self.AsyncSession() as session:
+            stmt = select(func.count()).where(Score.user_info_id == user_info.discord_user_id)
+            count = await session.execute(stmt)
+        return count.scalar()
 
-        return count[0]
-
-    async def get_user_random_score(self, user_info: DbUserInfo) -> Optional[DbScoreInfo]:
+    async def get_user_random_score(self, user_info: DbUserInfo):
         """
         Returns a random score (DbScoreInfo db row entry) for the specified user.
         """
-        async with aiosqlite.connect(self.db_name) as db:
-            cursor = await db.execute(
-                'SELECT * FROM scores WHERE user_info_id = ? ORDER BY RANDOM() LIMIT 1',
-                (user_info.discord_user_id,))
-            row = await cursor.fetchone()
+        async with self.AsyncSession() as session:
+            stmt = select(Score).where(Score.user_info_id == user_info.discord_user_id).order_by(
+                func.random()).limit(1)
+            row = await session.execute(stmt)
+            score = row.scalar()
 
-        if row:
-            return DbScoreInfo.from_row(row)
+        if score:
+            return DbScoreInfo.from_row(score)
 
         return None
 
@@ -131,97 +96,19 @@ class ScoresTableManager:
         return scores_count > 0
 
     @elapsed_time_logger
-    async def get_mods_filtered_user_scores(self, user_info: DbUserInfo, mods: Mod, chunk_size: int = 100) \
-            -> AsyncGenerator[DbScoreInfo, None]:
+    async def get_mods_filtered_user_scores(self, user_info: DbUserInfo, mods: Mod) -> List[DbScoreInfo]:
         """
         Filters the 'scores' table by 'mods' column which include provided mods.
         Returns a generator for all the scores associated with a specified user
         wrapped up into 'DbScoreInfo' dataclass.
         """
-        async with aiosqlite.connect(self.db_name) as db:
-            cursor = await db.cursor()
-            await cursor.execute(
-                'SELECT * FROM scores WHERE user_info_id = ? AND (mods & ?) = ?',
-                (user_info.discord_user_id, mods.value, mods.value))
-            while True:
-                rows = await cursor.fetchmany(chunk_size)
-                if not rows:
-                    break
-
-                for row in rows:
-                    score_info = DbScoreInfo.from_row(row)
-                    yield score_info
-
-    async def _calculate_mods(self, chunk_size: int = 100):
-        try:
-            async with aiosqlite.connect(self.db_name) as db:
-                # Add mods INTEGER column with default value NULL
-                cursor = await db.cursor()
-                await cursor.execute("PRAGMA table_info(scores)")
-                columns = [column[1] for column in await cursor.fetchall()]  # Get column names
-
-                if 'mods' not in columns:
-                    await cursor.execute('ALTER TABLE scores ADD COLUMN mods INTEGER DEFAULT NULL')
-
-                # Calculate the mods for each row
-                cursor = await db.cursor()
-                await cursor.execute('SELECT id, score_json_data FROM scores WHERE mods IS NULL')
-
-                while True:
-                    rows = await cursor.fetchmany(chunk_size)
-                    if not rows:
-                        break
-
-                    for row in rows:
-                        row_id, score_json_data = row
-                        deserialized_json = DbScoreInfo.deserialize_score_json_static(score_json_data)
-                        try:
-                            mod_value = deserialized_json['mods']
-                        except ValueError:
-                            logger.exception("Error trying to create 'Mod' instance")
-
-                        await cursor.execute(
-                            'UPDATE scores SET mods = ? WHERE id = ?',
-                            (mod_value, row_id))
-
-                await db.commit()
-
-        except Exception as e:
-            try:
-                await db.rollback()
-            except Exception as e2:
-                logger.exception(f"Cannot rollback. Error during mods calculation: {e2}")
-            logger.exception(f"Error during mods calculation: {e}")
-
-    async def _change_column_order(self):
-        try:
-            async with aiosqlite.connect(self.db_name) as db:
-                cursor = await db.cursor()
-
-                await db.execute('''
-                    CREATE TABLE IF NOT EXISTS scores_new (
-                        id INTEGER PRIMARY KEY AUTOINCREMENT,
-                        user_info_id INTEGER,
-                        score_json_data TEXT,
-                        mods INTEGER,
-                        timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                        FOREIGN KEY(user_info_id) REFERENCES users(discord_user_id)
-                    )
-                ''')
-
-                await cursor.execute('''
-                    INSERT INTO scores_new (id, user_info_id, score_json_data, mods, timestamp)
-                    SELECT id, user_info_id, score_json_data, mods, timestamp FROM scores
-                ''')
-
-                await cursor.execute('DROP TABLE IF EXISTS scores')
-                await cursor.execute('ALTER TABLE scores_new RENAME TO scores')
-
-                await db.commit()
-
-        except Exception as e:
-            try:
-                await db.rollback()
-            except Exception as e2:
-                logger.exception(f"Cannot rollback. Error during column order modification: {e2}")
-            logger.exception(f"Error during column order modification: {e}")
+        async with self.AsyncSession() as session:
+            stmt = select(Score).where(
+                and_(
+                    Score.user_info_id == user_info.discord_user_id,
+                    (Score.mods.op('&')(mods.value) == mods.value)
+                )
+            )
+            result = await session.execute(stmt)
+            scores = result.scalars().all()
+            return [DbScoreInfo.from_row(score) for score in scores]

@@ -1,69 +1,46 @@
-import pathlib
+from typing import Optional
 
-import aiosqlite
+from sqlalchemy import select
+from sqlalchemy.ext.asyncio import AsyncEngine, async_sessionmaker
 
 import my_logging.get_loggers
 from db_managers.data_classes import DbUserInfo
+from db_managers.models.models import User
 
 logger = my_logging.get_loggers.database_utilities_logger()
 
 
 class UsersTableManager:
     """
-    Class for managing 'users' table database operations (aiosqlite).
+    Class for managing 'users' table database operations (async SQLAlchemy).
     """
 
-    def __init__(self, db_name: pathlib.Path):
-        self.db_name = db_name
-
-    async def create_users_table(self):
-        """
-        Initializes 'users' table.
-        """
-        async with aiosqlite.connect(self.db_name) as db:
-            await db.execute('''
-                CREATE TABLE IF NOT EXISTS users (
-                    discord_user_id INTEGER PRIMARY KEY,
-                    osu_user_id INTEGER,
-                    osu_game_mode TEXT
-                )
-            ''')
-            logger.info("create_users_table: Table created (or initialized)")
-            await db.commit()
+    def __init__(self, async_engine: AsyncEngine):
+        self.async_engine = async_engine
+        self.AsyncSession = async_sessionmaker(self.async_engine, expire_on_commit=False)
 
     async def insert_user_info(self, user_info: DbUserInfo) -> bool:
         """
-        Inserts entry to the 'users' table.
-        Returns True If operation was successful, False otherwise.
+        Inserts or replaces user info.
         """
-        if not user_info.is_config_set_up() or not user_info.are_fields_valid():
-            return False
+        async with self.AsyncSession() as session:
+            async with session.begin():
+                user = User.from_db_user_info(user_info)
+                await session.merge(user)
+                await session.commit()
+        return True
 
-        async with aiosqlite.connect(self.db_name) as db:
-            cursor = await db.cursor()
-            await cursor.execute('''
-                INSERT OR REPLACE INTO users (discord_user_id, osu_user_id, osu_game_mode)
-                VALUES (?, ?, ?)
-                ''', (user_info.discord_user_id,
-                      user_info.osu_user_id,
-                      user_info.osu_game_mode))
-            await db.commit()
-
-            return True
-
-    async def get_user_info(self, discord_user_id: int) -> DbUserInfo:
+    async def get_user_info(self, discord_user_id: int) -> Optional[DbUserInfo]:
         """
-        Returns 'users' table entry with specified 'discord_user_id' wrapped up into 'DbUserInfo' dataclass.
-        Returns 'DbUserInfo' If the entry was not even found (needed for predicates).
+        Returns 'users' table entry with specified 'discord_user_id'
+        wrapped up into 'DbUserInfo' dataclass.
         """
-        async with aiosqlite.connect(self.db_name) as db:
-            cursor = await db.cursor()
-            await cursor.execute(
-                'SELECT osu_user_id, osu_game_mode FROM users WHERE discord_user_id = ?',
-                (discord_user_id,))
-            result = await cursor.fetchone()
-            if result:
-                osu_user_id, osu_game_mode = result
-                return DbUserInfo(discord_user_id, osu_user_id, osu_game_mode)
+        async with self.AsyncSession() as session:
+            result = await session.execute(
+               select(User).where(User.discord_user_id == discord_user_id)
+            )
+            user = await result.fetchone()
+            if user:
+                return DbUserInfo.from_row(user)
             else:
-                return DbUserInfo(discord_user_id, None, None)
+                return None

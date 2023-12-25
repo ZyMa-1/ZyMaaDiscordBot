@@ -1,5 +1,6 @@
 import json
 import os
+from os import PathLike
 from typing import Tuple, List, Optional
 
 import aiofiles
@@ -13,93 +14,76 @@ logger = my_logging.get_loggers.data_utilities_logger()
 class DataUtils:
     """
     Data utilities class to work with files.
-    Self-explanatory methods, so no documentation.
     """
 
     @staticmethod
-    def create_files():
-        """
-        Creates files if they are not exist.
-        """
-        if not os.path.exists(PathManager.TRUSTED_USERS_PATH):
-            trusted_users_data = {'trusted_users': []}
-            with open(PathManager.TRUSTED_USERS_PATH, 'w') as file:
-                json.dump(trusted_users_data, file)
+    async def _file_operation(file_path: PathLike[str], operation: str, data=None):
+        async with aiofiles.open(file_path, operation) as file:
+            if data is not None:
+                await file.write(json.dumps(data, indent=4))
+            else:
+                content = await file.read()
+                return json.loads(content) if content else None
 
-        if not os.path.exists(PathManager.ADMIN_USERS_PATH):
-            admins_data = {'admins': []}
-            with open(PathManager.ADMIN_USERS_PATH, 'w') as file:
-                json.dump(admins_data, file)
+    @staticmethod
+    async def _modify_user(file_path: PathLike[str], key: str, discord_user_id: int, add: bool = True):
+        config_data = await DataUtils._file_operation(file_path, 'r')
+        user_list = config_data[key] if config_data else []
+
+        if add and discord_user_id not in user_list:
+            user_list.append(discord_user_id)
+        elif not add and discord_user_id in user_list:
+            user_list.remove(discord_user_id)
+
+        await DataUtils._file_operation(file_path, 'w', config_data)
+
+    @staticmethod
+    async def _load_users(file_path: PathLike[str], key: str) -> List[int]:
+        config_data = await DataUtils._file_operation(file_path, 'r')
+        return config_data[key] if config_data else []
+
+    @staticmethod
+    def create_files():
+        files_to_create = [
+            (PathManager.TRUSTED_USERS_PATH, {'trusted_users': []}),
+            (PathManager.ADMIN_USERS_PATH, {'admins': []})
+        ]
+        for file_path, default_data in files_to_create:
+            if not os.path.exists(file_path):
+                DataUtils._file_operation(file_path, 'w', default_data)
 
     @staticmethod
     async def load_trusted_users() -> List[int]:
-        async with aiofiles.open(PathManager.TRUSTED_USERS_PATH, "r") as file:
-            data = await file.read()
-            config_data = json.loads(data)
-            logger.info(f"load_trusted_users: {config_data['trusted_users']}")
-            return config_data["trusted_users"]
+        return await DataUtils._load_users(PathManager.TRUSTED_USERS_PATH, 'trusted_users')
 
     @staticmethod
     async def load_admin_users() -> List[int]:
-        async with aiofiles.open(PathManager.ADMIN_USERS_PATH, "r") as file:
-            data = await file.read()
-            config_data = json.loads(data)
-            return config_data["admins"]
+        return await DataUtils._load_users(PathManager.ADMIN_USERS_PATH, 'admins')
 
     @staticmethod
     async def load_first_admin_user() -> Optional[int]:
-        async with aiofiles.open(PathManager.ADMIN_USERS_PATH, "r") as file:
-            data = await file.read()
-            config_data = json.loads(data)
-            return config_data["admins"][0] if config_data["admins"] else None
+        return (await DataUtils._load_users(PathManager.ADMIN_USERS_PATH, 'admins'))[0]
 
     @staticmethod
     async def add_trusted_user(discord_user_id: int):
-        async with aiofiles.open(PathManager.TRUSTED_USERS_PATH, "r") as file:
-            data = await file.read()
-            config_data = json.loads(data)
-            if discord_user_id not in config_data["trusted_users"]:
-                config_data["trusted_users"].append(discord_user_id)
-        async with aiofiles.open(PathManager.TRUSTED_USERS_PATH, "w") as file:
-            await file.write(json.dumps(config_data, indent=4))
+        await DataUtils._modify_user(PathManager.TRUSTED_USERS_PATH, 'trusted_users', discord_user_id)
 
     @staticmethod
     async def remove_trusted_user(discord_user_id: int):
-        async with aiofiles.open(PathManager.TRUSTED_USERS_PATH, "r") as file:
-            data = await file.read()
-            config_data = json.loads(data)
-            if discord_user_id in config_data["trusted_users"]:
-                config_data["trusted_users"].remove(discord_user_id)
-        async with aiofiles.open(PathManager.TRUSTED_USERS_PATH, "w") as file:
-            await file.write(json.dumps(config_data, indent=4))
+        await DataUtils._modify_user(PathManager.TRUSTED_USERS_PATH, 'trusted_users', discord_user_id, add=False)
 
     @staticmethod
     async def add_admin(discord_user_id: int):
-        async with aiofiles.open(PathManager.ADMIN_USERS_PATH, "r") as file:
-            data = await file.read()
-            config_data = json.loads(data)
-            if discord_user_id not in config_data["admins"]:
-                config_data["admins"].append(discord_user_id)
-        async with aiofiles.open(PathManager.ADMIN_USERS_PATH, "w") as file:
-            await file.write(json.dumps(config_data, indent=4))
+        await DataUtils._modify_user(PathManager.ADMIN_USERS_PATH, 'admins', discord_user_id)
 
     @staticmethod
     async def remove_admin(discord_user_id: int):
-        async with aiofiles.open(PathManager.ADMIN_USERS_PATH, "r") as file:
-            data = await file.read()
-            config_data = json.loads(data)
-            if discord_user_id in config_data["admins"]:
-                config_data["admins"].remove(discord_user_id)
-        async with aiofiles.open(PathManager.ADMIN_USERS_PATH, "w") as file:
-            await file.write(json.dumps(config_data, indent=4))
+        await DataUtils._modify_user(PathManager.ADMIN_USERS_PATH, 'admins', discord_user_id, add=False)
 
     @staticmethod
     def load_discord_bot_token() -> str:
-        token = os.getenv("DISCORD_BOT_TOKEN")
-        return token
+        return os.getenv("DISCORD_BOT_TOKEN")
 
     @staticmethod
     def load_osu_api_credentials() -> Tuple[str, str]:
-        client_id = os.getenv("OSU_APIV2_CLIENT_ID")
-        client_secret = os.getenv("OSU_APIV2_CLIENT_SECRET")
-        return client_id, client_secret
+        return os.getenv("OSU_APIV2_CLIENT_ID"), os.getenv("OSU_APIV2_CLIENT_SECRET")

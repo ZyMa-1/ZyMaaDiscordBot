@@ -4,11 +4,12 @@ from discord.ext.commands import Context
 
 import discord_extension_stuff.predicates.permission_predicates as predicates
 from core import BotContext
-from discord_extension_stuff.views import AcceptDeclineView
-from factories import UtilsFactory
 from data_managers import DataUtils
 from db_managers.data_classes import DbUserInfo
+from discord_extension_stuff.converters import GameModeConverter, OsuUserIdConverter
 from discord_extension_stuff.extras import Extras
+from discord_extension_stuff.views import AcceptDeclineView
+from factories import UtilsFactory
 
 
 class LogicCog(commands.Cog):
@@ -20,20 +21,16 @@ class LogicCog(commands.Cog):
 
     @commands.command(name='config_change')
     @commands.check(predicates.check_is_trusted)
-    async def config_change_command(self, ctx: Context, osu_user_id: int, osu_game_mode: str):
+    async def config_change_command(self, ctx: Context, osu_user_id: OsuUserIdConverter,
+                                    osu_game_mode: GameModeConverter):
         """
         Changes the user's config parameters.
 
         Parameters:
-            - osu_user_id (int)     : User id
+            - osu_user_id (int)     : Valid user id
             - osu_game_mode (str)   : 'osu', 'catch', 'taiko', 'mania'
         """
         user_info = DbUserInfo(ctx.author.id, osu_user_id, osu_game_mode)
-        if not user_info.are_fields_valid():
-            raise commands.BadArgument("Sorry, but specified fields are not valid")
-        elif not await self.osu_api_utils.check_if_user_exists(user_info.osu_user_id):
-            raise commands.BadArgument("Sorry, but osu user with specified id does not exist")
-
         await self.db_manager.users_table_manager.insert_user_info(user_info)
         response = (f"Successfully changed `osu_user_id` to {user_info.osu_user_id} and `osu_game_mode` to "
                     f"{user_info.osu_game_mode}")
@@ -121,7 +118,7 @@ class LogicCog(commands.Cog):
         view = AcceptDeclineView(timeout=60 * 60 * 24)
         admin_user_id = await DataUtils.load_first_admin_user()
         if admin_user_id is None:
-            ctx.reply("There is no admins at all, no one can respond to the application")
+            await ctx.reply("There is no admins at all, no one can respond to the application")
             return
 
         admin_dm_channel = await self.bot.get_user(admin_user_id).create_dm()

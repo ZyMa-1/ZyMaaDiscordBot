@@ -11,8 +11,7 @@ logger = logging.getLogger()  # root logger
 class SetupCog(commands.Cog):
     def __init__(self, bot_context: BotContext):
         self.bot = bot_context.bot
-        # global cooldown not working :sob:
-        self.global_cooldown = commands.CooldownMapping.from_cooldown(1, 5, commands.BucketType.user)
+        # global command cooldown not working :sob:
 
     @commands.Cog.listener()
     async def on_ready(self):
@@ -43,7 +42,7 @@ class SetupCog(commands.Cog):
         if isinstance(error, commands.CommandOnCooldown):
             await ctx.reply(f'This command is on cooldown. Please try again in {error.retry_after:.2f} seconds.')
         elif isinstance(error, commands.CheckFailure):
-            await ctx.reply(f'Check failure (you have no permission). nyam-nyam-nyam 🐱\n{str(error)}')
+            await ctx.reply(f'Check failure (you have no permission 🐱)\n{str(error)}')
         elif isinstance(error, commands.BadArgument):
             await ctx.reply(f'Bad argument(s)\n{str(error)}')
         else:

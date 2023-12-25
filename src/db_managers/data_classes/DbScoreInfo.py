@@ -26,7 +26,7 @@ class DbScoreInfo:
         return cls(id=_id,
                    user_info_id=_user_info_id,
                    score_json_data=_score_json_data,
-                   mods=Mod(_mods))
+                   mods=_mods)
 
     @classmethod
     def from_score_and_user_info(cls, score_instance: Score, user_info: DbUserInfo):

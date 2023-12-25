@@ -6,8 +6,8 @@ from discord.ext import commands
 from discord.ext.commands import Context
 from ossapi import Mod
 
-from core import BotContext
 import discord_extension_stuff.predicates.permission_predicates as predicates
+from core import BotContext
 from db_managers.data_classes import DbScoreInfo
 from discord_extension_stuff.extras import Extras
 from factories import UtilsFactory
@@ -60,7 +60,7 @@ class ScoresStatsCog(commands.Cog):
                                                                       timeout_sec=60 * 60)
         if is_task_completed:
             res: bool = calc_task.result()
-            await ctx.reply(f"Deleted ({str(res)} `{score_count}` scores")
+            await ctx.reply(f"Deleted {str(res)} - `{score_count}` scores")
 
     @commands.command(name='count_scores')
     @commands.check(predicates.check_is_trusted and
@@ -98,7 +98,7 @@ class ScoresStatsCog(commands.Cog):
         if is_task_completed:
             score_info: DbScoreInfo = calc_task.result()
             score: dict = score_info.deserialize_score_json()
-            await ctx.reply(f"Score deserialized into dictionary successefully. Here is `{score['id']=}` as a prove.")
+            await ctx.reply(f"Score deserialized into dictionary successfully. Here is `{score['id']=}` as a prove.")
             await ctx.reply(f"{DbScoreInfo.__name__} instance:\n{score_info}")
 
     @commands.command(name='get_xlsx_scores_file')
@@ -111,17 +111,14 @@ class ScoresStatsCog(commands.Cog):
         Gets xlsx file of all user's scores.
         """
         user_info = await self.db_manager.users_table_manager.get_user_info(ctx.author.id)
-
         excel_scores_manager = ExcelScoresManager(user_info,
                                                   self.db_manager.scores_table_manager.
                                                   get_all_user_scores(user_info))
         await excel_scores_manager.retrieve_rows()
         file_path = excel_scores_manager.save_workbook()
-
         file = discord.File(fp=file_path, filename=f"scores_{user_info.osu_user_id}"
                                                    f"{excel_scores_manager.file_extension}")
         await ctx.reply(file=file)
-
         excel_scores_manager.delete_temp_file()
 
     @commands.command(name='get_filtered_by_mods_xlsx_scores_file')
@@ -139,14 +136,11 @@ class ScoresStatsCog(commands.Cog):
             raise commands.BadArgument("Sorry, 'mods' argument is invalid")
 
         user_info = await self.db_manager.users_table_manager.get_user_info(ctx.author.id)
-
         excel_scores_manager = ExcelScoresManager(user_info, self.db_manager.scores_table_manager.
                                                   get_mods_filtered_user_scores(user_info, mods))
         await excel_scores_manager.retrieve_rows()
         file_path = excel_scores_manager.save_workbook()
-
         file = discord.File(fp=file_path, filename=f"scores_{user_info.osu_user_id}_filtered"
                                                    f"{excel_scores_manager.file_extension}")
         await ctx.reply(file=file)
-
         excel_scores_manager.delete_temp_file()

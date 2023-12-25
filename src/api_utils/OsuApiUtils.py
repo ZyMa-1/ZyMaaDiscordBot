@@ -67,11 +67,11 @@ class OsuApiUtils:
                     extra={'tokens_spent': 1.0})
         await self.rate_limiter.process_request(tokens_required=1.0)
         try:
-            user = await self.ossapi.user(user_id)
+            user_res = await self.ossapi.user(user_id)
         except ValueError:  # User does not exist
             return False
 
-        if user.id == user_id:
+        if user_res.id == user_id:
             return True
 
         return False

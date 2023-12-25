@@ -49,8 +49,9 @@ class Extras:
         try:
             for ind, beatmap_id in enumerate(beatmap_ids):
                 score = await self.osu_api_utils.get_beatmap_user_best_score(beatmap_id, user_info)
-                await progress_msg.edit(content=f"Calculating scores...\n"
-                                                f"Remaining: {len(beatmap_ids) - ind}")
+                if ind % 100 == 0:
+                    await progress_msg.edit(content=f"Calculating scores...\n"
+                                                    f"Remaining: ~{len(beatmap_ids) - ind}")
 
                 if score:
                     score_info = DbScoreInfo.from_score_and_user_info(score, user_info)

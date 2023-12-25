@@ -14,7 +14,7 @@ class UtilsFactory:
     @classmethod
     async def create_all_instances(cls):
         cls._db_manager = DbManager()
-        await cls._db_manager.create_tables()
+        await cls._db_manager.initialize_tables()
         cls._osu_api_utils = OsuApiUtils(*DataUtils.load_osu_api_credentials())
 
     @classmethod

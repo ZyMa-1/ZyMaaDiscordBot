@@ -1,9 +1,8 @@
 import pathlib
-from typing import AsyncGenerator
+import tempfile
+from typing import List
 
 import openpyxl
-import tempfile
-
 from openpyxl.cell import WriteOnlyCell
 from openpyxl.styles import Font
 
@@ -13,9 +12,9 @@ from factories import UtilsFactory
 
 
 class ExcelScoresManager:
-    def __init__(self, user_info: DbUserInfo, score_info_async_generator: AsyncGenerator[DbScoreInfo, None]):
+    def __init__(self, user_info: DbUserInfo, scores_info: List[DbScoreInfo]):
         self.user_info = user_info
-        self.score_info_async_generator = score_info_async_generator
+        self.scores_info = scores_info
 
         self.file_extension = '.xlsx'
         self.sheet_name = 'Scores'
@@ -39,7 +38,7 @@ class ExcelScoresManager:
         for cell in header_cell:
             cell.font = Font(bold=True)
 
-        async for score_info in self.score_info_async_generator:
+        for score_info in self.scores_info:
             score: dict = score_info.deserialize_score_json()
 
             # Check if 'beatmapset' and 'beatmap' keys exist before accessing nested keys
@@ -69,10 +68,9 @@ class ExcelScoresManager:
 
     def delete_temp_file(self):
         if self.temp_file_path:
-            if self.temp_file_path.exists():
-                try:
-                    self.temp_file_path.unlink()
-                except Exception as e:
-                    raise e
-                finally:
-                    self.temp_file_path = None
+            try:
+                self.temp_file_path.unlink()
+            except Exception as e:
+                raise e
+            finally:
+                self.temp_file_path = None

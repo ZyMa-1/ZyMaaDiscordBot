@@ -74,7 +74,7 @@ class OsuApiLogicCog(commands.Cog):
                 image_file = discord.File(fp=image_bytes, filename=f"{plot_type}_plot.png")
                 await ctx.reply(file=image_file)
 
-        query, p_types_list = process_query(query)
+        query, p_types = process_query(query)
 
         user_info = await self.db_manager.users_table_manager.get_user_info(ctx.author.id)
         calc_task = asyncio.create_task(self.extras.calculate_beatmapsets_grade_stats(query, user_info))
@@ -86,7 +86,7 @@ class OsuApiLogicCog(commands.Cog):
             response = stats.get_pretty_stats()
             await ctx.reply(response)
 
-            for p_type in p_types_list:
+            for p_type in p_types:
                 await send_plot(p_type)
 
     @commands.command(name='beatmap_playcount_slow')
