@@ -1,4 +1,5 @@
 import asyncio
+import time
 from asyncio import Task
 from typing import List
 
@@ -44,17 +45,20 @@ class Extras:
         Obtains best scores of a user's on all given beatmaps and inserts them into database.
         """
         progress_msg = await ctx.reply("Calculating scores...\n"
-                                       f"Remaining: {len(beatmap_ids)}")
+                                       f"Remaining: ~{len(beatmap_ids)}")
         try:
+            start_time = time.perf_counter()
             for ind, beatmap_id in enumerate(beatmap_ids):
                 score = await self.osu_api_utils.get_beatmap_user_best_score(beatmap_id, user_info)
-                if ind % 100 == 0:
+                if ind % 100 == 0 or ind % 59 == 0:
                     await progress_msg.edit(content=f"Calculating scores...\n"
                                                     f"Remaining: ~{len(beatmap_ids) - ind}")
 
                 if score:
                     score_info = DbScoreInfo.from_score_and_user_info(score, user_info)
                     await self.db_manager.scores_table_manager.insert_score(score_info)
+            end_time = time.perf_counter()
+            await ctx.reply(f"Done in {end_time - start_time:.6f} seconds")
         except asyncio.CancelledError:
             pass
         finally:

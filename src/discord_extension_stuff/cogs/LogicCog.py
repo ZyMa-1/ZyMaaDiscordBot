@@ -115,13 +115,10 @@ class LogicCog(commands.Cog):
 
         start_msg = await ctx.reply("Your trusted user application is under consideration by the admin."
                                     "Wait for a response.")
-        view = AcceptDeclineView(timeout=60 * 60 * 24)
         admin_user_id = await DataUtils.load_first_admin_user()
         if admin_user_id is None:
             await ctx.reply("There is no admins at all, no one can respond to the application")
             return
-
-        admin_dm_channel = await self.bot.get_user(admin_user_id).create_dm()
 
         embed = discord.Embed(title="Trusted User Application",
                               description=application_message,
@@ -129,6 +126,8 @@ class LogicCog(commands.Cog):
         embed.add_field(name="Applicant Name", value=ctx.author.name, inline=True)
         embed.add_field(name="Applicant ID", value=ctx.author.id, inline=True)
 
+        view = AcceptDeclineView(timeout=60 * 60 * 24)
+        admin_dm_channel = await self.bot.get_user(admin_user_id).create_dm()
         admin_dm_msg = await admin_dm_channel.send(embed=embed, view=view)
         view.message = admin_dm_msg
 
