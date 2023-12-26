@@ -1,4 +1,4 @@
-from typing import List
+from typing import List, Optional
 
 from ossapi import Mod
 from sqlalchemy import delete, select, func, and_
@@ -73,7 +73,7 @@ class ScoresTableManager:
             count = await session.execute(stmt)
         return count.scalar()
 
-    async def get_user_random_score(self, user_info: DbUserInfo):
+    async def get_user_random_score(self, user_info: DbUserInfo) -> Optional[DbScoreInfo]:
         """
         Returns a random score (DbScoreInfo db row entry) for the specified user.
         """
