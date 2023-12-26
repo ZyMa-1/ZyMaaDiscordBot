@@ -8,7 +8,7 @@ from sqlalchemy.ext.asyncio import async_sessionmaker, AsyncEngine
 import my_logging.get_loggers
 from db_managers.data_classes import DbScoreInfo, DbUserInfo
 from db_managers.models.models import ScoreTable
-from db_managers.table_managers.decorators import elapsed_time_logger
+from .decorators import elapsed_time_logger
 
 logger = my_logging.get_loggers.database_utilities_logger()
 

@@ -1,8 +1,10 @@
 from dataclasses import dataclass
+from typing import TYPE_CHECKING
 
 from ossapi import GameMode
 
-from db_managers import conversion_utils
+if TYPE_CHECKING:
+    from db_managers.models.models import UserTable
 
 
 @dataclass
@@ -16,5 +18,7 @@ class DbUserInfo:
     osu_game_mode: GameMode
 
     @classmethod
-    def from_row(cls, row):
-        return conversion_utils.from_user_row(row)
+    def from_row(cls, row: 'UserTable'):
+        return DbUserInfo(discord_user_id=row.discord_user_id,
+                          osu_user_id=row.osu_user_id,
+                          osu_game_mode=row.osu_game_mode)

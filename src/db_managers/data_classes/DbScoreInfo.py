@@ -1,12 +1,14 @@
 import json
 from dataclasses import dataclass, field
 from datetime import datetime
-from typing import Optional
+from typing import Optional, TYPE_CHECKING
 
 from ossapi import serialize_model, Mod, Score
 
-from db_managers import conversion_utils
 from db_managers.data_classes import DbUserInfo
+
+if TYPE_CHECKING:
+    from db_managers.models.models import ScoreTable
 
 
 @dataclass
@@ -22,8 +24,12 @@ class DbScoreInfo:
     timestamp: datetime = field(default_factory=datetime.now)
 
     @classmethod
-    def from_row(cls, row):
-        return conversion_utils.from_score_row(row)
+    def from_row(cls, row: 'ScoreTable'):
+        return cls(id=row.id,
+                   user_info_id=row.user_info_id,
+                   score_json_data=row.score_json_data,
+                   mods=row.mods,
+                   timestamp=row.timestamp)
 
     @classmethod
     def from_score_and_user_info(cls, score_instance: Score, user_info: DbUserInfo):

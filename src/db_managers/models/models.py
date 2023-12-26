@@ -1,12 +1,14 @@
 from datetime import datetime
+from typing import TYPE_CHECKING
 
 from ossapi import GameMode, Mod
 from sqlalchemy import Column, Integer, DateTime, ForeignKey, String
 from sqlalchemy.orm import relationship
 
 from .base import Base
-from .. import conversion_utils
-from ..data_classes import DbUserInfo, DbScoreInfo
+
+if TYPE_CHECKING:
+    from db_managers.data_classes import DbUserInfo, DbScoreInfo
 
 
 class UserTable(Base):
@@ -22,8 +24,12 @@ class UserTable(Base):
         return GameMode(str(self._osu_game_mode))
 
     @classmethod
-    def from_db_user_info(cls, user_info: DbUserInfo):
-        return conversion_utils.from_db_user_info(user_info)
+    def from_db_user_info(cls, user_info: 'DbUserInfo'):
+        return UserTable(discord_user_id=user_info.discord_user_id,
+                         osu_user_id=user_info.osu_user_id,
+                         _osu_game_mode=str(user_info.osu_game_mode.value))
+
+    scores = relationship("ScoreTable", back_populates="user_info")
 
 
 class ScoreTable(Base):
@@ -43,5 +49,8 @@ class ScoreTable(Base):
     user_info = relationship("UserTable", back_populates="scores")
 
     @classmethod
-    def from_db_score_info(cls, score_info: DbScoreInfo):
-        return conversion_utils.from_db_score_info(score_info)
+    def from_db_score_info(cls, score_info: 'DbScoreInfo'):
+        return cls(user_info_id=score_info.user_info_id,
+                   score_json_data=score_info.score_json_data,
+                   _mods=int(score_info.mods.value),
+                   timestamp=score_info.timestamp)

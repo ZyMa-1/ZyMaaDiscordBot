@@ -5,7 +5,7 @@ import matplotlib.pyplot as plt
 from matplotlib.ticker import MaxNLocator
 from ossapi.enums import Grade
 
-from db_managers.data_classes.DbUserInfo import DbUserInfo
+from db_managers.data_classes import DbUserInfo
 from factories import UtilsFactory
 
 

@@ -39,7 +39,7 @@ class UsersTableManager:
             result = await session.execute(
                select(UserTable).where(UserTable.discord_user_id == discord_user_id)
             )
-            user = await result.fetchone()
+            user = result.scalar()
             if user:
                 return DbUserInfo.from_row(user)
             else:

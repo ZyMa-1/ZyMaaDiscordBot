@@ -7,8 +7,7 @@ from discord import Message
 from discord.ext.commands import Context
 
 from core import BotContext
-from db_managers.data_classes import DbScoreInfo
-from db_managers.data_classes.DbUserInfo import DbUserInfo
+from db_managers.data_classes import DbScoreInfo, DbUserInfo
 from factories import UtilsFactory
 from statistics_managers import BeatmapsUserGradesStatsManager
 
