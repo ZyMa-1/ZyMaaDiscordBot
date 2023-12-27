@@ -1,4 +1,5 @@
 import logging
+from difflib import get_close_matches
 
 import discord
 from discord.ext import commands
@@ -39,7 +40,18 @@ class SetupCog(commands.Cog):
         """
         Handles command errors.
         """
-        if isinstance(error, commands.CommandOnCooldown):
+        if isinstance(error, commands.CommandNotFound):
+            mistyped_command = ctx.message.content.split(' ')[0][1:]
+            valid_commands = [command.name for command in self.bot.commands]
+
+            closest_match = get_close_matches(mistyped_command, valid_commands, n=1, cutoff=0.6)
+
+            if closest_match:
+                suggestion = closest_match[0]
+                await ctx.reply(f"Command not found. Did you mean `{suggestion}`?")
+            else:
+                await ctx.reply("Command not found. Please check your command.")
+        elif isinstance(error, commands.CommandOnCooldown):
             await ctx.reply(f'This command is on cooldown. Please try again in {error.retry_after:.2f} seconds.')
         elif isinstance(error, commands.CheckFailure):
             await ctx.reply(f'Check failure (you have no permission 🐱)\n{str(error)}')
