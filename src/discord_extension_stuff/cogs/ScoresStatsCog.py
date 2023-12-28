@@ -112,7 +112,7 @@ class ScoresStatsCog(commands.Cog):
         """
         user_info = await self.db_manager.users_table_manager.get_user_info(ctx.author.id)
         excel_scores_manager = ExcelScoresManager(user_info,
-                                                  self.db_manager.scores_table_manager.
+                                                  await self.db_manager.scores_table_manager.
                                                   get_all_user_scores(user_info))
         await excel_scores_manager.retrieve_rows()
         file_path = excel_scores_manager.save_workbook()
@@ -131,7 +131,8 @@ class ScoresStatsCog(commands.Cog):
         Gets xlsx file of all user's scores that include specific mods (game modifications).
         """
         user_info = await self.db_manager.users_table_manager.get_user_info(ctx.author.id)
-        excel_scores_manager = ExcelScoresManager(user_info, self.db_manager.scores_table_manager.
+        excel_scores_manager = ExcelScoresManager(user_info,
+                                                  await self.db_manager.scores_table_manager.
                                                   get_mods_filtered_user_scores(user_info, mods))
         await excel_scores_manager.retrieve_rows()
         file_path = excel_scores_manager.save_workbook()

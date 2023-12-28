@@ -1,3 +1,4 @@
+import datetime
 import pathlib
 import tempfile
 from typing import List
@@ -17,7 +18,9 @@ class ExcelScoresManager:
         self.scores_info = scores_info
 
         self.file_extension = '.xlsx'
-        self.sheet_name = 'Scores'
+        current_datetime = datetime.datetime.now()
+        formatted_datetime = current_datetime.strftime("%Y-%m-%d")
+        self.sheet_name = f'Scores_{formatted_datetime}'
         self.workbook = openpyxl.Workbook()
         self.sheet = self.workbook.active
 
