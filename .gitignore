@@ -1,6 +1,7 @@
 .idea/
 logs/*
 .git/
+.sftp_config.json
 .env
 venv/
 data/*
