@@ -25,11 +25,11 @@ async def main():
     # Load environment variables
     load_dotenv(dotenv_path=PathManager.DOT_ENV)
 
-    # Setting up my_logging
+    # Set up my_logging
     import my_logging.setup_logging
     my_logging.setup_logging.main()
 
-    # Creating all resources
+    # Create all resources
     from factories import UtilsFactory
     await UtilsFactory.create_all_instances()
     DataUtils.create_files()
@@ -37,7 +37,7 @@ async def main():
     # Check paths existence
     PathManager.check_paths_existence()
 
-    # Starting  the bot
+    # Start the bot
     await bot.main()
 
 
