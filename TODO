@@ -14,3 +14,4 @@ Ideas:
 Firstly download data (will be huge).
 Migrate 'scores' table, so it would have is_best (on the beatmap) field.
 Modify existing queries and add new ones.
+5. Improve bot design/commands interaction flow/UX
