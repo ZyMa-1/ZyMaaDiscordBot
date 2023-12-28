@@ -12,6 +12,12 @@ class AcceptDeclineView(discord.ui.View):
         self.decision = None
         self.message = None
 
+    def set_message(self, message: discord.Message):
+        self.message = message
+
+    def get_decision(self):
+        return self.decision
+
     async def disable_all_items(self):
         for item in self.children:
             item.disabled = True

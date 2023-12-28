@@ -53,7 +53,7 @@ class ScoresTableManager:
     @elapsed_time_logger
     async def get_all_user_scores(self, user_info: DbUserInfo) -> List[DbScoreInfo]:
         """
-        Returns a generator for all the scores associated with a specified user
+        Returns a list of all scores associated with a specified user
         wrapped up into 'DbScoreInfo' dataclass.
         """
         async with self.AsyncSession() as session:
@@ -99,7 +99,7 @@ class ScoresTableManager:
     async def get_mods_filtered_user_scores(self, user_info: DbUserInfo, mods: Mod) -> List[DbScoreInfo]:
         """
         Filters the 'scores' table by 'mods' column which include provided mods.
-        Returns a generator for all the scores associated with a specified user
+        Returns a list of all scores associated with a specified user
         wrapped up into 'DbScoreInfo' dataclass.
         """
         async with self.AsyncSession() as session:

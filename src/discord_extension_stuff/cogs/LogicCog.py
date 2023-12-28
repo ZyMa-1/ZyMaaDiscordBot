@@ -129,13 +129,13 @@ class LogicCog(commands.Cog):
         view = AcceptDeclineView(timeout=60 * 60 * 24)
         admin_dm_channel = await self.bot.get_user(admin_user_id).create_dm()
         admin_dm_msg = await admin_dm_channel.send(embed=embed, view=view)
-        view.message = admin_dm_msg
+        view.set_message(admin_dm_msg)
 
         await view.wait()
         await start_msg.delete()
 
         # Notify the user about the decision
-        if view.decision is True:
+        if view.get_decision():
             await DataUtils.add_trusted_user(ctx.author.id)
             await ctx.reply("Your trusted user application has been accepted.")
         else:
