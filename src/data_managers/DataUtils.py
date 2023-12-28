@@ -81,9 +81,9 @@ class DataUtils:
         await DataUtils._modify_user(PathManager.ADMIN_USERS_PATH, 'admins', discord_user_id, add=False)
 
     @staticmethod
-    def load_discord_bot_token() -> str:
+    def load_discord_bot_token() -> str | None:
         return os.getenv("DISCORD_BOT_TOKEN")
 
     @staticmethod
-    def load_osu_api_credentials() -> Tuple[str, str]:
+    def load_osu_api_credentials() -> Tuple[str | None, str | None]:
         return os.getenv("OSU_APIV2_CLIENT_ID"), os.getenv("OSU_APIV2_CLIENT_SECRET")

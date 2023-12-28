@@ -64,7 +64,7 @@ class ScoresTableManager:
             scores = result.scalars().all()
             return [DbScoreInfo.from_row(score) for score in scores]
 
-    async def count_all_user_scores(self, user_info: DbUserInfo) -> int:
+    async def count_all_user_scores(self, user_info: DbUserInfo) -> Optional[int]:
         """
         Counts amount of a user's scores in the 'scores' table.
         """

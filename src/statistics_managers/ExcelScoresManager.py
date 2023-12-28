@@ -25,7 +25,7 @@ class ExcelScoresManager:
         self.sheet = self.workbook.active
 
         self.db_manager = UtilsFactory.get_db_manager()
-        self.temp_file_path = None
+        self.temp_file_path: pathlib.Path | None = None
 
     async def retrieve_rows(self):
         header_row = ['Beatmap link',

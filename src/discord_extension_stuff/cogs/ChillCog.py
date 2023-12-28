@@ -43,7 +43,7 @@ class ChillCog(commands.Cog):
         await ctx.send(response)
 
     @commands.command(name='about')
-    async def beer_command(self, ctx: Context):
+    async def about_command(self, ctx: Context):
         """
         About the bot.
         """

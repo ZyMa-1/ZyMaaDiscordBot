@@ -77,6 +77,7 @@ class Extras:
             return (
                     msg.author == ctx.author
                     and msg.channel == ctx.channel
+                    and msg.reference
                     and msg.reference.message_id == start_msg.id
                     and msg.content.lower() == reply_message_content
             )

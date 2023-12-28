@@ -126,7 +126,7 @@ class ScoresStatsCog(commands.Cog):
                     predicates.check_is_config_set_up and
                     predicates.check_is_user_has_scores)
     @commands.cooldown(1, 30, commands.BucketType.user)
-    async def get_xlsx_scores_file_command(self, ctx: Context, mods: ModsConverter):
+    async def get_xlsx_scores_file_filtered_mods_command(self, ctx: Context, mods: ModsConverter):
         """
         Gets xlsx file of all user's scores that include specific mods (game modifications).
         """
