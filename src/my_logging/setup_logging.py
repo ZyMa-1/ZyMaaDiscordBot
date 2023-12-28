@@ -30,5 +30,5 @@ def create_log_directories():
 def main():
     init_config()
     create_log_directories()
-    # ini_file_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'logging.ini')
+    # ini_file_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'logging_deprecated.ini')
     # logging.config.fileConfig(ini_file_path)
