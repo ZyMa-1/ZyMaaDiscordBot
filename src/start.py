@@ -5,8 +5,6 @@ from pathlib import Path
 from dotenv import load_dotenv
 
 import bot
-import my_logging.get_loggers
-import my_logging.setup_logging
 from core import PathManager
 from data_managers import DataUtils
 
@@ -25,9 +23,10 @@ async def main():
     create_directories()
 
     # Load environment variables
-    load_dotenv(dotenv_path=PathManager.DOT_ENV_PATH)
+    load_dotenv(dotenv_path=PathManager.DOT_ENV)
 
     # Setting up my_logging
+    import my_logging.setup_logging
     my_logging.setup_logging.main()
 
     # Creating all resources

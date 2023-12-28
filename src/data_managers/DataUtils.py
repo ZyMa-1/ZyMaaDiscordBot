@@ -45,8 +45,8 @@ class DataUtils:
     @staticmethod
     def create_files():
         files_to_create = [
-            (PathManager.TRUSTED_USERS_PATH, {'trusted_users': []}),
-            (PathManager.ADMIN_USERS_PATH, {'admins': []})
+            (PathManager.TRUSTED_USERS, {'trusted_users': []}),
+            (PathManager.ADMIN_USERS, {'admins': []})
         ]
         for file_path, default_data in files_to_create:
             if not os.path.exists(file_path):
@@ -54,31 +54,31 @@ class DataUtils:
 
     @staticmethod
     async def load_trusted_users() -> List[int]:
-        return await DataUtils._load_users(PathManager.TRUSTED_USERS_PATH, 'trusted_users')
+        return await DataUtils._load_users(PathManager.TRUSTED_USERS, 'trusted_users')
 
     @staticmethod
     async def load_admin_users() -> List[int]:
-        return await DataUtils._load_users(PathManager.ADMIN_USERS_PATH, 'admins')
+        return await DataUtils._load_users(PathManager.ADMIN_USERS, 'admins')
 
     @staticmethod
     async def load_first_admin_user() -> Optional[int]:
-        return (await DataUtils._load_users(PathManager.ADMIN_USERS_PATH, 'admins'))[0]
+        return (await DataUtils._load_users(PathManager.ADMIN_USERS, 'admins'))[0]
 
     @staticmethod
     async def add_trusted_user(discord_user_id: int):
-        await DataUtils._modify_user(PathManager.TRUSTED_USERS_PATH, 'trusted_users', discord_user_id)
+        await DataUtils._modify_user(PathManager.TRUSTED_USERS, 'trusted_users', discord_user_id)
 
     @staticmethod
     async def remove_trusted_user(discord_user_id: int):
-        await DataUtils._modify_user(PathManager.TRUSTED_USERS_PATH, 'trusted_users', discord_user_id, add=False)
+        await DataUtils._modify_user(PathManager.TRUSTED_USERS, 'trusted_users', discord_user_id, add=False)
 
     @staticmethod
     async def add_admin(discord_user_id: int):
-        await DataUtils._modify_user(PathManager.ADMIN_USERS_PATH, 'admins', discord_user_id)
+        await DataUtils._modify_user(PathManager.ADMIN_USERS, 'admins', discord_user_id)
 
     @staticmethod
     async def remove_admin(discord_user_id: int):
-        await DataUtils._modify_user(PathManager.ADMIN_USERS_PATH, 'admins', discord_user_id, add=False)
+        await DataUtils._modify_user(PathManager.ADMIN_USERS, 'admins', discord_user_id, add=False)
 
     @staticmethod
     def load_discord_bot_token() -> str | None:

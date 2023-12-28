@@ -45,7 +45,7 @@ class LoggingStats:
         total_tokens_spent = 0
 
         # Find log files matching the time period
-        log_files_pattern = PathManager.OSU_API_LOGS_PATH / "osu_api*.log"
+        log_files_pattern = PathManager.OSU_API_LOGS / "osu_api*.log"
         log_files = glob.glob(str(log_files_pattern))
         log_files.sort(reverse=True)  # Sort in descending order to process the latest first
 

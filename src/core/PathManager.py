@@ -16,14 +16,19 @@ class PathManager:
     PROJECT_ROOT: pathlib.Path
     DATA_DIR: pathlib.Path
 
-    TRUSTED_USERS_PATH: pathlib.Path
-    ADMIN_USERS_PATH: pathlib.Path
-    BOT_DATA_DB_PATH: pathlib.Path
-    DOT_ENV_PATH: pathlib.Path
+    TRUSTED_USERS: pathlib.Path
+    ADMIN_USERS: pathlib.Path
+    BOT_DATA_DB: pathlib.Path
+    DOT_ENV: pathlib.Path
 
     LOGS_DIR: pathlib.Path
-    OSU_API_LOGS_PATH: pathlib.Path
+    OSU_API_LOGS: pathlib.Path
     TEMP_DIR: pathlib.Path
+
+    DATA_UTILITIES_LOG: pathlib.Path
+    OSU_API_LOG_DIR: pathlib.Path
+    DATABASE_UTILITIES_LOG: pathlib.Path
+    ROOT_LOG: pathlib.Path
 
     @classmethod
     def set_project_root(cls, project_root: pathlib.Path):
@@ -33,14 +38,21 @@ class PathManager:
         cls.PROJECT_ROOT = project_root
         cls.DATA_DIR = cls.PROJECT_ROOT / "data"
 
-        cls.TRUSTED_USERS_PATH = cls.PROJECT_ROOT / "data" / "trusted_users.json"
-        cls.ADMIN_USERS_PATH = cls.PROJECT_ROOT / "data" / "admins.json"
-        cls.BOT_DATA_DB_PATH = cls.PROJECT_ROOT / "data" / "bot_data.db"
-        cls.DOT_ENV_PATH = cls.PROJECT_ROOT / ".env"
+        cls.TRUSTED_USERS = cls.DATA_DIR / "trusted_users.json"
+        cls.ADMIN_USERS = cls.DATA_DIR / "admins.json"
+        cls.BOT_DATA_DB = cls.DATA_DIR / "bot_data.db"
+        cls.DOT_ENV = cls.PROJECT_ROOT / ".env"
 
         cls.LOGS_DIR = cls.PROJECT_ROOT / "logs"
-        cls.OSU_API_LOGS_PATH = cls.PROJECT_ROOT / "logs" / "osu_api"
-        cls.TEMP_DIR = cls.PROJECT_ROOT / "data" / "temp"
+        cls.OSU_API_LOGS_PATH = cls.LOGS_DIR / "osu_api"  # Used only in logging stats
+
+        # For logging config
+        cls.DATA_UTILITIES_LOG = cls.LOGS_DIR / "data_utilities" / "data_utilities.log"
+        cls.OSU_API_LOG_DIR = cls.LOGS_DIR / "osu_api" / "osu_api.log"
+        cls.DATABASE_UTILITIES_LOG = cls.LOGS_DIR / "database_utilities" / "database_utilities.log"
+        cls.ROOT_LOG = cls.LOGS_DIR / "root" / "root.log"
+
+        cls.TEMP_DIR = cls.DATA_DIR / "temp"
 
     @classmethod
     def check_paths_existence(cls) -> None:
@@ -50,12 +62,12 @@ class PathManager:
         """
         paths_to_check = [
             cls.DATA_DIR,
-            cls.TRUSTED_USERS_PATH,
-            cls.ADMIN_USERS_PATH,
-            cls.BOT_DATA_DB_PATH,
-            cls.DOT_ENV_PATH,
+            cls.TRUSTED_USERS,
+            cls.ADMIN_USERS,
+            cls.BOT_DATA_DB,
+            cls.DOT_ENV,
             cls.LOGS_DIR,
-            cls.OSU_API_LOGS_PATH,
+            cls.OSU_API_LOGS,
             cls.TEMP_DIR
         ]
 

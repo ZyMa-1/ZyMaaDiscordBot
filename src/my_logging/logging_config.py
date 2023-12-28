@@ -1,6 +1,22 @@
-import sys
+from os import PathLike
 
 from core import PathManager
+
+
+def _construct_file_handler(formatter: str, filename: PathLike[str]) -> dict:
+    return {
+        'class': 'logging.handlers.TimedRotatingFileHandler',
+        'when': 'midnight',
+        'interval': 1,
+        'backupCount': 7,
+        'formatter': formatter,
+        'filename': filename,
+    }
+
+
+def _get_default_format() -> str:
+    return '%(asctime)s - %(name)s - %(funcName)s - [%(levelname)s] - %(message)s'
+
 
 loggers = {
     'root': {
@@ -29,50 +45,22 @@ handlers = {
         'class': 'logging.StreamHandler',
         'level': 'INFO',
         'formatter': 'console',
-        'args': (sys.stdout,)
+        'stream': 'ext://sys.stdout',
     },
-    'root_file': {
-        'class': 'logging.handlers.TimedRotatingFileHandler',
-        'when': 'midnight',
-        'interval': 1,
-        'backupCount': 7,
-        'formatter': 'file',
-        'args': (f'{PathManager.LOGS_DIR}/root/root.log',)
-    },
-    'osu_api_file': {
-        'class': 'logging.handlers.TimedRotatingFileHandler',
-        'when': 'midnight',
-        'interval': 1,
-        'backupCount': 7,
-        'formatter': 'osu_api',
-        'args': (f'{PathManager.LOGS_DIR}/osu_api/osu_api.log',)
-    },
-    'data_utilities_file': {
-        'class': 'logging.handlers.TimedRotatingFileHandler',
-        'when': 'midnight',
-        'interval': 1,
-        'backupCount': 7,
-        'formatter': 'file',
-        'args': (f'{PathManager.LOGS_DIR}/data_utilities/data_utilities.log',)
-    },
-    'database_utilities_file': {
-        'class': 'logging.handlers.TimedRotatingFileHandler',
-        'when': 'midnight',
-        'interval': 1,
-        'backupCount': 7,
-        'formatter': 'file',
-        'args': (f'{PathManager.LOGS_DIR}/database_utilities/database_utilities.log',)
-    }
+    'root_file': _construct_file_handler('file', PathManager.ROOT_LOG),
+    'osu_api_file': _construct_file_handler('osu_api', PathManager.OSU_API_LOG_DIR),
+    'data_utilities_file': _construct_file_handler('file', PathManager.DATA_UTILITIES_LOG),
+    'database_utilities_file': _construct_file_handler('file', PathManager.DATABASE_UTILITIES_LOG)
 }
 
 formatters = {
     'file': {
-        'format': '%(asctime)s - %(name)s - %(funcName)s - [%(levelname)s] - %(message)s'
+        'format': _get_default_format()
     },
     'console': {
-        'format': '%(asctime)s - %(name)s - %(funcName)s - [%(levelname)s] - %(message)s'
+        'format': _get_default_format()
     },
     'osu_api': {
-        'format': '%(asctime)s - %(name)s - %(funcName)s - [%(levelname)s] - %(message)s - tokens_spent=%(tokens_spent)s'
+        'format': f'{_get_default_format()} - tokens_spent=%(tokens_spent)s'
     }
 }
