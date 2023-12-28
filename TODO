@@ -8,6 +8,7 @@ Ideas:
 2. Filtering the scores, so they would include given mods (game modifications) and return the same table of them.
 ^get_filtered_by_mods_xlsx_scores_file
 3. Describe flow of the bot, how to do stuff in the readme and ^flow command.
+---
 4. Get all your scores stored in the osu! bancho server with certain mods
 (all +FL scores including +NFFL, +DTFL, etc.)
 Firstly download data (will be huge).

@@ -48,7 +48,7 @@ handlers = {
         'stream': 'ext://sys.stdout',
     },
     'root_file': _construct_file_handler('file', PathManager.ROOT_LOG),
-    'osu_api_file': _construct_file_handler('osu_api', PathManager.OSU_API_LOG_DIR),
+    'osu_api_file': _construct_file_handler('osu_api', PathManager.OSU_API_LOG),
     'data_utilities_file': _construct_file_handler('file', PathManager.DATA_UTILITIES_LOG),
     'database_utilities_file': _construct_file_handler('file', PathManager.DATABASE_UTILITIES_LOG)
 }
