@@ -98,7 +98,7 @@ class ScoresStatsCog(commands.Cog):
         if is_task_completed:
             score_info: DbScoreInfo = calc_task.result()
             score: dict = score_info.deserialize_score_json()
-            await ctx.reply(f"Score deserialized into dictionary successfully. Here is `{score['id']=}` as a prove.")
+            # await ctx.reply(f"Score deserialized into dictionary successfully. Here is `{score['id']=}` as a prove.")
             await ctx.reply(f"{DbScoreInfo.__name__} instance:\n{score_info}")
 
     @commands.command(name='get_xlsx_scores_file')
@@ -136,7 +136,7 @@ class ScoresStatsCog(commands.Cog):
                                                   get_mods_filtered_user_scores(user_info, mods))
         await excel_scores_manager.retrieve_rows()
         file_path = excel_scores_manager.save_workbook()
-        file = discord.File(fp=file_path, filename=f"scores_{user_info.osu_user_id}_filtered"
+        file = discord.File(fp=file_path, filename=f"scores_{user_info.osu_user_id}_filtered_{mods.short_name}"
                                                    f"{excel_scores_manager.file_extension}")
         await ctx.reply(file=file)
         excel_scores_manager.delete_temp_file()
