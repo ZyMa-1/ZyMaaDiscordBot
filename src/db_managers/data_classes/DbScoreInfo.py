@@ -1,9 +1,9 @@
 import json
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from datetime import datetime
 from typing import Optional, TYPE_CHECKING
 
-from ossapi import serialize_model, Mod, Score
+from ossapi import serialize_model, Mod, Score, GameMode
 
 from db_managers.data_classes import DbUserInfo
 
@@ -21,8 +21,9 @@ class DbScoreInfo:
     user_info_id: int
     score_json_data: str
     mods: Mod
+    mode: GameMode
     beatmap_id: int
-    timestamp: datetime = field(default_factory=datetime.now)
+    timestamp: Optional[datetime]
 
     @classmethod
     def from_row(cls, row: 'ScoreTable'):
@@ -30,6 +31,7 @@ class DbScoreInfo:
                    user_info_id=row.user_info_id,
                    score_json_data=row.score_json_data,
                    mods=row.mods,
+                   mode=row.mode,
                    beatmap_id=row.beatmap_id,
                    timestamp=row.timestamp)
 
@@ -39,8 +41,10 @@ class DbScoreInfo:
         return cls(id=None,
                    user_info_id=user_info.discord_user_id,
                    score_json_data=serialize_model(score_instance),
+                   mods=score_instance.mods,
+                   mode=score_instance.mode,
                    beatmap_id=score_instance.beatmap.id,
-                   mods=score_instance.mods)
+                   timestamp=None)
 
     def deserialize_score_json(self) -> dict:
         return json.loads(self.score_json_data)
