@@ -74,20 +74,32 @@ class ChillCog(commands.Cog):
         response = "Вот ваше пиво месье: " + "🍺" * cnt
         await ctx.send(response)
 
-    @commands.command(name="sing_random_song")
+    @commands.command(name="sing_glory_days")
     async def sing_random_song_command(self, ctx: Context):
-        message = await ctx.send("Singing glory days:")
+        content = "Singing Glory Days:\n"
+        message = await ctx.send(content)
 
         lyrics = (
             "♫To seek the glory days♫",
             "♫We'll fight the lion's way♫",
             "♫Then let the rain wash♫",
-            "♫All of our pride away♫"
+            "♫All of our pride away♫",
             "♫So if this victory♫",
             "♫Is our last odyssey♫",
             "♫Then let the power within us decide!♫"
         )
+        sleep_times = (
+            2.4,
+            2.63,
+            2.68,
+            2.72,
+            2.76,
+            2.73,
+            0
+        )
+        avg_delay = 0.35
 
-        for line in lyrics:
-            await asyncio.sleep(2.7)
-            await message.edit(content=f"{message.content}\n{line}")
+        for line, sleep_time in zip(lyrics, sleep_times):
+            content += "\n" + line
+            await message.edit(content=content)
+            await asyncio.sleep(sleep_time - avg_delay)
