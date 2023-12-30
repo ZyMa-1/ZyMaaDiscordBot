@@ -1,3 +1,5 @@
+import asyncio
+
 from discord.ext import commands
 from discord.ext.commands import Context
 
@@ -71,3 +73,21 @@ class ChillCog(commands.Cog):
         """
         response = "Вот ваше пиво месье: " + "🍺" * cnt
         await ctx.send(response)
+
+    @commands.command(name="sing_random_song")
+    async def sing_random_song_command(self, ctx: Context):
+        message = await ctx.send("Singing glory days:")
+
+        lyrics = (
+            "♫To seek the glory days♫",
+            "♫We'll fight the lion's way♫",
+            "♫Then let the rain wash♫",
+            "♫All of our pride away♫"
+            "♫So if this victory♫",
+            "♫Is our last odyssey♫",
+            "♫Then let the power within us decide!♫"
+        )
+
+        for line in lyrics:
+            await asyncio.sleep(2.7)
+            await message.edit(content=f"{message.content}\n{line}")
