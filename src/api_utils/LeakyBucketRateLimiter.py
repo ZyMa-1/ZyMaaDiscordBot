@@ -12,7 +12,7 @@ class LeakyBucketRateLimiter:
         self.max_tokens: float = max_tokens
         self.tokens: float = max_tokens
         self.last_refresh_time: float = time.monotonic()
-        self.queue = asyncio.Queue()
+        self.queue: asyncio.Queue = asyncio.Queue()
 
     async def _refresh_tokens(self):
         """

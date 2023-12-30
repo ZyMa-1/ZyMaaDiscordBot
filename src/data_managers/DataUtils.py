@@ -1,7 +1,7 @@
 import json
 import os
 from os import PathLike
-from typing import Tuple, List, Optional
+from typing import Tuple, List, Optional, Literal
 
 import aiofiles
 
@@ -17,7 +17,7 @@ class DataUtils:
     """
 
     @staticmethod
-    async def _file_operation(file_path: PathLike[str], operation: str, data=None):
+    async def _file_operation(file_path: PathLike[str], operation: Literal['w', 'r'], data: Optional[dict] = None):
         async with aiofiles.open(file_path, operation) as file:
             if data is not None:
                 await file.write(json.dumps(data, indent=4))
@@ -62,7 +62,9 @@ class DataUtils:
 
     @staticmethod
     async def load_first_admin_user() -> Optional[int]:
-        return (await DataUtils._load_users(PathManager.ADMIN_USERS, 'admins'))[0]
+        if admins := await DataUtils.load_admin_users():
+            return admins[0]
+        return None
 
     @staticmethod
     async def add_trusted_user(discord_user_id: int):

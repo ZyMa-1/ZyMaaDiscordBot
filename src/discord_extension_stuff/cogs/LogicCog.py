@@ -127,7 +127,10 @@ class LogicCog(commands.Cog):
         embed.add_field(name="Applicant ID", value=ctx.author.id, inline=True)
 
         view = AcceptDeclineView(timeout=60 * 60 * 24)
-        admin_dm_channel = await self.bot.get_user(admin_user_id).create_dm()
+        try:
+            admin_dm_channel = await self.bot.get_user(admin_user_id).create_dm()
+        except AttributeError:
+            raise commands.CommandError
         admin_dm_msg = await admin_dm_channel.send(embed=embed, view=view)
         view.set_message(admin_dm_msg)
 

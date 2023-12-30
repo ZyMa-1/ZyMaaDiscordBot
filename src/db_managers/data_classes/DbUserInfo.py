@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from typing import TYPE_CHECKING, Type
+from typing import TYPE_CHECKING
 
 from ossapi import GameMode
 
@@ -18,7 +18,7 @@ class DbUserInfo:
     osu_game_mode: GameMode
 
     @classmethod
-    def from_row(cls, row: Type['UserTable']):
+    def from_row(cls, row: 'UserTable'):
         return DbUserInfo(discord_user_id=row.discord_user_id,
                           osu_user_id=row.osu_user_id,
                           osu_game_mode=row.osu_game_mode)
