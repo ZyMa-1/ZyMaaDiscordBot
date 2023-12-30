@@ -21,6 +21,7 @@ class DbScoreInfo:
     user_info_id: int
     score_json_data: str
     mods: Mod
+    beatmap_id: int
     timestamp: datetime = field(default_factory=datetime.now)
 
     @classmethod
@@ -29,6 +30,7 @@ class DbScoreInfo:
                    user_info_id=row.user_info_id,
                    score_json_data=row.score_json_data,
                    mods=row.mods,
+                   beatmap_id=row.beatmap_id,
                    timestamp=row.timestamp)
 
     @classmethod
@@ -37,6 +39,7 @@ class DbScoreInfo:
         return cls(id=None,
                    user_info_id=user_info.discord_user_id,
                    score_json_data=serialize_model(score_instance),
+                   beatmap_id=score_instance.beatmap.id,
                    mods=score_instance.mods)
 
     def deserialize_score_json(self) -> dict:

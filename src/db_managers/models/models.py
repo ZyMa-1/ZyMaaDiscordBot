@@ -39,6 +39,7 @@ class ScoreTable(Base):
     user_info_id = Column(Integer, ForeignKey('users.discord_user_id'))
     score_json_data = Column(String)
     _mods = Column(Integer)
+    beatmap_id = Column(Integer)
     timestamp = Column(DateTime, default=datetime.now)
 
     # Workaround for `Column(Enum(Mod))`
@@ -53,4 +54,5 @@ class ScoreTable(Base):
         return cls(user_info_id=score_info.user_info_id,
                    score_json_data=score_info.score_json_data,
                    _mods=int(score_info.mods.value),
+                   beatmap_id=score_info.beatmap_id,
                    timestamp=score_info.timestamp)
