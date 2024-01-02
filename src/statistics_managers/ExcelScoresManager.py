@@ -6,6 +6,7 @@ from typing import List
 import openpyxl
 from openpyxl.cell import WriteOnlyCell
 from openpyxl.styles import Font
+from ossapi import Mod
 
 from core import PathManager
 from db_managers.data_classes import DbUserInfo, DbScoreInfo
@@ -60,7 +61,7 @@ class ExcelScoresManager:
                                          format(f"https://osu.ppy.sh/b/{beatmap_id}", beatmap_id))
             beatmap_cell.font = Font(color="0000FF", underline="single")
 
-            row_data = [beatmap_cell, version, score_cell, mods_value, accuracy, score_v1]
+            row_data = [beatmap_cell, version, score_cell, Mod(mods_value).short_name(), accuracy, score_v1]
             self.sheet.append(row_data)
 
     def save_workbook(self) -> pathlib.Path:
