@@ -22,8 +22,21 @@ Modify existing queries and add new ones.
 
 Starting 'Guess a map game' for 'user' (All maps that user played would be)
 
-9. Create separate table for storing all (osu_user_id, beatmap_id) kind of things
-10. Then obtain 'scores' table according to that table when '^get_all_user_scores' is called
-11. Map guessing game is gonna be based on that 'user_beatmaps' table.
-12. For future stuff, the storing of the map's status (Graveyard, Pending, Ranked) would be useful.
-13. Maybe, just maybe get rid of data utils, database is much much more easy to maintain.
+8. Create Dataclasses and models (Done!)
+9. Create new command that handle addition to the 'user_played_beatmaps' table.
+10. Change the '^load_all_user_scores', so it would obtain scores according to 'user_played_beatmaps' table.
+11. Map guessing game is gonna be based on that 'user_played_beatmaps' table.
+12. Add disclaimer that osu_game_mode is gonna be applied for all kinds of stuff to prevent obtaining info about other gamemodes.
+13. So the game is gonna be tied to the user played beatmaps on the selected game mode.
+    The random !beatmapset! will be chosen and bot gives 'RANDOM INFO' about it:
+    So yeah, the querying osu api v2 is kind of inevitable for now, but whatever, my database is messed up anyways.
+
+    Random info for now:
+    Mapper,
+    Some part of bg,
+    Top diff name
+
+    Any user can play that game in the guild.
+    The reply '^hint' can be used to get other random info.
+
+    If any of that not helps the game is over, so the map artist OR song name should be guessed.

@@ -1,13 +1,13 @@
 from typing import TYPE_CHECKING
 
 from ossapi import GameMode, Mod
-from sqlalchemy import Column, Integer, DateTime, ForeignKey, String, func
+from sqlalchemy import Column, Integer, DateTime, ForeignKey, String, func, UniqueConstraint
 from sqlalchemy.orm import relationship
 
 from .base import Base
 
 if TYPE_CHECKING:
-    from db_managers.data_classes import DbUserInfo, DbScoreInfo, DbUserPlayedBeatmapsInfo
+    from db_managers.data_classes import DbUserInfo, DbScoreInfo, DbUserPlayedBeatmapInfo
 
 
 class UserTable(Base):
@@ -23,10 +23,10 @@ class UserTable(Base):
         return GameMode(str(self._osu_game_mode))
 
     @classmethod
-    def from_db_user_info(cls, user_info: 'DbUserInfo'):
-        return UserTable(discord_user_id=user_info.discord_user_id,
-                         osu_user_id=user_info.osu_user_id,
-                         _osu_game_mode=str(user_info.osu_game_mode.value))
+    def from_dataclass(cls, dcls: 'DbUserInfo'):
+        return UserTable(discord_user_id=dcls.discord_user_id,
+                         osu_user_id=dcls.osu_user_id,
+                         _osu_game_mode=str(dcls.osu_game_mode.value))
 
     scores = relationship("ScoreTable", back_populates="user_info")
     user_played_beatmaps = relationship("UserPlayedBeatmapsTable", back_populates="user_info")
@@ -54,13 +54,13 @@ class ScoreTable(Base):
     user_info = relationship("UserTable", back_populates="scores")
 
     @classmethod
-    def from_db_score_info(cls, score_info: 'DbScoreInfo'):
-        return cls(user_info_id=score_info.user_info_id,
-                   score_json_data=score_info.score_json_data,
-                   _mods=int(score_info.mods.value),
-                   _mode=str(score_info.mode.value),
-                   beatmap_id=score_info.beatmap_id,
-                   timestamp=score_info.timestamp)
+    def from_dataclass(cls, dcls: 'DbScoreInfo'):
+        return cls(user_info_id=dcls.user_info_id,
+                   score_json_data=dcls.score_json_data,
+                   _mods=int(dcls.mods.value),
+                   _mode=str(dcls.mode.value),
+                   beatmap_id=dcls.beatmap_id,
+                   timestamp=dcls.timestamp)
 
 
 class UserPlayedBeatmapsTable(Base):
@@ -78,10 +78,14 @@ class UserPlayedBeatmapsTable(Base):
         return GameMode(str(self._mode))
 
     @classmethod
-    def from_db_score_info(cls, user_played_beatmaps_info: 'DbUserPlayedBeatmapsInfo'):
-        return cls(user_info_id=user_played_beatmaps_info.user_info_id,
-                   beatmap_id=user_played_beatmaps_info.beatmap_id,
-                   beatmapset_id=user_played_beatmaps_info.beatmapset_id,
-                   _mode=str(user_played_beatmaps_info.mode.value))
+    def from_dataclass(cls, dcls: 'DbUserPlayedBeatmapInfo'):
+        return cls(user_info_id=dcls.user_info_id,
+                   beatmap_id=dcls.beatmap_id,
+                   beatmapset_id=dcls.beatmapset_id,
+                   _mode=str(dcls.mode.value))
 
     user_info = relationship("UserTable", back_populates="user_played_beatmaps")
+
+    __table_args__ = (
+        UniqueConstraint('user_info_id', 'beatmap_id', name='unique_user_beatmap'),
+    )

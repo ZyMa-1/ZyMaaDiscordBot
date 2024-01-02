@@ -1,5 +1,5 @@
 import io
-from typing import Dict, List, Any
+from typing import Dict, List, Any, Tuple
 
 import matplotlib.pyplot as plt
 from matplotlib.ticker import MaxNLocator
@@ -170,3 +170,6 @@ So far {self.percent_completion}% completion!
         plt.close()
 
         return plot_bytes
+
+    def get_all_plots(self) -> Tuple[Tuple[str, io.BytesIO], Tuple[str, io.BytesIO]]:
+        return ("bar", self.get_bar_plot()), ("pie", self.get_pie_plot())

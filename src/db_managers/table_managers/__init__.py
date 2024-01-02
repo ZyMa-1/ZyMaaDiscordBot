@@ -1,2 +1,3 @@
-from .UsersTableManager import UsersTableManager
 from .ScoresTableManager import ScoresTableManager
+from .UserPlayedBeatmapsTableManager import UserPlayedBeatmapsTableManager
+from .UsersTableManager import UsersTableManager

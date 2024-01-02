@@ -19,22 +19,15 @@ class UsersTableManager:
         self.async_engine = async_engine
         self.AsyncSession = async_sessionmaker(self.async_engine, expire_on_commit=False)
 
-    async def insert_user_info(self, user_info: DbUserInfo) -> bool:
-        """
-        Inserts or replaces user info.
-        """
+    async def merge_user_info(self, user_info: DbUserInfo) -> bool:
         async with self.AsyncSession() as session:
             async with session.begin():
-                user = UserTable.from_db_user_info(user_info)
+                user = UserTable.from_dataclass(user_info)
                 await session.merge(user)
                 await session.commit()
         return True
 
     async def get_user_info(self, discord_user_id: int) -> Optional[DbUserInfo]:
-        """
-        Returns 'users' table entry with specified 'discord_user_id'
-        wrapped up into 'DbUserInfo' dataclass.
-        """
         async with self.AsyncSession() as session:
             result = await session.execute(
                select(UserTable).where(UserTable.discord_user_id == discord_user_id)

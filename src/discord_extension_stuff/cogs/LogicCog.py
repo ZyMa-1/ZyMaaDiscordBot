@@ -7,7 +7,7 @@ from core import BotContext
 from data_managers import DataUtils
 from db_managers.data_classes import DbUserInfo
 from discord_extension_stuff.converters import GameModeConverter, OsuUserIdConverter
-from discord_extension_stuff.extras import Extras
+from discord_extension_stuff.extras import DiscordExtras
 from discord_extension_stuff.views import AcceptDeclineView
 from factories import UtilsFactory
 
@@ -17,7 +17,7 @@ class LogicCog(commands.Cog):
         self.bot = bot_context.bot
         self.osu_api_utils = UtilsFactory.get_osu_api_utils()
         self.db_manager = UtilsFactory.get_db_manager()
-        self.extras = Extras(bot_context)
+        self.discord_extras = DiscordExtras(bot_context)
 
     @commands.command(name='config_change')
     @commands.check(predicates.check_is_trusted)
@@ -31,7 +31,7 @@ class LogicCog(commands.Cog):
             - osu_game_mode (str)   : 'osu', 'catch', 'taiko', 'mania'
         """
         user_info = DbUserInfo(ctx.author.id, osu_user_id, osu_game_mode)
-        await self.db_manager.users_table_manager.insert_user_info(user_info)
+        await self.db_manager.users_table_manager.merge_user_info(user_info)
         response = (f"Successfully changed `osu_user_id` to {user_info.osu_user_id} and `osu_game_mode` to "
                     f"{user_info.osu_game_mode}")
         await ctx.reply(response)
@@ -51,7 +51,7 @@ class LogicCog(commands.Cog):
         """
         Prints out trusted users list.
         """
-        data_str = await self.extras.format_discord_id_list(await DataUtils.load_trusted_users())
+        data_str = await self.discord_extras.format_discord_id_list(await DataUtils.load_trusted_users())
         response = f"Trusted users:\n{data_str}"
         await ctx.reply(response)
 
@@ -60,7 +60,7 @@ class LogicCog(commands.Cog):
         """
         Prints out admins list.
         """
-        data_str = await self.extras.format_discord_id_list(await DataUtils.load_admin_users())
+        data_str = await self.discord_extras.format_discord_id_list(await DataUtils.load_admin_users())
         response = f"Admins:\n{data_str}"
         await ctx.reply(response)
 
@@ -78,7 +78,7 @@ class LogicCog(commands.Cog):
         await DataUtils.add_trusted_user(user_id)
         response = f"User with id `{user_id}` added to trusted users"
         await ctx.reply(response)
-        data_str = await self.extras.format_discord_id_list(await DataUtils.load_trusted_users())
+        data_str = await self.discord_extras.format_discord_id_list(await DataUtils.load_trusted_users())
         response = f"Trusted users:\n{data_str}"
         await ctx.reply(response)
 
@@ -96,7 +96,7 @@ class LogicCog(commands.Cog):
         await DataUtils.remove_trusted_user(user_id)
         response = f"User with id `{user_id}` was removed from trusted users"
         await ctx.reply(response)
-        data_str = await self.extras.format_discord_id_list(await DataUtils.load_trusted_users())
+        data_str = await self.discord_extras.format_discord_id_list(await DataUtils.load_trusted_users())
         response = f"Trusted users:\n{data_str}"
         await ctx.reply(response)
 

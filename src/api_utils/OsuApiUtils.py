@@ -1,6 +1,6 @@
 from typing import List, Optional
 
-from ossapi import BeatmapPlaycount, OssapiAsync, Score, BeatmapUserScore, User
+from ossapi import BeatmapPlaycount, OssapiAsync, Score, BeatmapUserScore, User, BeatmapCompact, Beatmap
 from ossapi.enums import Grade, UserBeatmapType, ScoreType, BeatmapsetSearchMode, GameMode
 
 import my_logging.get_loggers
@@ -71,10 +71,8 @@ class OsuApiUtils:
             user_res = await self.ossapi.user(user_id)
         except ValueError:  # User does not exist
             return False
-
         if user_res.id == user_id:
             return True
-
         return False
 
     async def get_user(self, user_id: int) -> Optional[User]:
@@ -101,7 +99,6 @@ class OsuApiUtils:
                                                                                         mode=user_info.osu_game_mode)
         except ValueError:  # Score does not exist
             return None
-
         score_grade = beatmap_user_score.score.rank
         return score_grade
 
@@ -117,10 +114,8 @@ class OsuApiUtils:
             beatmap_playcount_list: List[BeatmapPlaycount] = (
                 await self.ossapi.user_beatmaps(
                     user_info.osu_user_id, type=UserBeatmapType.MOST_PLAYED, limit=limit, offset=offset))
-
             if len(beatmap_playcount_list) == 0:
                 return None
-
             for beatmap_playcount in beatmap_playcount_list:
                 if beatmap_playcount.beatmap_id == beatmap_id:
                     return beatmap_playcount.count
@@ -154,16 +149,38 @@ class OsuApiUtils:
             beatmap_playcount_list: List[BeatmapPlaycount] = (
                 await self.ossapi.user_beatmaps(
                     user_info.osu_user_id, type=UserBeatmapType.MOST_PLAYED, limit=limit, offset=offset))
-
             if len(beatmap_playcount_list) == 0:
                 break
-
             for beatmap_playcount in beatmap_playcount_list:
                 beatmap_id_list.append(beatmap_playcount.beatmap_id)
-
             offset += limit
-
         return beatmap_id_list
+
+    async def get_all_user_beatmaps(self, user_info: DbUserInfo) -> List[Beatmap | BeatmapCompact]:
+        """
+        Gets ALL beatmaps from the user's MOST_PLAYED section of the profile.
+        Returns a list of 'Type[BeatmapCompact]' objects.
+        Utilizes 'ossapi' 'user_beatmaps' endpoint.
+        """
+        offset = 0
+        limit = 100  # 100 is the max possible limit
+        beatmap_list = []
+        while True:
+            await self._log_and_process_request(tokens_required=1.0)
+            beatmap_playcount_list: List[BeatmapPlaycount] = (
+                await self.ossapi.user_beatmaps(
+                    user_info.osu_user_id, type=UserBeatmapType.MOST_PLAYED, limit=limit, offset=offset))
+            if len(beatmap_playcount_list) == 0:
+                break
+            for beatmap_playcount in beatmap_playcount_list:
+                beatmap = beatmap_playcount.beatmap()
+                try:
+                    __id = beatmap.id
+                    beatmap_list.append(beatmap)
+                except Exception as e:
+                    logger.exception("Exception trying fetching beatmap id:", e)
+            offset += limit
+        return beatmap_list
 
     async def get_beatmap_user_best_score(self, beatmap_id: int, user_info: DbUserInfo) -> Optional[Score]:
         """

@@ -1,5 +1,4 @@
 import asyncio
-from typing import List
 
 import discord
 from discord.ext import commands
@@ -9,7 +8,7 @@ import discord_extension_stuff.predicates.permission_predicates as predicates
 from core import BotContext
 from db_managers.data_classes import DbScoreInfo
 from discord_extension_stuff.converters import ModsConverter
-from discord_extension_stuff.extras import Extras
+from discord_extension_stuff.extras import DbExtras, DiscordExtras
 from factories import UtilsFactory
 from statistics_managers import ExcelScoresManager
 
@@ -19,30 +18,43 @@ class ScoresStatsCog(commands.Cog):
         self.bot = bot_context.bot
         self.db_manager = UtilsFactory.get_db_manager()
         self.osu_api_utils = UtilsFactory.get_osu_api_utils()
-        self.extras = Extras(bot_context)
+        self.db_extras = DbExtras(bot_context)
+        self.discord_extras = DiscordExtras(bot_context)
+
+    @commands.command(name='load_all_user_played_beatmaps')
+    @commands.check(predicates.check_is_trusted and predicates.check_is_config_set_up)
+    @commands.cooldown(1, 60 * 60 * 2, commands.BucketType.user)
+    async def load_all_user_played_beatmaps_command(self, ctx: Context):
+        """
+        Loads all user played beatmaps into the database table.
+        """
+        user_info = await self.db_manager.users_table_manager.get_user_info(ctx.author.id)
+        calc_task = asyncio.create_task(self.osu_api_utils.get_all_user_beatmaps(user_info))
+        is_task_completed = await self.discord_extras.wait_till_task_complete(ctx, calc_task=calc_task,
+                                                                              timeout_sec=60 * 60 * 2)
+        if is_task_completed:
+            beatmaps = calc_task.result()
+            for beatmap in beatmaps:
+                await self.db_manager.user_played_beatmaps_table_manager.merge_user_played_beatmap(beatmap)
+            await ctx.reply(f"Inserted `{len(beatmaps)}` beatmaps into db")
 
     @commands.command(name='load_all_user_scores')
     @commands.check(predicates.check_is_trusted and predicates.check_is_config_set_up)
-    @commands.cooldown(1, 60 * 60 * 24, commands.BucketType.user)
+    @commands.cooldown(1, 60 * 60 * 48, commands.BucketType.user)
     async def load_all_user_scores_command(self, ctx: Context):
         """
-        Loads all scores from the MOST PLAYED section of the user's profile.
-        Packs all received data and pushes it into database table.
+        Loads all scores to the database table according to 'user_played_beatmaps' database table.
 
         For example the user ever played 10000 maps.
         It would take about 10100 requests to the api.
         """
         user_info = await self.db_manager.users_table_manager.get_user_info(ctx.author.id)
-        calc_task = asyncio.create_task(self.osu_api_utils.get_all_user_beatmap_ids(user_info))
-        is_task_completed = await self.extras.wait_till_task_complete(ctx, calc_task=calc_task,
-                                                                      timeout_sec=60 * 60 * 2)
+        beatmaps = await self.db_manager.user_played_beatmaps_table_manager.get_all_user_beatmaps(user_info)
+        calc_task = asyncio.create_task(self.db_extras.insert_best_scores_into_db(ctx, beatmaps, user_info))
+        is_task_completed = await self.discord_extras.wait_till_task_complete(ctx, calc_task=calc_task,
+                                                                              timeout_sec=60 * 60 * 48)
         if is_task_completed:
-            beatmap_ids: List[int] = calc_task.result()
-            calc_task = asyncio.create_task(self.extras.insert_best_scores_into_db(ctx, beatmap_ids, user_info))
-            is_task_completed = await self.extras.wait_till_task_complete(ctx, calc_task=calc_task,
-                                                                          timeout_sec=60 * 60 * 48)
-            if is_task_completed:
-                await ctx.reply(f"Inserted `{len(beatmap_ids)}` scores into db")
+            await ctx.reply(f"Inserted `{len(beatmaps)}` scores into db")
 
     @commands.command(name='delete_all_user_scores')
     @commands.check(predicates.check_is_trusted and
@@ -56,8 +68,8 @@ class ScoresStatsCog(commands.Cog):
         user_info = await self.db_manager.users_table_manager.get_user_info(ctx.author.id)
         score_count = await self.db_manager.scores_table_manager.count_all_user_scores(user_info)
         calc_task = asyncio.create_task(self.db_manager.scores_table_manager.delete_all_user_scores(user_info))
-        is_task_completed = await self.extras.wait_till_task_complete(ctx, calc_task=calc_task,
-                                                                      timeout_sec=60 * 60)
+        is_task_completed = await self.discord_extras.wait_till_task_complete(ctx, calc_task=calc_task,
+                                                                              timeout_sec=60 * 60)
         if is_task_completed:
             res: bool = calc_task.result()
             await ctx.reply(f"Deleted {str(res)} - `{score_count}` scores")
@@ -73,8 +85,8 @@ class ScoresStatsCog(commands.Cog):
         """
         user_info = await self.db_manager.users_table_manager.get_user_info(ctx.author.id)
         calc_task = asyncio.create_task(self.db_manager.scores_table_manager.count_all_user_scores(user_info))
-        is_task_completed = await self.extras.wait_till_task_complete(ctx, calc_task=calc_task,
-                                                                      timeout_sec=60 * 60)
+        is_task_completed = await self.discord_extras.wait_till_task_complete(ctx, calc_task=calc_task,
+                                                                              timeout_sec=60 * 60)
 
         if is_task_completed:
             scores_count: int = calc_task.result()
@@ -92,8 +104,8 @@ class ScoresStatsCog(commands.Cog):
         """
         user_info = await self.db_manager.users_table_manager.get_user_info(ctx.author.id)
         calc_task = asyncio.create_task(self.db_manager.scores_table_manager.get_user_random_score(user_info))
-        is_task_completed = await self.extras.wait_till_task_complete(ctx, calc_task=calc_task,
-                                                                      timeout_sec=60 * 60)
+        is_task_completed = await self.discord_extras.wait_till_task_complete(ctx, calc_task=calc_task,
+                                                                              timeout_sec=60 * 60)
 
         if is_task_completed:
             score_info: DbScoreInfo = calc_task.result()

@@ -1,7 +1,7 @@
 from dataclasses import dataclass
-from typing import TYPE_CHECKING, Optional, Type
+from typing import TYPE_CHECKING, Optional
 
-from ossapi import GameMode, BeatmapCompact
+from ossapi import GameMode, BeatmapCompact, Beatmap
 
 from db_managers.data_classes import DbUserInfo
 
@@ -10,7 +10,7 @@ if TYPE_CHECKING:
 
 
 @dataclass
-class DbUserPlayedBeatmapsInfo:
+class DbUserPlayedBeatmapInfo:
     """
     Dataclass to wrap up and store the row entry of the 'user_played_beatmaps' database table.
     """
@@ -30,7 +30,7 @@ class DbUserPlayedBeatmapsInfo:
                    mode=row.mode)
 
     @classmethod
-    def from_beatmap_and_user_info(cls, beatmap: Type[BeatmapCompact], user_info: DbUserInfo):
+    def from_beatmap_and_user_info(cls, beatmap: Beatmap | BeatmapCompact, user_info: DbUserInfo):
         return cls(id=None,
                    user_info_id=user_info.discord_user_id,
                    beatmap_id=beatmap.id,
