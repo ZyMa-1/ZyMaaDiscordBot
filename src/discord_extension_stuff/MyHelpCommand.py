@@ -23,35 +23,17 @@ class MyHelpCommand(commands.DefaultHelpCommand):
         return signature
 
     async def send_bot_help(self, mapping):
-        bot = self.context.bot
-        ctx = self.context
-
+        command_names = []
         for cog, cog_commands in mapping.items():
-            if cog:
-                if len(cog_commands) == 0:
-                    continue
-
-                self.paginator.add_line('')
-                self.paginator.add_line(f'{cog.qualified_name}:')
-
-            for command in cog_commands:
-                self.paginator.add_line('')  # Extra line
-                self.paginator.add_line(self.get_command_signature(command))
-                if command.help:
-                    docstring_lines = command.help.split('\n')
-                    self.paginator.add_line(docstring_lines[0])  # Display the first line of the docstring
-                else:
-                    self.paginator.add_line("No description available")
-
+            command_names.extend([f'{self.context.clean_prefix}{command.name}' for command in cog_commands])
+        command_names.sort()
+        for command_name in command_names:
+            self.paginator.add_line(command_name)
         self.paginator.add_line('')
         self.paginator.add_line(self.get_ending_note())
         await self.send_pages()
 
     async def send_command_help(self, command):
-        """
-        Sends help for an individual command.
-        """
-        ctx = self.context
         self.paginator.add_line(self.get_command_signature(command))
         if command.help:
             docstring_lines = command.help.split('\n')
@@ -59,19 +41,13 @@ class MyHelpCommand(commands.DefaultHelpCommand):
                 self.paginator.add_line(line)
         else:
             self.paginator.add_line("No description available")
-
         await self.send_pages()
 
     async def send_cog_help(self, cog):
-        """
-        Sends help for a cog.
-        """
-        ctx = self.context
         self.paginator.add_line(f'`{cog.qualified_name}` Commands:')
         for command in cog.get_commands():
             self.paginator.add_line('')
             self.paginator.add_line(f'{self.get_command_signature(command)}')
-
         await self.send_pages()
 
     def get_ending_note(self):
