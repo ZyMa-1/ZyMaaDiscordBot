@@ -17,26 +17,11 @@ Modify existing queries and add new ones.
 5. Improve bot design/commands interaction flow/UX
 6. Keep track command usage (not too fancy actually, just track 'on_command' and create new command)
 7. Sing glory days
-8. Map guessing game
+8. Map guessing game using newly added table for maps.
 ^map_game
-
-Starting 'Guess a map game' for 'user' (All maps that user played would be)
-
-8. Create Dataclasses and models (Done!)
-9. Create new command that handle addition to the 'user_played_beatmaps' table.
-10. Change the '^load_all_user_scores', so it would obtain scores according to 'user_played_beatmaps' table.
-11. Map guessing game is gonna be based on that 'user_played_beatmaps' table.
-12. Add disclaimer that osu_game_mode is gonna be applied for all kinds of stuff to prevent obtaining info about other gamemodes.
-13. So the game is gonna be tied to the user played beatmaps on the selected game mode.
-    The random !beatmapset! will be chosen and bot gives 'RANDOM INFO' about it:
-    So yeah, the querying osu api v2 is kind of inevitable for now, but whatever, my database is messed up anyways.
-
-    Random info for now:
-    Mapper,
-    Some part of bg,
-    Top diff name
-
-    Any user can play that game in the guild.
-    The reply '^hint' can be used to get other random info.
-
-    If any of that not helps the game is over, so the map artist OR song name should be guessed.
+9. FIX TRUSTED_USER ADDITION WTF
+10. GO IMPROVE COMMANDS AND MAKE FUNNY MEMES
+11. Improve ^most_recent command
+12. Try to make embeds maybe
+13. Improve help command to display cog names and the command '^help'
+14. Add commands regarding 'beatmaps' db table just for fun.
