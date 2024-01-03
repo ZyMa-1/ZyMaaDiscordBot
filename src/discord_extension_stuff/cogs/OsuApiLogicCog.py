@@ -43,7 +43,7 @@ class OsuApiLogicCog(commands.Cog):
             response = stats.get_pretty_stats()
             await ctx.reply(response)
 
-            for p_name, p_bytes in stats.get_all_plots():
+            for p_name, p_bytes in await stats.get_all_plots():
                 image_file = discord.File(fp=p_bytes, filename=f"{p_name}_plot.png")
                 await ctx.reply(file=image_file)
 

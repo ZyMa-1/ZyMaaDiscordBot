@@ -14,10 +14,11 @@ class BeatmapsUserGradesStatsManager:
     Class designed to easily calculate user's grade statistics on certain group of beatmaps.
     """
 
-    def __init__(self, beatmap_ids: List[int], user_info: DbUserInfo):
+    def __init__(self, beatmap_ids: List[int], user_info: DbUserInfo, query: str = 'None'):
         self.beatmap_ids = beatmap_ids
         self.osu_api_utils = UtilsFactory.get_osu_api_utils()
         self.user_info = user_info
+        self.query = query
 
         self.beatmap_count: int = 0
         self.percent_completion: float = 0
@@ -82,7 +83,7 @@ Total map count: {self.beatmap_count}
 So far {self.percent_completion}% completion!
 """
 
-    def get_bar_plot(self) -> io.BytesIO:
+    async def get_bar_plot(self) -> io.BytesIO:
         """
         Builds bar plot using 'matplotlib'.
         Returns plot image bytes.
@@ -97,12 +98,17 @@ So far {self.percent_completion}% completion!
                 colors.append(self.grade_colors[key])
 
         plt.figure(figsize=(8, 6))
-        plt.subplots_adjust(bottom=0.2)
         plt.bar(grades, values, width=0.6, color=colors)
 
-        # Add note on 'None' scores
-        none_scores = self.grades.get(None, 0)
-        plt.text(0.1, 0.075, f"*No scores: {none_scores}", transform=plt.gcf().transFigure)
+        # Add notes
+        plt.text(0.1, 0.15, f"User: {await self.user_info.osu_user_name()}", transform=plt.gcf().transFigure)
+        plt.text(0.1, 0.12, f"Query: {self.query}", transform=plt.gcf().transFigure)
+        plt.text(0.1, 0.09, f"Beatmaps: {self.beatmap_count}", transform=plt.gcf().transFigure)
+        plt.text(0.1, 0.06, f"Completion: {self.beatmap_count - self.grades.get(None)}/{self.beatmap_count}, "
+                            f"{self.percent_completion:.2f}%", transform=plt.gcf().transFigure)
+
+        # Adjust bottom space
+        plt.subplots_adjust(bottom=0.3)
 
         plt.xlabel("Grades")
         plt.ylabel("Count")
@@ -134,7 +140,7 @@ So far {self.percent_completion}% completion!
 
         return plot_bytes
 
-    def get_pie_plot(self) -> io.BytesIO:
+    async def get_pie_plot(self) -> io.BytesIO:
         """
         Builds pie plot using 'matplotlib'.
         Returns plot image bytes.
@@ -148,16 +154,21 @@ So far {self.percent_completion}% completion!
                 values.append(value)
                 colors.append(self.grade_colors[key])
 
-        plt.figure(figsize=(8, 6))
+        plt.subplots(figsize=(8, 6))
 
         # Create pie chart without autopct
         plt.pie(values, labels=None, colors=colors, startangle=90, autopct='')
 
-        # Add note on 'None' scores
-        none_scores = self.grades.get(None, 0)
-        plt.text(0.25, 0.15, f"*No scores: {none_scores}", transform=plt.gcf().transFigure)
-
+        # Add notes
+        plt.text(0.3, 0.21, f"User: {await self.user_info.osu_user_name()}", transform=plt.gcf().transFigure)
+        plt.text(0.3, 0.18, f"Query: {self.query}", transform=plt.gcf().transFigure)
+        plt.text(0.3, 0.15, f"Beatmaps: {self.beatmap_count}", transform=plt.gcf().transFigure)
+        plt.text(0.3, 0.12, f"Completion: {self.beatmap_count - self.grades.get(None)}/{self.beatmap_count}, "
+                             f"{self.percent_completion:.2f}%", transform=plt.gcf().transFigure)
         plt.title("Grade Distribution")
+
+        # Adjust bottom space
+        plt.subplots_adjust(bottom=0.2)
 
         # Add legend
         legend_entries = [f"{grade}: {value}" for grade, value, color in zip(grades, values, colors)]
@@ -171,5 +182,5 @@ So far {self.percent_completion}% completion!
 
         return plot_bytes
 
-    def get_all_plots(self) -> Tuple[Tuple[str, io.BytesIO], Tuple[str, io.BytesIO]]:
-        return ("bar", self.get_bar_plot()), ("pie", self.get_pie_plot())
+    async def get_all_plots(self) -> Tuple[Tuple[str, io.BytesIO], Tuple[str, io.BytesIO]]:
+        return ("bar", await self.get_bar_plot()), ("pie", await self.get_pie_plot())

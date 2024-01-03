@@ -34,7 +34,7 @@ class DbExtras:
             for beatmap in beatmapset.beatmaps:
                 beatmap_ids.append(beatmap.id)
 
-        stats = BeatmapsUserGradesStatsManager(beatmap_ids, user_info)
+        stats = BeatmapsUserGradesStatsManager(beatmap_ids, user_info, query=query)
         await stats.calculate_user_grades()
         return stats
 
