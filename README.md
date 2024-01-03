@@ -28,21 +28,35 @@ Starting point of the bot is `start.py`.
 
 ## Flow of the bot
 
-Let's get straight to the point.
+Proceed directly to the following steps:
+Consider using the `^get_filtered_by_mods_xlsx_scores_file` command.
 
-Assume you want to use the fancy `^get_filtered_by_mods_xlsx_scores_file` command.
+Begin by obtaining 'trusted_user' status.
+Submit your application to the primary administrator using the
+`^send_trusted_user_application` command.
 
-First, you need to be the 'trusted_user'. You can send the application to the first (main) admin using the `^send_trusted_user_application` command.
+Await approval or denial from the administrator.
+Configure your osu! settings.
+Utilize the `^config_change` command to modify the configuration.
+For instance, if your osu! user id is `16357858` and you play `osu` (std) game mode,
+execute the command `^config_change 16357858 osu` to set up your config.
 
-Then the admin will accept or deny your request. Next, set up your osu! config. Use `^config_change` command to change the config. For example, my osu! user id is `16357858` and I play `osu` (std) game mode. So I will use `^config_change 16357858 osu` command to set up my config.
+Commands like `^beatmapsets_stats` and `^beatmap_playcount_slow` are now accessible.
 
-Now commands like `^beatmapsets_stats` and `^beatmap_playcount_slow` are already available for you.
+Load all beatmaps user has ever played into the bot's database using
+`^load_all_user_played_beatmaps`.
+Load all scores into the bot's database with `^load_all_user_scores`.
+This process may take a considerable amount of time.
+For instance, processing 11000 scores took almost a day.
+You can erase all scores from the database using `^delete_all_user_scores`
+to recalculate or simply delete them.
 
-Next, you can load all scores to the bot's database using `^load_all_user_scores` command. It may take a long time; 11000 scores took almost one whole day. You can delete all scores from the database using `^delete_all_user_scores` command to recalculate all the scores again or to just delete them.
+Now you are ready to utilize the
+`^get_xlsx_scores_file` and `^get_filtered_by_mods_xlsx_scores_file` commands.
+The output will be a '.xlsx' file.
+Feel free to use it in any way you prefer.
 
-Everything is prepared for the use of `^get_xlsx_scores_file` and `^get_filtered_by_mods_xlsx_scores_file` commands. The result of the commands will be a `.xlsx` file. Use it however you want.
-
-That concludes the flow of the bot!
+This concludes the operational flow of the bot!
 
 ---
 ## Funny
