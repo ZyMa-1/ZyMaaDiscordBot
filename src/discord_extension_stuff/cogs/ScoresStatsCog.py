@@ -6,7 +6,7 @@ from discord.ext.commands import Context
 
 import discord_extension_stuff.predicates.permission_predicates as predicates
 from core import BotContext
-from db_managers.data_classes import DbScoreInfo
+from db_managers.data_classes import DbScoreInfo, DbUserPlayedBeatmapInfo
 from discord_extension_stuff.converters import ModsConverter
 from discord_extension_stuff.extras import DbExtras, DiscordExtras
 from factories import UtilsFactory
@@ -35,7 +35,8 @@ class ScoresStatsCog(commands.Cog):
         if is_task_completed:
             beatmaps = calc_task.result()
             for beatmap in beatmaps:
-                await self.db_manager.user_played_beatmaps_table_manager.merge_user_played_beatmap(beatmap)
+                db_beatmap = DbUserPlayedBeatmapInfo.from_beatmap_and_user_info(beatmap, user_info)
+                await self.db_manager.user_played_beatmaps_table_manager.merge_user_played_beatmap(db_beatmap)
             await ctx.reply(f"Inserted `{len(beatmaps)}` beatmaps into db")
 
     @commands.command(name='load_all_user_scores')
