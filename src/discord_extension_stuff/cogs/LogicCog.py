@@ -66,12 +66,12 @@ class LogicCog(commands.Cog):
 
     @commands.command(name='add_trusted_user')
     @commands.check(predicates.check_is_admin)
-    async def add_trusted_user_command(self, ctx: Context, user: commands.MemberConverter):
+    async def add_trusted_user_command(self, ctx: Context, user: commands.UserConverter):
         """
         Adds trusted user.
 
         Parameters:
-            - user (commands.MemberConverter)
+            - user (commands.UserConverter)
         """
         user_id: int = user.id
 
@@ -84,12 +84,12 @@ class LogicCog(commands.Cog):
 
     @commands.command(name='remove_trusted_user')
     @commands.check(predicates.check_is_admin)
-    async def remove_trusted_user_command(self, ctx: Context, user: commands.MemberConverter):
+    async def remove_trusted_user_command(self, ctx: Context, user: commands.UserConverter):
         """
         Removes trusted user.
 
         Parameters:
-            - user (commands.MemberConverter)
+            - user (commands.UserConverter)
         """
         user_id: int = user.id
 

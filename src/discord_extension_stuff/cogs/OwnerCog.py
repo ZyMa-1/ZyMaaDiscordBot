@@ -13,12 +13,12 @@ class OwnerCog(commands.Cog):
 
     @is_owner()
     @commands.command(name="add_admin")
-    async def add_admin_command(self, ctx: Context, user: commands.MemberConverter):
+    async def add_admin_command(self, ctx: Context, user: commands.UserConverter):
         """
         Adds admin.
 
         Parameters:
-            - user (commands.MemberConverter)
+            - user (commands.UserConverter)
         """
         user_id: int = user.id
 
@@ -31,12 +31,12 @@ class OwnerCog(commands.Cog):
 
     @is_owner()
     @commands.command(name="remove_admin")
-    async def remove_admin_command(self, ctx: Context, user: commands.MemberConverter):
+    async def remove_admin_command(self, ctx: Context, user: commands.UserConverter):
         """
         Removes admin.
 
         Parameters:
-            - user (commands.MemberConverter)
+            - user (commands.UserConverter)
         """
         user_id: int = user.id
 

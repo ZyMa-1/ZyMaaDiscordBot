@@ -2,7 +2,7 @@ import discord
 from discord.ext import commands
 from discord.ext.commands import Context
 
-from discord_extension_stuff.cogs.SetupCog import command_usage
+from discord_extension_stuff.cogs.ListenersCog import command_usage
 from my_logging.LoggingStats import LoggingStats
 
 

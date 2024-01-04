@@ -11,7 +11,7 @@ logger = logging.getLogger()  # root logger
 command_usage: Dict[str, int] = {}
 
 
-class SetupCog(commands.Cog):
+class ListenersCog(commands.Cog):
     def __init__(self, bot_context: BotContext):
         self.bot = bot_context.bot
 
