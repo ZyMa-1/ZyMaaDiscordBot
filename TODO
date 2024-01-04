@@ -25,3 +25,14 @@ Modify existing queries and add new ones.
 12. Try to make embeds maybe
 13. Improve help command to display cog names and the command '^help'
 14. Add commands regarding 'beatmaps' db table just for fun.
+-------------------
+15. Refactor 'OsuApiUtils' just maybe.
+16. Try to setup actually useful logs
+17. Check all commands :)
+18. Refactor/Rename things
+19. More poggers DataUtils maybe and thing for thee umm
+20. 'logging_stats' (add new) extend tracking period
+21. Inspect code of 'ossapi' while lying on the bed (exactly)
+22. Made automatic useful logging for database.
+23. 14 idk
+24.
