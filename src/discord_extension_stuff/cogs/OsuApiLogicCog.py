@@ -74,7 +74,7 @@ class OsuApiLogicCog(commands.Cog):
                             value="Your playcount: `{0}`".format(
                                 playcount))
             embed.add_field(name="Beatmap(set)",
-                            value="`{0}` - `{1}` beatmap".format(
+                            value="`{0}` - `{1}`".format(
                                 title, artist))
             if beatmap_playcount.beatmapset:
                 embed.set_thumbnail(
