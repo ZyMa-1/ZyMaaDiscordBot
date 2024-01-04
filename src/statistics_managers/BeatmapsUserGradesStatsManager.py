@@ -95,13 +95,10 @@ class BeatmapsUserGradesStatsManager:
         plt.bar(grades, values, width=0.6, color=colors)
 
         # Add notes
-        plt.text(0.1, 0.15, self.plt_text[0], transform=plt.gcf().transFigure)
-        plt.text(0.1, 0.12, self.plt_text[1], transform=plt.gcf().transFigure)
-        plt.text(0.1, 0.09, self.plt_text[2], transform=plt.gcf().transFigure)
-        plt.text(0.1, 0.06, self.plt_text[3], transform=plt.gcf().transFigure)
+        plt.text(0.1, 0.05, self.get_pretty_stats(), transform=plt.gcf().transFigure)
 
         # Adjust bottom space
-        plt.subplots_adjust(bottom=0.3)
+        plt.subplots_adjust(bottom=0.05 * self.get_pretty_stats().count('\n') + 0.05)
 
         plt.xlabel("Grades")
         plt.ylabel("Count")
@@ -153,14 +150,11 @@ class BeatmapsUserGradesStatsManager:
         plt.pie(values, labels=None, colors=colors, startangle=90, autopct='')
 
         # Add notes
-        plt.text(0.3, 0.21, self.plt_text[0], transform=plt.gcf().transFigure)
-        plt.text(0.3, 0.18, self.plt_text[1], transform=plt.gcf().transFigure)
-        plt.text(0.3, 0.15, self.plt_text[2], transform=plt.gcf().transFigure)
-        plt.text(0.3, 0.12, self.plt_text[3], transform=plt.gcf().transFigure)
+        plt.text(0.3, 0.20, self.get_pretty_stats(), transform=plt.gcf().transFigure)
         plt.title("Grade Distribution")
 
         # Adjust bottom space
-        plt.subplots_adjust(bottom=0.2)
+        plt.subplots_adjust(bottom=0.05 * self.get_pretty_stats().count('\n') + 0.05)
 
         # Add legend
         legend_entries = [f"{grade}: {value}" for grade, value, color in zip(grades, values, colors)]

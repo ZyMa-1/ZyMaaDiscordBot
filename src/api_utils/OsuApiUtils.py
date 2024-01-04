@@ -59,13 +59,14 @@ class OsuApiUtils:
                 kwargs['mode'] = BeatmapsetSearchMode.MANIA
             case GameMode.TAIKO:
                 kwargs['mode'] = BeatmapsetSearchMode.TAIKO
-        self._last_search_query_dict.update(kwargs)
+        self._last_search_query_dict['mode'] = kwargs['mode']
+        self._last_search_query_dict['query'] = args[0] if args else None
 
         total_results = []
         while True:
             await self._log_and_process_request(tokens_required=1.0)
             cursor = None
-            cur_res = await self.ossapi.search_beatmapsets(*args, cursor=cursor, **self._last_search_query_dict)
+            cur_res = await self.ossapi.search_beatmapsets(cursor=cursor, **self._last_search_query_dict)
             cursor = cur_res.cursor
             total_results.append(cur_res)
             if cursor is None or len(cur_res.beatmapsets) == 0 or cur_res.error is not None:
