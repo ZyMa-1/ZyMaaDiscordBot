@@ -1,5 +1,4 @@
 from dataclasses import dataclass
-from functools import cache
 from typing import TYPE_CHECKING, Optional
 
 from ossapi import GameMode
@@ -26,7 +25,6 @@ class DbUserInfo:
                    osu_user_id=row.osu_user_id,
                    osu_game_mode=row.osu_game_mode)
 
-    @cache
     async def osu_user_name(self) -> Optional[str]:
         osu_api_utils = UtilsFactory.get_osu_api_utils()
         user = await osu_api_utils.get_user(self.osu_user_id)
