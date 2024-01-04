@@ -18,29 +18,32 @@ class DataUtils:
 
     @staticmethod
     async def _file_operation(file_path: PathLike[str], operation: Literal['w', 'r'], data: Optional[dict] = None):
-        async with aiofiles.open(file_path, operation) as file:
-            if data is not None:
-                await file.write(json.dumps(data, indent=4))
-            else:
-                content = await file.read()
-                return json.loads(content) if content else None
+        try:
+            async with aiofiles.open(file_path, operation) as file:
+                if data is not None:
+                    await file.write(json.dumps(data, indent=4))
+                else:
+                    content = await file.read()
+                    return json.loads(content) if content else None
+        except (OSError, json.JSONDecodeError) as e:
+            logger.error(f"Error during file operation: {str(e)}")
 
     @staticmethod
     async def _modify_user(file_path: PathLike[str], key: str, discord_user_id: int, add: bool = True):
         config_data = await DataUtils._file_operation(file_path, 'r')
-        user_list = config_data[key] if config_data else []
+        user_list = config_data.get(key, []) if config_data else []
 
         if add and discord_user_id not in user_list:
             user_list.append(discord_user_id)
         elif not add and discord_user_id in user_list:
             user_list.remove(discord_user_id)
 
-        await DataUtils._file_operation(file_path, 'w', config_data)
+        await DataUtils._file_operation(file_path, 'w', {key: user_list})
 
     @staticmethod
     async def _load_users(file_path: PathLike[str], key: str) -> List[int]:
         config_data = await DataUtils._file_operation(file_path, 'r')
-        return config_data[key] if config_data else []
+        return config_data.get(key, []) if config_data else []
 
     @staticmethod
     def create_files():

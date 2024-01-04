@@ -1,5 +1,5 @@
 import io
-import json
+from pprint import pformat
 from typing import Dict, List, Any, Tuple
 
 import matplotlib.pyplot as plt
@@ -20,7 +20,7 @@ class BeatmapsUserGradesStatsManager:
         self.osu_api_utils = UtilsFactory.get_osu_api_utils()
         self.user_info = user_info
         self.query_dict = query_dict
-        self.query_str = json.dumps(self.query_dict, indent=2)
+        self.query_str = pformat(self.query_dict)
 
         self.beatmap_count: int = 0
         self.percent_completion: float = 0
