@@ -34,7 +34,8 @@ class DbExtras:
             for beatmap in beatmapset.beatmaps:
                 beatmap_ids.append(beatmap.id)
 
-        stats = BeatmapsUserGradesStatsManager(beatmap_ids, user_info, query=query)
+        stats = BeatmapsUserGradesStatsManager(beatmap_ids, user_info,
+                                               query_dict=self.osu_api_utils.get_last_search_query_dict())
         await stats.calculate_user_grades()
         return stats
 

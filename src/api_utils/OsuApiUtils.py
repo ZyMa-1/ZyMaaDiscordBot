@@ -1,7 +1,8 @@
 from typing import List, Optional
 
 from ossapi import BeatmapPlaycount, OssapiAsync, Score, BeatmapUserScore, User, BeatmapCompact, Beatmap
-from ossapi.enums import Grade, UserBeatmapType, ScoreType, BeatmapsetSearchMode, GameMode
+from ossapi.enums import Grade, UserBeatmapType, ScoreType, BeatmapsetSearchMode, GameMode, \
+    BeatmapsetSearchExplicitContent, BeatmapsetSearchCategory
 
 import my_logging.get_loggers
 from db_managers.data_classes import DbUserInfo
@@ -19,7 +20,15 @@ class OsuApiUtils:
 
     def __init__(self, client_id, client_secret):
         self.ossapi = OssapiAsync(client_id, client_secret)
-        self.rate_limiter = LeakyBucketRateLimiter(tokens_per_second=2.0, max_tokens=3.0)
+        self.rate_limiter = LeakyBucketRateLimiter(tokens_per_second=1.5, max_tokens=3.0)
+        self.DEFAULT_SEARCH_QUERY_DICT = {
+            'explicit_content': BeatmapsetSearchExplicitContent.SHOW,
+            'category': BeatmapsetSearchCategory.HAS_LEADERBOARD,
+        }
+        self._last_search_query_dict = self.DEFAULT_SEARCH_QUERY_DICT
+
+    def get_last_search_query_dict(self):
+        return self._last_search_query_dict
 
     async def _log_and_process_request(self, *, tokens_required: float):
         await self.rate_limiter.process_request(tokens_required=tokens_required)
@@ -50,13 +59,14 @@ class OsuApiUtils:
                 kwargs['mode'] = BeatmapsetSearchMode.MANIA
             case GameMode.TAIKO:
                 kwargs['mode'] = BeatmapsetSearchMode.TAIKO
+        self._last_search_query_dict.update(kwargs)
 
         total_results = []
         while True:
             await self._log_and_process_request(tokens_required=1.0)
-            cur_res = await self.ossapi.search_beatmapsets(*args, **kwargs)
+            cursor = None
+            cur_res = await self.ossapi.search_beatmapsets(*args, cursor=cursor, **self._last_search_query_dict)
             cursor = cur_res.cursor
-            kwargs['cursor'] = cursor
             total_results.append(cur_res)
             if cursor is None or len(cur_res.beatmapsets) == 0 or cur_res.error is not None:
                 return CombinedBeatmapsetSearchResult.from_beatmapset_search_results(total_results)
@@ -135,27 +145,6 @@ class OsuApiUtils:
                                                             limit=1)
         return scores[0] if scores else None
 
-    async def get_all_user_beatmap_ids(self, user_info: DbUserInfo) -> List[int]:
-        """
-        Gets ALL beatmaps from the user's MOST_PLAYED section of the profile.
-        Returns a list of beatmap_ids.
-        Utilizes 'ossapi' 'user_beatmaps' endpoint.
-        """
-        offset = 0
-        limit = 100  # 100 is the max possible limit
-        beatmap_id_list = []
-        while True:
-            await self._log_and_process_request(tokens_required=1.0)
-            beatmap_playcount_list: List[BeatmapPlaycount] = (
-                await self.ossapi.user_beatmaps(
-                    user_info.osu_user_id, type=UserBeatmapType.MOST_PLAYED, limit=limit, offset=offset))
-            if len(beatmap_playcount_list) == 0:
-                break
-            for beatmap_playcount in beatmap_playcount_list:
-                beatmap_id_list.append(beatmap_playcount.beatmap_id)
-            offset += limit
-        return beatmap_id_list
-
     async def get_all_user_beatmaps(self, user_info: DbUserInfo) -> List[Beatmap | BeatmapCompact]:
         """
         Gets ALL beatmaps from the user's MOST_PLAYED section of the profile.
@@ -174,13 +163,17 @@ class OsuApiUtils:
                 break
             for beatmap_playcount in beatmap_playcount_list:
                 beatmap = beatmap_playcount.beatmap()
-                try:
-                    __id = beatmap.id
-                    beatmap_list.append(beatmap)
-                except Exception as e:
-                    logger.exception("Exception trying fetching beatmap id:", e)
+                beatmap_list.append(beatmap)
             offset += limit
         return beatmap_list
+
+    async def get_all_user_beatmap_ids(self, user_info: DbUserInfo) -> List[int]:
+        """
+        Gets ALL beatmaps from the user's MOST_PLAYED section of the profile.
+        Returns a list of beatmap_ids.
+        Utilizes 'ossapi' 'user_beatmaps' endpoint.
+        """
+        return [beatmap.id for beatmap in await self.get_all_user_beatmaps(user_info)]
 
     async def get_beatmap_user_best_score(self, beatmap_id: int, user_info: DbUserInfo) -> Optional[Score]:
         """

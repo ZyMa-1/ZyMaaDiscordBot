@@ -1,4 +1,5 @@
 import io
+import json
 from typing import Dict, List, Any, Tuple
 
 import matplotlib.pyplot as plt
@@ -14,15 +15,17 @@ class BeatmapsUserGradesStatsManager:
     Class designed to easily calculate user's grade statistics on certain group of beatmaps.
     """
 
-    def __init__(self, beatmap_ids: List[int], user_info: DbUserInfo, query: str = 'None'):
+    def __init__(self, beatmap_ids: List[int], user_info: DbUserInfo, *, query_dict: dict):
         self.beatmap_ids = beatmap_ids
         self.osu_api_utils = UtilsFactory.get_osu_api_utils()
         self.user_info = user_info
-        self.query = query
+        self.query_dict = query_dict
+        self.query_str = json.dumps(self.query_dict, indent=2)
 
         self.beatmap_count: int = 0
         self.percent_completion: float = 0
         self.is_calculated = False
+        self.plt_text: List[str] = []
         self.grades: Dict[Any, int] = {
             Grade.SSH: 0,
             Grade.SH: 0,
@@ -58,30 +61,21 @@ class BeatmapsUserGradesStatsManager:
             grade = await self.osu_api_utils.get_user_beatmap_score_grade(beatmap_id, self.user_info)
             self.grades[grade] += 1
             self.beatmap_count += 1
+        if self.beatmap_count != 0:
+            self.percent_completion = round((1 - self.grades[None] / self.beatmap_count) * 100, 2)
 
-        self.percent_completion = round((1 - self.grades[None] / self.beatmap_count) * 100, 2)
+        self.plt_text.append(f"User: {await self.user_info.osu_user_name()}")
+        self.plt_text.append(f"Query: {self.query_str}")
+        self.plt_text.append(f"Beatmaps: {self.beatmap_count}")
+        self.plt_text.append(f"Completion: {self.beatmap_count - self.grades.get(None)}/{self.beatmap_count}, "
+                             f"{self.percent_completion:.2f}%")
 
     def get_pretty_stats(self) -> str:
         """
         Returns a pretty stats string.
         """
-        max_grade_length = max(len(str(value)) for value in self.grades.values())
-
-        return f"""
-Silver SS - {self.grades[Grade.SSH]:>{max_grade_length}}
-Silver S  - {self.grades[Grade.SH]:>{max_grade_length}}
-Just SS   - {self.grades[Grade.SS]:>{max_grade_length}}
-Just S    - {self.grades[Grade.S]:>{max_grade_length}}
-A         - {self.grades[Grade.A]:>{max_grade_length}}
-B         - {self.grades[Grade.B]:>{max_grade_length}}
-C         - {self.grades[Grade.C]:>{max_grade_length}}
-D         - {self.grades[Grade.D]:>{max_grade_length}}
-No scores - {self.grades[None]:>{max_grade_length}}
-{'-' * 12}
-Total map count: {self.beatmap_count}
-{'-' * 12}
-So far {self.percent_completion}% completion!
-"""
+        # max_grade_length = max(len(str(value)) for value in self.grades.values())
+        return '\n'.join(self.plt_text)
 
     async def get_bar_plot(self) -> io.BytesIO:
         """
@@ -101,11 +95,10 @@ So far {self.percent_completion}% completion!
         plt.bar(grades, values, width=0.6, color=colors)
 
         # Add notes
-        plt.text(0.1, 0.15, f"User: {await self.user_info.osu_user_name()}", transform=plt.gcf().transFigure)
-        plt.text(0.1, 0.12, f"Query: {self.query}", transform=plt.gcf().transFigure)
-        plt.text(0.1, 0.09, f"Beatmaps: {self.beatmap_count}", transform=plt.gcf().transFigure)
-        plt.text(0.1, 0.06, f"Completion: {self.beatmap_count - self.grades.get(None)}/{self.beatmap_count}, "
-                            f"{self.percent_completion:.2f}%", transform=plt.gcf().transFigure)
+        plt.text(0.1, 0.15, self.plt_text[0], transform=plt.gcf().transFigure)
+        plt.text(0.1, 0.12, self.plt_text[1], transform=plt.gcf().transFigure)
+        plt.text(0.1, 0.09, self.plt_text[2], transform=plt.gcf().transFigure)
+        plt.text(0.1, 0.06, self.plt_text[3], transform=plt.gcf().transFigure)
 
         # Adjust bottom space
         plt.subplots_adjust(bottom=0.3)
@@ -160,11 +153,10 @@ So far {self.percent_completion}% completion!
         plt.pie(values, labels=None, colors=colors, startangle=90, autopct='')
 
         # Add notes
-        plt.text(0.3, 0.21, f"User: {await self.user_info.osu_user_name()}", transform=plt.gcf().transFigure)
-        plt.text(0.3, 0.18, f"Query: {self.query}", transform=plt.gcf().transFigure)
-        plt.text(0.3, 0.15, f"Beatmaps: {self.beatmap_count}", transform=plt.gcf().transFigure)
-        plt.text(0.3, 0.12, f"Completion: {self.beatmap_count - self.grades.get(None)}/{self.beatmap_count}, "
-                             f"{self.percent_completion:.2f}%", transform=plt.gcf().transFigure)
+        plt.text(0.3, 0.21, self.plt_text[0], transform=plt.gcf().transFigure)
+        plt.text(0.3, 0.18, self.plt_text[1], transform=plt.gcf().transFigure)
+        plt.text(0.3, 0.15, self.plt_text[2], transform=plt.gcf().transFigure)
+        plt.text(0.3, 0.12, self.plt_text[3], transform=plt.gcf().transFigure)
         plt.title("Grade Distribution")
 
         # Adjust bottom space
@@ -184,3 +176,19 @@ So far {self.percent_completion}% completion!
 
     async def get_all_plots(self) -> Tuple[Tuple[str, io.BytesIO], Tuple[str, io.BytesIO]]:
         return ("bar", await self.get_bar_plot()), ("pie", await self.get_pie_plot())
+
+# f"""
+# Silver SS - {self.grades[Grade.SSH]:>{max_grade_length}}
+# Silver S  - {self.grades[Grade.SH]:>{max_grade_length}}
+# Just SS   - {self.grades[Grade.SS]:>{max_grade_length}}
+# Just S    - {self.grades[Grade.S]:>{max_grade_length}}
+# A         - {self.grades[Grade.A]:>{max_grade_length}}
+# B         - {self.grades[Grade.B]:>{max_grade_length}}
+# C         - {self.grades[Grade.C]:>{max_grade_length}}
+# D         - {self.grades[Grade.D]:>{max_grade_length}}
+# No scores - {self.grades[None]:>{max_grade_length}}
+# {'-' * 12}
+# Total map count: {self.beatmap_count}
+# {'-' * 12}
+# So far {self.percent_completion}% completion!
+# """
