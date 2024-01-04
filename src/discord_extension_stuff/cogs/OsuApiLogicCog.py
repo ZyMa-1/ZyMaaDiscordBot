@@ -62,9 +62,24 @@ class OsuApiLogicCog(commands.Cog):
         is_task_completed = await self.discord_extras.wait_till_task_complete(ctx, calc_task=calc_task,
                                                                               timeout_sec=60 * 60 * 2)
         if is_task_completed:
-            playcount = calc_task.result()
-            response = f"You have `{playcount}` playcount on a `{beatmap_id}` beatmap"
-            await ctx.reply(response)
+            beatmap_playcount = calc_task.result()
+            title, artist, playcount = None, None, None
+            if beatmap_playcount:
+                playcount = beatmap_playcount.count
+            if beatmap_playcount and beatmap_playcount.beatmapset:
+                title = beatmap_playcount.beatmapset.title
+                artist = beatmap_playcount.beatmapset.artist
+            embed = discord.Embed()
+            embed.add_field(name="{}".format(await user_info.osu_user_name()),
+                            value="Your playcount: `{0}`".format(
+                                playcount))
+            embed.add_field(name="Beatmap(set)",
+                            value="`{0}` - `{1}` beatmap".format(
+                                title, artist))
+            if beatmap_playcount.beatmapset:
+                embed.set_thumbnail(
+                    url=f'https://assets.ppy.sh/beatmaps/{beatmap_playcount.beatmapset.id}/covers/list.jpg')
+            await ctx.reply(embed=embed)
 
     @commands.command(name='most_recent')
     @commands.check(predicates.check_is_trusted and predicates.check_is_config_set_up)
@@ -80,7 +95,7 @@ class OsuApiLogicCog(commands.Cog):
             beatmapset_title = score.beatmapset.title_unicode
             beatmap_url = score.beatmap.url
             embed = discord.Embed()
-            embed.add_field(name="{}".format(score.user_id),
+            embed.add_field(name="{}".format(await user_info.osu_user_name()),
                             value="[{0}]({1})".format(beatmapset_title, beatmap_url))
             embed.set_thumbnail(url=f'https://assets.ppy.sh/beatmaps/{beatmapset_id}/covers/list.jpg')
             await ctx.reply(embed=embed)

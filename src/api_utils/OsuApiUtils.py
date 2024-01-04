@@ -112,7 +112,7 @@ class OsuApiUtils:
         score_grade = beatmap_user_score.score.rank
         return score_grade
 
-    async def get_user_beatmap_playcount(self, beatmap_id: int, user_info: DbUserInfo) -> Optional[int]:
+    async def get_user_beatmap_playcount(self, beatmap_id: int, user_info: DbUserInfo) -> Optional[BeatmapPlaycount]:
         """
         Gets user's playcount on the given beatmap by iterating over ALL most played beatmaps.
         Utilizes 'ossapi' 'user_beatmaps' endpoint.
@@ -128,7 +128,7 @@ class OsuApiUtils:
                 return None
             for beatmap_playcount in beatmap_playcount_list:
                 if beatmap_playcount.beatmap_id == beatmap_id:
-                    return beatmap_playcount.count
+                    return beatmap_playcount
 
             offset += limit
 

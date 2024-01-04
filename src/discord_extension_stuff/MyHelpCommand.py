@@ -23,13 +23,14 @@ class MyHelpCommand(commands.DefaultHelpCommand):
         return signature
 
     async def send_bot_help(self, mapping):
-        command_names = []
-        for cog, cog_commands in mapping.items():
-            command_names.extend([f'{self.context.clean_prefix}{command.name}' for command in cog_commands])
-        command_names.sort()
-        for command_name in command_names:
-            self.paginator.add_line(command_name)
-        self.paginator.add_line('')
+        cogs_with_commands = sorted(mapping.keys(), key=lambda cog_: cog_.qualified_name)
+        for cog in cogs_with_commands:
+            commands_in_cog = sorted(cog.get_commands(), key=lambda cmd_: cmd_.name)
+            self.paginator.add_line(f'`{cog.qualified_name}` Commands:')
+            for command in commands_in_cog:
+                self.paginator.add_line(self.get_command_signature(command))
+            self.paginator.add_line('')
+
         self.paginator.add_line(self.get_ending_note())
         await self.send_pages()
 
@@ -46,8 +47,7 @@ class MyHelpCommand(commands.DefaultHelpCommand):
     async def send_cog_help(self, cog):
         self.paginator.add_line(f'`{cog.qualified_name}` Commands:')
         for command in cog.get_commands():
-            self.paginator.add_line('')
-            self.paginator.add_line(f'{self.get_command_signature(command)}')
+            self.paginator.add_line(self.get_command_signature(command))
         await self.send_pages()
 
     def get_ending_note(self):
