@@ -23,10 +23,10 @@ class MyHelpCommand(commands.DefaultHelpCommand):
         return signature
 
     async def send_bot_help(self, mapping):
-        cogs_with_commands = sorted(mapping.keys(), key=lambda cog_: cog_.qualified_name)
+        cogs_with_commands = sorted((cog for cog in mapping.keys() if cog), key=lambda cog_: cog_.qualified_name)
         for cog in cogs_with_commands:
             commands_in_cog = sorted(cog.get_commands(), key=lambda cmd_: cmd_.name)
-            self.paginator.add_line(f'`{cog.qualified_name}` Commands:')
+            self.paginator.add_line(f'{cog.qualified_name}:')
             for command in commands_in_cog:
                 self.paginator.add_line(self.get_command_signature(command))
             self.paginator.add_line('')
