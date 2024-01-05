@@ -20,7 +20,7 @@ class OsuApiUtils:
 
     def __init__(self, client_id, client_secret):
         self.ossapi = OssapiAsync(client_id, client_secret)
-        self.rate_limiter = LeakyBucketRateLimiter(tokens_per_second=1.5, max_tokens=3.0)
+        self.rate_limiter = LeakyBucketRateLimiter(tokens_per_second=0.99, max_tokens=3.0)
         self.DEFAULT_SEARCH_QUERY_DICT = {
             'explicit_content': BeatmapsetSearchExplicitContent.SHOW,
             'category': BeatmapsetSearchCategory.HAS_LEADERBOARD,
