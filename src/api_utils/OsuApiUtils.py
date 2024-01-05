@@ -61,16 +61,18 @@ class OsuApiUtils:
                 kwargs['mode'] = BeatmapsetSearchMode.TAIKO
         self._last_search_query_dict['mode'] = kwargs['mode']
         self._last_search_query_dict['query'] = args[0] if args else None
+        self._last_search_query_dict['cursor'] = None
 
         total_results = []
         while True:
             await self._log_and_process_request(tokens_required=1.0)
-            cursor = None
-            cur_res = await self.ossapi.search_beatmapsets(cursor=cursor, **self._last_search_query_dict)
-            cursor = cur_res.cursor
+            cur_res = await self.ossapi.search_beatmapsets(**self._last_search_query_dict)
             total_results.append(cur_res)
-            if cursor is None or len(cur_res.beatmapsets) == 0 or cur_res.error is not None:
+            if cur_res.cursor is None or len(cur_res.beatmapsets) == 0 or cur_res.error is not None:
+                self._last_search_query_dict['cursor'] = None
                 return CombinedBeatmapsetSearchResult.from_beatmapset_search_results(total_results)
+
+            self._last_search_query_dict['cursor'] = cur_res.cursor
 
     async def check_if_user_exists(self, user_id: int) -> bool:
         """
