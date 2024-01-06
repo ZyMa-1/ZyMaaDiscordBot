@@ -1,7 +1,7 @@
 from typing import Optional
 
 from sqlalchemy import select
-from sqlalchemy.ext.asyncio import AsyncEngine, async_sessionmaker
+from sqlalchemy.ext.asyncio import AsyncEngine, async_sessionmaker, AsyncSession
 
 import my_logging.get_loggers
 from db_managers.data_classes import DbUserInfo
@@ -15,9 +15,9 @@ class UsersTableManager:
     Class for managing 'users' table database operations (async SQLAlchemy).
     """
 
-    def __init__(self, async_engine: AsyncEngine):
+    def __init__(self, async_engine: AsyncEngine, async_session: async_sessionmaker[AsyncSession]):
         self.async_engine = async_engine
-        self.AsyncSession = async_sessionmaker(self.async_engine, expire_on_commit=False)
+        self.AsyncSession = async_session
 
     async def merge_user_info(self, user_info: DbUserInfo) -> bool:
         async with self.AsyncSession() as session:

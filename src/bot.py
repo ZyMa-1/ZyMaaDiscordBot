@@ -14,7 +14,8 @@ async def add_cogs(bot, bot_context):
     await bot.add_cog(cogs.OsuApiLogicCog(bot_context))
     await bot.add_cog(cogs.PersonalMessageCog(bot_context))
     await bot.add_cog(cogs.BotStatsCog(bot_context))
-    await bot.add_cog(cogs.ScoresStatsCog(bot_context))
+    await bot.add_cog(cogs.ScoresCog(bot_context))
+    await bot.add_cog(cogs.BeatmapsCog(bot_context))
     await bot.add_cog(cogs.OwnerCog(bot_context))
 
 

@@ -64,7 +64,7 @@ class DbExtras:
 
                 if score:
                     score_info = DbScoreInfo.from_score_and_user_info(score, user_info)
-                    await self.db_manager.scores_table_manager.merge_user_info(score_info)
+                    await self.db_manager.scores.merge_user_info(score_info)
             end_time = time.perf_counter()
             await ctx.reply(f"Done in {end_time - start_time:.6f} seconds")
         except asyncio.CancelledError:

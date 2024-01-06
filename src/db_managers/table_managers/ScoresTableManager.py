@@ -3,7 +3,7 @@ from typing import List, Optional
 from ossapi import Mod
 from sqlalchemy import delete, select, func, and_
 from sqlalchemy.exc import IntegrityError
-from sqlalchemy.ext.asyncio import async_sessionmaker, AsyncEngine
+from sqlalchemy.ext.asyncio import async_sessionmaker, AsyncEngine, AsyncSession
 
 import my_logging.get_loggers
 from db_managers.data_classes import DbScoreInfo, DbUserInfo
@@ -18,9 +18,9 @@ class ScoresTableManager:
     Class for managing 'scores' table database operations (async SQLAlchemy).
     """
 
-    def __init__(self, async_engine: AsyncEngine):
+    def __init__(self, async_engine: AsyncEngine, async_session: async_sessionmaker[AsyncSession]):
         self.async_engine = async_engine
-        self.AsyncSession = async_sessionmaker(self.async_engine, expire_on_commit=False)
+        self.AsyncSession = async_session
 
     @elapsed_time_logger
     async def merge_score_info(self, score_info: DbScoreInfo) -> bool:

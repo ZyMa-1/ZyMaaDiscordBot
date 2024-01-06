@@ -1,4 +1,4 @@
-from sqlalchemy.ext.asyncio import create_async_engine
+from sqlalchemy.ext.asyncio import create_async_engine, async_sessionmaker
 
 import my_logging.get_loggers
 from core import PathManager
@@ -16,10 +16,11 @@ class DbManager:
     def __init__(self, db_name=PathManager.BOT_DATA_DB):
         self.db_name = db_name
         self.async_engine = create_async_engine(f'sqlite+aiosqlite:///{db_name}', echo=False)
+        self.async_session = async_sessionmaker(self.async_engine, expire_on_commit=False)
 
-        self.users_table_manager = UsersTableManager(self.async_engine)
-        self.scores_table_manager = ScoresTableManager(self.async_engine)
-        self.user_played_beatmaps_table_manager = UserPlayedBeatmapsTableManager(self.async_engine)
+        self.users = UsersTableManager(self.async_engine, self.async_session)
+        self.scores = ScoresTableManager(self.async_engine, self.async_session)
+        self.user_played_beatmaps = UserPlayedBeatmapsTableManager(self.async_engine, self.async_session)
 
     async def initialize_tables(self):
         """

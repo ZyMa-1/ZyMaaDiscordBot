@@ -20,7 +20,7 @@ class LoggingStats:
         Stats are based on 'osu_api_utils' logging data file. (file, not files)
         """
         if time_periods is None:
-            time_periods = [60, 300, 3600, 24 * 3600]
+            time_periods = [60, 300, 3600, 24 * 3600, 7 * 24 * 3600, 31 * 24 * 3600]
 
         stats = {}
         for time_period_seconds in time_periods:
@@ -38,9 +38,6 @@ class LoggingStats:
         the present and (present - 'time_period_seconds') period of time.
         Stats are based on 'osu_api_utils' logging data files.
         """
-        if time_period_seconds < 0 or time_period_seconds > 3600 * 24:
-            raise RuntimeError("Function is not designed to work on that time_period yet.")
-
         current_time = datetime.datetime.now()
         total_tokens_spent = 0
 

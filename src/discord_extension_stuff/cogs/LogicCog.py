@@ -2,12 +2,12 @@ import discord
 from discord.ext import commands
 from discord.ext.commands import Context
 
-import discord_extension_stuff.predicates.permission_predicates as predicates
 from core import BotContext
 from data_managers import DataUtils
 from db_managers.data_classes import DbUserInfo
 from discord_extension_stuff.converters import GameModeConverter, OsuUserIdConverter
 from discord_extension_stuff.extras import DiscordExtras
+from discord_extension_stuff.predicates import permission_predicates
 from discord_extension_stuff.views import AcceptDeclineView
 from factories import UtilsFactory
 
@@ -20,7 +20,7 @@ class LogicCog(commands.Cog):
         self.discord_extras = DiscordExtras(bot_context)
 
     @commands.command(name='config_change')
-    @commands.check(predicates.check_is_trusted)
+    @commands.check(permission_predicates.check_is_trusted)
     async def config_change_command(self, ctx: Context, osu_user_id: OsuUserIdConverter,
                                     osu_game_mode: GameModeConverter):
         """
@@ -31,18 +31,18 @@ class LogicCog(commands.Cog):
             - osu_game_mode (str)   : 'osu', 'catch', 'taiko', 'mania'
         """
         user_info = DbUserInfo(ctx.author.id, osu_user_id, osu_game_mode)
-        await self.db_manager.users_table_manager.merge_user_info(user_info)
+        await self.db_manager.users.merge_user_info(user_info)
         response = (f"Successfully changed `osu_user_id` to {user_info.osu_user_id} and `osu_game_mode` to "
                     f"{user_info.osu_game_mode}")
         await ctx.reply(response)
 
     @commands.command(name='config_check')
-    @commands.check(predicates.check_is_trusted)
+    @commands.check(permission_predicates.check_is_trusted)
     async def config_check_command(self, ctx: Context):
         """
         Prints out user's config.
         """
-        user_info = await self.db_manager.users_table_manager.get_user_info(ctx.author.id)
+        user_info = await self.db_manager.users.get_user_info(ctx.author.id)
         response = f"Your `osu_user_id` is {user_info.osu_user_id} and `osu_game_mode` is {user_info.osu_game_mode}"
         await ctx.reply(response)
 
@@ -65,7 +65,7 @@ class LogicCog(commands.Cog):
         await ctx.reply(response)
 
     @commands.command(name='add_trusted_user')
-    @commands.check(predicates.check_is_admin)
+    @commands.check(permission_predicates.check_is_admin)
     async def add_trusted_user_command(self, ctx: Context, user: commands.UserConverter):
         """
         Adds trusted user.
@@ -83,7 +83,7 @@ class LogicCog(commands.Cog):
         await ctx.reply(response)
 
     @commands.command(name='remove_trusted_user')
-    @commands.check(predicates.check_is_admin)
+    @commands.check(permission_predicates.check_is_admin)
     async def remove_trusted_user_command(self, ctx: Context, user: commands.UserConverter):
         """
         Removes trusted user.

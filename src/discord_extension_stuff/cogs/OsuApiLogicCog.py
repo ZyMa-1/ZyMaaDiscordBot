@@ -4,9 +4,9 @@ import discord
 from discord.ext import commands
 from discord.ext.commands import Context
 
-import discord_extension_stuff.predicates.permission_predicates as predicates
 from core import BotContext
 from discord_extension_stuff.extras import DbExtras, DiscordExtras
+from discord_extension_stuff.predicates import combined_predicates
 from factories import UtilsFactory
 from statistics_managers import BeatmapsUserGradesStatsManager
 
@@ -20,7 +20,7 @@ class OsuApiLogicCog(commands.Cog):
         self.discord_extras = DiscordExtras(bot_context)
 
     @commands.command(name='beatmapsets_stats')
-    @commands.check(predicates.check_is_trusted and predicates.check_is_config_set_up)
+    @commands.check(combined_predicates.trusted_and_config)
     @commands.cooldown(1, 60 * 10, commands.BucketType.user)
     async def beatmapsets_stats_command(self, ctx: Context, *, query: str):
         """
@@ -33,7 +33,7 @@ class OsuApiLogicCog(commands.Cog):
         1. beatmapsets_stats hyperpop
            query="hyperpop"
         """
-        user_info = await self.db_manager.users_table_manager.get_user_info(ctx.author.id)
+        user_info = await self.db_manager.users.get_user_info(ctx.author.id)
         calc_task = asyncio.create_task(self.db_extras.calculate_beatmapsets_grade_stats(query, user_info))
         is_task_completed = await self.discord_extras.wait_till_task_complete(ctx, calc_task=calc_task,
                                                                               timeout_sec=60 * 60 * 4)
@@ -48,7 +48,7 @@ class OsuApiLogicCog(commands.Cog):
                 await ctx.reply(file=image_file)
 
     @commands.command(name='beatmap_playcount_slow')
-    @commands.check(predicates.check_is_trusted and predicates.check_is_config_set_up)
+    @commands.check(combined_predicates.trusted_and_config)
     @commands.cooldown(1, 60 * 10, commands.BucketType.user)
     async def beatmap_playcount_slow_command(self, ctx: Context, *, beatmap_id: int):
         """
@@ -57,7 +57,7 @@ class OsuApiLogicCog(commands.Cog):
         Parameters:
             - beatmap_id (int)
         """
-        user_info = await self.db_manager.users_table_manager.get_user_info(ctx.author.id)
+        user_info = await self.db_manager.users.get_user_info(ctx.author.id)
         calc_task = asyncio.create_task(self.osu_api_utils.get_user_beatmap_playcount(beatmap_id, user_info))
         is_task_completed = await self.discord_extras.wait_till_task_complete(ctx, calc_task=calc_task,
                                                                               timeout_sec=60 * 60 * 2)
@@ -82,13 +82,13 @@ class OsuApiLogicCog(commands.Cog):
             await ctx.reply(embed=embed)
 
     @commands.command(name='most_recent')
-    @commands.check(predicates.check_is_trusted and predicates.check_is_config_set_up)
+    @commands.check(combined_predicates.trusted_and_config)
     @commands.cooldown(1, 10, commands.BucketType.user)
     async def most_recent_command(self, ctx: Context):
         """
         Gets user's most recent play.
         """
-        user_info = await self.db_manager.users_table_manager.get_user_info(ctx.author.id)
+        user_info = await self.db_manager.users.get_user_info(ctx.author.id)
         score = await self.osu_api_utils.get_user_most_recent_score(user_info)
         if score is not None:
             beatmapset_id = score.beatmapset.id
