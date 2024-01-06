@@ -1,4 +1,5 @@
 import pathlib
+import random
 
 
 class PathManagerError(Exception):
@@ -19,6 +20,7 @@ class PathManager:
     TRUSTED_USERS: pathlib.Path
     ADMIN_USERS: pathlib.Path
     COMMAND_USAGE: pathlib.Path
+    ANIME_GIRLS_DIR: pathlib.Path
     BOT_DATA_DB: pathlib.Path
     DOT_ENV: pathlib.Path
 
@@ -42,6 +44,7 @@ class PathManager:
         cls.TRUSTED_USERS = cls.DATA_DIR / "trusted_users.json"
         cls.ADMIN_USERS = cls.DATA_DIR / "admins.json"
         cls.COMMAND_USAGE = cls.DATA_DIR / "command_usage.json"
+        cls.ANIME_GIRLS_DIR = cls.DATA_DIR / "anime_girls"
         cls.BOT_DATA_DB = cls.DATA_DIR / "bot_data.db"
         cls.DOT_ENV = cls.PROJECT_ROOT / ".env"
 
@@ -67,6 +70,7 @@ class PathManager:
             cls.TRUSTED_USERS,
             cls.ADMIN_USERS,
             cls.COMMAND_USAGE,
+            cls.ANIME_GIRLS_DIR,
             cls.BOT_DATA_DB,
             cls.DOT_ENV,
             cls.LOGS_DIR,
@@ -79,3 +83,16 @@ class PathManager:
 
         if missing_paths:
             raise PathManagerError(f"Missing paths: {missing_paths}")
+
+    @classmethod
+    def random_anime_girl(cls) -> pathlib.Path:
+        """
+        Returns a random path of a PNG image from the ANIME_GIRLS_DIR.
+        """
+        anime_girls = (list(cls.ANIME_GIRLS_DIR.glob("*.jpg")) +
+                       list(cls.ANIME_GIRLS_DIR.glob("*.png")) +
+                       list(cls.ANIME_GIRLS_DIR.glob("*.jpeg")))
+        print(cls.ANIME_GIRLS_DIR, anime_girls)
+        if not anime_girls:
+            raise PathManagerError("No images found in ANIME_GIRLS_DIR")
+        return random.choice(anime_girls)
