@@ -2,7 +2,7 @@ import discord
 from discord.ext import commands
 from discord.ext.commands import Context
 
-from discord_extension_stuff.cogs.ListenersCog import command_usage
+from data_managers import DataUtils
 from my_logging.LoggingStats import LoggingStats
 
 
@@ -24,6 +24,7 @@ class BotStatsCog(commands.Cog):
         """
         Display top 10 commands usage since the bot started.
         """
+        command_usage = await DataUtils.load_command_usage()
         sorted_commands = sorted(command_usage.items(), key=lambda x: x[1], reverse=True)
         top_commands = sorted_commands[:10]
         usage_data = '\n'.join(f'{command}: {count}' for command, count in top_commands)

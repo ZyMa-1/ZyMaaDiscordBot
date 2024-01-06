@@ -1,7 +1,7 @@
 import json
 import os
 from os import PathLike
-from typing import Tuple, List, Optional, Literal
+from typing import Tuple, List, Optional, Literal, Dict
 
 import aiofiles
 
@@ -92,3 +92,11 @@ class DataUtils:
     @staticmethod
     def load_osu_api_credentials() -> Tuple[str | None, str | None]:
         return os.getenv("OSU_APIV2_CLIENT_ID"), os.getenv("OSU_APIV2_CLIENT_SECRET")
+
+    @staticmethod
+    async def load_command_usage() -> Dict[str, int]:
+        return await DataUtils._file_operation(PathManager.COMMAND_USAGE, 'r')
+
+    @staticmethod
+    async def update_command_usage(data: Dict[str, int]):
+        return await DataUtils._file_operation(PathManager.COMMAND_USAGE, 'w', data)

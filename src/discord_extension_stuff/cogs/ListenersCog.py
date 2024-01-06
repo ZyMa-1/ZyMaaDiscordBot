@@ -1,14 +1,13 @@
 import logging
 from difflib import get_close_matches
-from typing import Dict
 
 import discord
 from discord.ext import commands
 
 from core import BotContext
+from data_managers import DataUtils
 
 logger = logging.getLogger()  # root logger
-command_usage: Dict[str, int] = {}
 
 
 class ListenersCog(commands.Cog):
@@ -55,7 +54,9 @@ class ListenersCog(commands.Cog):
     @commands.Cog.listener()
     async def on_command(self, ctx):
         command_name = ctx.command.qualified_name
+        command_usage = await DataUtils.load_command_usage()
         if command_name not in command_usage:
             command_usage[command_name] = 1
         else:
             command_usage[command_name] += 1
+        await DataUtils.update_command_usage(command_usage)
