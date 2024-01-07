@@ -22,7 +22,6 @@ class ScoresTableManager:
         self.async_engine = async_engine
         self.AsyncSession = async_session
 
-    @elapsed_time_logger
     async def merge_score_info(self, score_info: DbScoreInfo) -> bool:
         try:
             async with self.AsyncSession() as session:
@@ -30,8 +29,8 @@ class ScoresTableManager:
                 await session.merge(score)
                 await session.commit()
             return True
-        except IntegrityError as e:
-            logger.exception(f"IntegrityError: {e}")
+        except IntegrityError:
+            logger.exception(f"IntegrityError: {__name__}")
             return False
 
     async def delete_all_user_scores(self, user_info: DbUserInfo) -> bool:

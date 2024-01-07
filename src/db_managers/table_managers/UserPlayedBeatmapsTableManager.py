@@ -21,7 +21,6 @@ class UserPlayedBeatmapsTableManager:
         self.async_engine = async_engine
         self.AsyncSession = async_session
 
-    @elapsed_time_logger
     async def merge_user_beatmap(self, db_user_played_beatmap: DbUserPlayedBeatmapInfo) -> bool:
         try:
             async with self.AsyncSession() as session:
@@ -29,8 +28,8 @@ class UserPlayedBeatmapsTableManager:
                 await session.merge(beatmap)
                 await session.commit()
             return True
-        except IntegrityError as e:
-            logger.exception(f"IntegrityError: {e}")
+        except IntegrityError:
+            logger.exception(f"IntegrityError: {__name__}")
             return False
 
     async def delete_all_user_beatmaps(self, user_info: DbUserInfo) -> bool:

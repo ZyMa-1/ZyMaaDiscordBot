@@ -45,7 +45,7 @@ class MyHelpCommand(commands.DefaultHelpCommand):
         await self.send_pages()
 
     async def send_cog_help(self, cog):
-        self.paginator.add_line(f'`{cog.qualified_name}` Commands:')
+        self.paginator.add_line(f'{cog.qualified_name} Commands:')
         for command in cog.get_commands():
             self.paginator.add_line(self.get_command_signature(command))
         await self.send_pages()
