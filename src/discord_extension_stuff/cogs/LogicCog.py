@@ -30,7 +30,7 @@ class LogicCog(commands.Cog):
             - osu_user_id (int)     : Valid user id
             - osu_game_mode (str)   : 'osu', 'catch', 'taiko', 'mania'
         """
-        user_info = DbUserInfo(ctx.author.id, osu_user_id, osu_game_mode)
+        user_info = DbUserInfo.from_args(ctx.author.id, osu_user_id, osu_game_mode)
         await self.db_manager.users.merge_user_info(user_info)
         response = (f"Successfully changed `osu_user_id` to {user_info.osu_user_id} and `osu_game_mode` to "
                     f"{user_info.osu_game_mode}")

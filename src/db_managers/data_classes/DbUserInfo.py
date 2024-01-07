@@ -29,6 +29,17 @@ class DbUserInfo:
                    _osu_game_mode=str(row.osu_game_mode.value),
                    _osu_user_name=None)
 
+    @classmethod
+    def from_args(cls, *args):
+        discord_user_id = args[0]
+        osu_user_id = args[1]
+        osu_game_mode = args[2]
+        return cls(discord_user_id=discord_user_id,
+                   osu_user_id=osu_user_id,
+                   osu_game_mode=osu_game_mode,
+                   _osu_game_mode=str(osu_game_mode.value),
+                   _osu_user_name=None)
+
     async def osu_user_name(self) -> Optional[str]:
         if self._osu_user_name:
             return self._osu_user_name
