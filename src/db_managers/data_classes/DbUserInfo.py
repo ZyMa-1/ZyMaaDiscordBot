@@ -18,17 +18,24 @@ class DbUserInfo:
     discord_user_id: int
     osu_user_id: int
     osu_game_mode: GameMode
+    _osu_game_mode: str
+    _osu_user_name: Optional[str]
 
     @classmethod
     def from_row(cls, row: 'UserTable'):
         return cls(discord_user_id=row.discord_user_id,
                    osu_user_id=row.osu_user_id,
-                   osu_game_mode=row.osu_game_mode)
+                   osu_game_mode=row.osu_game_mode,
+                   _osu_game_mode=str(row.osu_game_mode.value),
+                   _osu_user_name=None)
 
     async def osu_user_name(self) -> Optional[str]:
+        if self._osu_user_name:
+            return self._osu_user_name
+
         osu_api_utils = UtilsFactory.get_osu_api_utils()
         user = await osu_api_utils.get_user(self.osu_user_id)
         if user:
-            return user.username
-
+            self._osu_user_name = user.username
+            return self._osu_user_name
         return None

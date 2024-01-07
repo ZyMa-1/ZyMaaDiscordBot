@@ -35,21 +35,25 @@ class ScoresTableManager:
             return False
 
     async def delete_all_user_scores(self, user_info: DbUserInfo) -> bool:
-        async with self.AsyncSession() as session:
-            await session.execute(
-                delete(ScoreTable).where(
-                    ScoreTable.user_info_id == user_info.discord_user_id,
-                    ScoreTable._mode == str(user_info.osu_game_mode))
-            )
-            await session.commit()
-        return True
+        try:
+            async with self.AsyncSession() as session:
+                await session.execute(
+                    delete(ScoreTable).where(
+                        ScoreTable.user_info_id == user_info.discord_user_id,
+                        ScoreTable._mode == user_info._osu_game_mode)
+                )
+                await session.commit()
+            return True
+        except Exception as e:
+            logger.exception(f"Exception db: {e}")
+            return False
 
     @elapsed_time_logger
     async def get_all_user_scores(self, user_info: DbUserInfo) -> List[DbScoreInfo]:
         async with self.AsyncSession() as session:
             stmt = select(ScoreTable).where(
                 ScoreTable.user_info_id == user_info.discord_user_id,
-                ScoreTable._mode == str(user_info.osu_game_mode)
+                ScoreTable._mode == user_info._osu_game_mode
             ).order_by(
                 ScoreTable.timestamp.desc()
             )
@@ -61,23 +65,21 @@ class ScoresTableManager:
         async with self.AsyncSession() as session:
             stmt = select(func.count()).where(
                 ScoreTable.user_info_id == user_info.discord_user_id,
-                ScoreTable._mode == str(user_info.osu_game_mode))
+                ScoreTable._mode == user_info._osu_game_mode)
             count = await session.execute(stmt)
-        return count.scalar()
+        return count.scalar() or 0
 
     async def get_user_random_score(self, user_info: DbUserInfo) -> Optional[DbScoreInfo]:
         async with self.AsyncSession() as session:
             stmt = select(ScoreTable).where(
                 ScoreTable.user_info_id == user_info.discord_user_id,
-                ScoreTable._mode == str(user_info.osu_game_mode)
+                ScoreTable._mode == user_info._osu_game_mode
             ).order_by(
                 func.random()).limit(1)
             row = await session.execute(stmt)
             score = row.scalar()
-
         if score:
             return DbScoreInfo.from_row(score)
-
         return None
 
     async def check_if_user_has_scores(self, user_info: DbUserInfo) -> bool:
@@ -91,7 +93,7 @@ class ScoresTableManager:
                 and_(
                     ScoreTable.user_info_id == user_info.discord_user_id,
                     (ScoreTable._mods.op('&')(mods.value) == mods.value),
-                    ScoreTable._mode == str(user_info.osu_game_mode)
+                    ScoreTable._mode == user_info._osu_game_mode
                 )
             )
             result = await session.execute(stmt)

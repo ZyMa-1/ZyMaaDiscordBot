@@ -20,6 +20,7 @@ class DbUserPlayedBeatmapInfo:
     beatmap_id: int
     beatmapset_id: int
     mode: GameMode
+    _mode: str
 
     @classmethod
     def from_row(cls, row: 'UserPlayedBeatmapsTable'):
@@ -27,7 +28,8 @@ class DbUserPlayedBeatmapInfo:
                    user_info_id=row.user_info_id,
                    beatmap_id=row.beatmap_id,
                    beatmapset_id=row.beatmapset_id,
-                   mode=row.mode)
+                   mode=row.mode,
+                   _mode=str(row.mode.value))
 
     @classmethod
     def from_beatmap_and_user_info(cls, beatmap: Beatmap | BeatmapCompact, user_info: DbUserInfo):
@@ -35,4 +37,5 @@ class DbUserPlayedBeatmapInfo:
                    user_info_id=user_info.discord_user_id,
                    beatmap_id=beatmap.id,
                    beatmapset_id=beatmap.beatmapset_id,
-                   mode=beatmap.mode)
+                   mode=beatmap.mode,
+                   _mode=str(beatmap.mode.value))

@@ -34,36 +34,38 @@ class UserPlayedBeatmapsTableManager:
             return False
 
     async def delete_all_user_beatmaps(self, user_info: DbUserInfo) -> bool:
-        async with self.AsyncSession() as session:
-            await session.execute(
-                delete(UserPlayedBeatmapsTable).where(
-                    UserPlayedBeatmapsTable.user_info_id == user_info.discord_user_id,
-                    UserPlayedBeatmapsTable._mode == str(user_info.osu_game_mode))
-            )
-            await session.commit()
-        return True
+        try:
+            async with self.AsyncSession() as session:
+                await session.execute(
+                    delete(UserPlayedBeatmapsTable).where(
+                        UserPlayedBeatmapsTable.user_info_id == user_info.discord_user_id,
+                        UserPlayedBeatmapsTable._mode == user_info._osu_game_mode)
+                )
+                await session.commit()
+            return True
+        except Exception as e:
+            logger.exception(f"Exception db: {e}")
+            return False
 
     async def count_all_user_beatmaps(self, user_info: DbUserInfo) -> int:
         async with self.AsyncSession() as session:
             stmt = select(func.count()).where(
                 UserPlayedBeatmapsTable.user_info_id == user_info.discord_user_id,
-                UserPlayedBeatmapsTable._mode == str(user_info.osu_game_mode))
+                UserPlayedBeatmapsTable._mode == user_info._osu_game_mode)
             count = await session.execute(stmt)
-        return count.scalar()
+        return count.scalar() or 0
 
     async def get_user_random_beatmap(self, user_info: DbUserInfo) -> Optional[DbUserPlayedBeatmapInfo]:
         async with self.AsyncSession() as session:
             stmt = select(UserPlayedBeatmapsTable).where(
                 UserPlayedBeatmapsTable.user_info_id == user_info.discord_user_id,
-                UserPlayedBeatmapsTable._mode == str(user_info.osu_game_mode)
+                UserPlayedBeatmapsTable._mode == user_info._osu_game_mode
             ).order_by(
                 func.random()).limit(1)
             row = await session.execute(stmt)
             beatmap = row.scalar()
-
         if beatmap:
             return DbUserPlayedBeatmapInfo.from_row(beatmap)
-
         return None
 
     async def check_if_user_has_beatmaps(self, user_info: DbUserInfo) -> bool:
@@ -75,7 +77,7 @@ class UserPlayedBeatmapsTableManager:
         async with self.AsyncSession() as session:
             stmt = select(UserPlayedBeatmapsTable).where(
                 UserPlayedBeatmapsTable.user_info_id == user_info.discord_user_id,
-                UserPlayedBeatmapsTable._mode == str(user_info.osu_game_mode))
+                UserPlayedBeatmapsTable._mode == user_info._osu_game_mode)
             result = await session.execute(stmt)
             beatmaps = result.scalars().all()
             return [DbUserPlayedBeatmapInfo.from_row(beatmap) for beatmap in beatmaps]

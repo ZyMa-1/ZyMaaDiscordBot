@@ -31,10 +31,11 @@ class BeatmapsCog(commands.Cog):
                                                                               timeout_sec=60 * 60 * 2)
         if is_task_completed:
             beatmaps = calc_task.result()
+            count = 0
             for beatmap in beatmaps:
                 db_beatmap = DbUserPlayedBeatmapInfo.from_beatmap_and_user_info(beatmap, user_info)
-                await self.db_manager.user_played_beatmaps.merge_user_beatmap(db_beatmap)
-            await ctx.reply(f"Inserted `{len(beatmaps)}` beatmaps into db")
+                count += await self.db_manager.user_played_beatmaps.merge_user_beatmap(db_beatmap)
+            await ctx.reply(f"Inserted `{count}` beatmaps into db")
 
     @commands.command(name='delete_all_user_beatmaps')
     @commands.check(combined_predicates.beatmaps_ready)

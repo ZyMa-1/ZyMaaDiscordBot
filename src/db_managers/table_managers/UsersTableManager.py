@@ -35,5 +35,4 @@ class UsersTableManager:
             user = result.scalar()
             if user:
                 return DbUserInfo.from_row(user)
-            else:
-                return None
+            return None

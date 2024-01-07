@@ -21,7 +21,9 @@ class DbScoreInfo:
     user_info_id: int
     score_json_data: str
     mods: Mod
+    _mods: int
     mode: GameMode
+    _mode: str
     beatmap_id: int
     timestamp: Optional[datetime]
 
@@ -31,7 +33,9 @@ class DbScoreInfo:
                    user_info_id=row.user_info_id,
                    score_json_data=row.score_json_data,
                    mods=row.mods,
+                   _mods=int(row.mods.value),
                    mode=row.mode,
+                   _mode=str(row.mode.value),
                    beatmap_id=row.beatmap_id,
                    timestamp=row.timestamp)
 
@@ -42,7 +46,9 @@ class DbScoreInfo:
                    user_info_id=user_info.discord_user_id,
                    score_json_data=serialize_model(score_instance),
                    mods=score_instance.mods,
+                   _mods=int(score_instance.mods.value),
                    mode=score_instance.mode,
+                   _mode=str(score_instance.mode.value),
                    beatmap_id=score_instance.beatmap.id,
                    timestamp=None)
 
