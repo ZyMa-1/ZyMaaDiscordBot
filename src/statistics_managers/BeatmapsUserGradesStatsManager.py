@@ -6,7 +6,6 @@ import matplotlib.pyplot as plt
 from matplotlib.ticker import MaxNLocator
 from ossapi.enums import Grade
 
-from core import PathManager
 from db_managers.data_classes import DbUserInfo
 from factories import UtilsFactory
 
@@ -145,42 +144,28 @@ class BeatmapsUserGradesStatsManager:
                 values.append(value)
                 colors.append(self.grade_colors[key])
 
-        # Create figure and axes with space for the image
-        fig, ax = plt.subplots(figsize=(8, 6))  # Adjust figsize as needed
+        plt.subplots(figsize=(8, 6))
 
-        # Create a placeholder for the image
-        imagebox = fig.add_axes([0.8, 0.6, 0.4, 0.25])  # Position and size of the image
-        imagebox.axis('off')  # Turn off axes
-
-        # Add the image to the placeholder using matplotlib's imread
-        image = plt.imread(PathManager.random_anime_girl())
-        imagebox.imshow(image)
-
-        # Adjust spacing for title
-        plt.subplots_adjust(top=0.9)  # Increase space at the top
-
-        # Add plot title (adjust y position as needed)
-        plt.suptitle("Grade Distribution", fontsize=12, y=0.92)  # Use suptitle to place above only the axes
-
-        # Create the pie chart within the axes
-        ax.pie(values, labels=None, colors=colors, startangle=90, autopct='')
+        # Create pie chart without autopct
+        plt.pie(values, labels=None, colors=colors, startangle=90, autopct='')
 
         # Add notes
         plt.text(0.3, 0.20, self.get_pretty_stats(), transform=plt.gcf().transFigure)
+        plt.title("Grade Distribution")
 
         # Adjust bottom space
         plt.subplots_adjust(bottom=0.05 * self.get_pretty_stats().count('\n') + 0.05)
 
-        # Adjust legend position
+        # Add legend
         legend_entries = [f"{grade}: {value}" for grade, value, color in zip(grades, values, colors)]
-        ax.legend(legend_entries, title="Grades", loc="upper left",
-                  bbox_to_anchor=(1.05, 1))  # Adjust anchor to avoid image
+        plt.legend(legend_entries, title="Grades", loc="center left", bbox_to_anchor=(1, 0.5))
 
-        # Finalize and save the plot
         plot_bytes = io.BytesIO()
         plt.savefig(plot_bytes, format="png", bbox_inches='tight')
         plot_bytes.seek(0)
+
         plt.close()
+
         return plot_bytes
 
     async def get_all_plots(self) -> Tuple[Tuple[str, io.BytesIO], Tuple[str, io.BytesIO]]:
