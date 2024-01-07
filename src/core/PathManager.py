@@ -92,7 +92,6 @@ class PathManager:
         anime_girls = (list(cls.ANIME_GIRLS_DIR.glob("*.jpg")) +
                        list(cls.ANIME_GIRLS_DIR.glob("*.png")) +
                        list(cls.ANIME_GIRLS_DIR.glob("*.jpeg")))
-        print(cls.ANIME_GIRLS_DIR, anime_girls)
         if not anime_girls:
             raise PathManagerError("No images found in ANIME_GIRLS_DIR")
         return random.choice(anime_girls)

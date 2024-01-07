@@ -37,6 +37,6 @@ async def check_is_user_has_beatmaps(ctx: Context) -> bool:
     user_info = await db_manager.users.get_user_info(ctx.author.id)
     has_beatmaps = await db_manager.user_played_beatmaps.check_if_user_has_beatmaps(user_info)
     if not has_beatmaps:
-        raise commands.CheckFailure("Sorry, but you have no scores (load_all_user_played_beatmaps)")
+        raise commands.CheckFailure("Sorry, but you have no beatmaps (load_all_user_played_beatmaps)")
 
     return True
