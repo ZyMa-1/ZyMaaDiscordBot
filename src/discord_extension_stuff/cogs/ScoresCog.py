@@ -37,7 +37,8 @@ class ScoresCog(commands.Cog):
         is_task_completed = await self.discord_extras.wait_till_task_complete(ctx, calc_task=calc_task,
                                                                               timeout_sec=60 * 60 * 48)
         if is_task_completed:
-            await ctx.reply(f"Inserted `{len(beatmaps)}` scores into db")
+            res: int = calc_task.result()
+            await ctx.reply(f"Inserted `{res}` scores into db")
 
     @commands.command(name='delete_all_user_scores')
     @commands.check(combined_predicates.scores_ready)

@@ -41,12 +41,13 @@ class DbExtras:
 
     async def insert_best_scores_into_db(self, ctx: Context,
                                          beatmaps: List[BeatmapCompact | Beatmap | int | DbUserPlayedBeatmapInfo],
-                                         user_info: DbUserInfo):
+                                         user_info: DbUserInfo) -> int:
         """
         Obtains best scores of a user's on all given beatmaps and inserts them into database.
         """
         progress_msg = await ctx.reply("Calculating scores...\n"
                                        f"Remaining: ~{len(beatmaps)}")
+        res: int = 0
         try:
             start_time = time.perf_counter()
             for ind, beatmap in enumerate(beatmaps):
@@ -58,14 +59,15 @@ class DbExtras:
                 elif isinstance(DbUserPlayedBeatmapInfo, beatmap):
                     beatmap_id = beatmap.beatmap_id
                 score = await self.osu_api_utils.get_beatmap_user_best_score(beatmap_id, user_info)
-                if ind % 100 == 0 or ind % 67 == 0:
+                if ind % 100 == 0:
                     await progress_msg.edit(content=f"Calculating scores...\n"
                                                     f"Remaining: ~{len(beatmaps) - ind}")
 
                 if score:
                     score_info = DbScoreInfo.from_score_and_user_info(score, user_info)
-                    await self.db_manager.scores.merge_user_info(score_info)
+                    res += await self.db_manager.scores.merge_score_info(score_info)
             end_time = time.perf_counter()
             await ctx.reply(f"Done in {end_time - start_time:.6f} seconds")
         except asyncio.CancelledError:
             pass
+        return res

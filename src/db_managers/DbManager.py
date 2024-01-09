@@ -18,9 +18,10 @@ class DbManager:
         self.async_engine = create_async_engine(f'sqlite+aiosqlite:///{db_name}', echo=False)
         self.async_session = async_sessionmaker(self.async_engine, expire_on_commit=False)
 
-        self.users = UsersTableManager(self.async_engine, self.async_session)
-        self.scores = ScoresTableManager(self.async_engine, self.async_session)
-        self.user_played_beatmaps = UserPlayedBeatmapsTableManager(self.async_engine, self.async_session)
+        self.users: UsersTableManager = UsersTableManager(self.async_engine, self.async_session)
+        self.scores: ScoresTableManager = ScoresTableManager(self.async_engine, self.async_session)
+        self.user_played_beatmaps: UserPlayedBeatmapsTableManager = UserPlayedBeatmapsTableManager(self.async_engine,
+                                                                                                   self.async_session)
 
     async def initialize_tables(self):
         """
