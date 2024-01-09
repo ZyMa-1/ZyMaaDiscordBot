@@ -45,7 +45,7 @@ class ScoreTable(Base):
 
     @property
     def mode(self):
-        return GameMode(str(self._mods))
+        return GameMode(str(self._mode))
 
     @property
     def mods(self):
