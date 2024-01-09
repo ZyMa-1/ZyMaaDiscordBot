@@ -51,13 +51,14 @@ class DbExtras:
         try:
             start_time = time.perf_counter()
             for ind, beatmap in enumerate(beatmaps):
-                beatmap_id = None
-                if isinstance(int, beatmap):
+                if isinstance(beatmap, int):
                     beatmap_id = beatmap
-                elif isinstance((BeatmapCompact, Beatmap), beatmap):
+                elif isinstance(beatmap, (BeatmapCompact, Beatmap)):
                     beatmap_id = beatmap.id
-                elif isinstance(DbUserPlayedBeatmapInfo, beatmap):
+                elif isinstance(beatmap, DbUserPlayedBeatmapInfo):
                     beatmap_id = beatmap.beatmap_id
+                else:
+                    raise RuntimeError
                 score = await self.osu_api_utils.get_beatmap_user_best_score(beatmap_id, user_info)
                 if ind % 100 == 0:
                     await progress_msg.edit(content=f"Calculating scores...\n"
