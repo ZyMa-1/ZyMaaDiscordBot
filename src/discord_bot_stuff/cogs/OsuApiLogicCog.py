@@ -5,8 +5,8 @@ from discord.ext import commands
 from discord.ext.commands import Context
 
 from core import BotContext
-from discord_extension_stuff.extras import DbExtras, DiscordExtras
-from discord_extension_stuff.predicates import combined_predicates
+from discord_bot_stuff.extras import DbExtras, DiscordExtras
+from discord_bot_stuff.predicates import combined_predicates
 from factories import UtilsFactory
 from statistics_managers import BeatmapsUserGradesStatsManager
 

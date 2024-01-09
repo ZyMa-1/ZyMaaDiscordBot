@@ -5,8 +5,8 @@ from discord.ext.commands import Context
 
 from core import BotContext
 from db_managers.data_classes import DbUserPlayedBeatmapInfo
-from discord_extension_stuff.extras import DbExtras, DiscordExtras
-from discord_extension_stuff.predicates import combined_predicates
+from discord_bot_stuff.extras import DbExtras, DiscordExtras
+from discord_bot_stuff.predicates import combined_predicates
 from factories import UtilsFactory
 
 

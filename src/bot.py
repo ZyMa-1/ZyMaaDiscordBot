@@ -3,11 +3,11 @@ from discord.ext import commands
 
 from core import BotContext
 from data_managers import DataUtils
-from discord_extension_stuff.MyHelpCommand import MyHelpCommand
+from discord_bot_stuff.MyHelpCommand import MyHelpCommand
 
 
 async def add_cogs(bot, bot_context):
-    import discord_extension_stuff.cogs as cogs
+    import discord_bot_stuff.cogs as cogs
     await bot.add_cog(cogs.ListenersCog(bot_context))
     await bot.add_cog(cogs.ChillCog(bot_context))
     await bot.add_cog(cogs.LogicCog(bot_context))

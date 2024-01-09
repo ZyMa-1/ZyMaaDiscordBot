@@ -3,7 +3,7 @@ from discord.ext.commands import is_owner, Context
 
 from core import BotContext
 from data_managers import DataUtils
-from discord_extension_stuff.extras import DiscordExtras
+from discord_bot_stuff.extras import DiscordExtras
 
 
 class OwnerCog(commands.Cog):

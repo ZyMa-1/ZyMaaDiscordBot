@@ -5,10 +5,10 @@ from discord.ext.commands import Context
 from core import BotContext
 from data_managers import DataUtils
 from db_managers.data_classes import DbUserInfo
-from discord_extension_stuff.converters import GameModeConverter, OsuUserIdConverter
-from discord_extension_stuff.extras import DiscordExtras
-from discord_extension_stuff.predicates import permission_predicates
-from discord_extension_stuff.views import AcceptDeclineView
+from discord_bot_stuff.converters import GameModeConverter, OsuUserIdConverter
+from discord_bot_stuff.extras import DiscordExtras
+from discord_bot_stuff.predicates import permission_predicates
+from discord_bot_stuff.views import AcceptDeclineView
 from factories import UtilsFactory
 
 
